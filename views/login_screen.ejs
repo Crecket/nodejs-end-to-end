@@ -1,0 +1,25 @@
+<div id="login_screen" class="hidden">
+    <div class="col-xs-12 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+        <form id="login_form" _lpchecked="1" method="post" action="/verify">
+
+            <section id="login_section">
+                <h3>Enter a name and password for this session</h3>
+
+                <label for="inputEmail" class="sr-only">Username</label>
+                <input type="text" id="inputName" name="inputName" class="form-control input-lg" placeholder="Username"
+                       required autofocus>
+
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" id="inputPassword" name="inputPassword" class="form-control input-lg"
+                       placeholder="Password" required>
+            </section>
+
+            <button class="btn btn-lg btn-primary btn-block" type="submit">
+                <span id="login_button" class="fa fa-sign-in fa-3x"></span>
+            </button>
+        </form>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html style="background-color: #000;">
+<head>
+    <meta name="description" content="NodeJS end-to-end">
+    <meta name="keywords" content="NodeJS, end-to-end, sockets, rsa, encryption, sjcl">
+    <meta name="author" content="Gregory Goijaerts">
+    <meta charset="UTF-8">
+
+    <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="content">
+    <ul id="messages"></ul>
+</div>
+
+<%- login_screen %>
+
+
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/bower_components/socket.io-client/socket.io.js"></script>
+
+<script src="/bower_components/sjcl/sjcl.js"></script>
+<script src="/bower_components/jsencrypt/bin/jsencrypt.js"></script>
+<script src="/bower_components/cryptojslib/components/core.js"></script>
+<script src="/bower_components/cryptojslib/components/md5.js"></script>
+<script src="/bower_components/cryptojslib/components/sha1.js"></script>
+<script src="/bower_components/cryptojslib/components/sha256.js"></script>
+<script src="/bower_components/cryptojslib/components/hmac.js"></script>
+<script src="/bower_components/cryptojslib/components/enc-base64.js"></script>
+<script src="/bower_components/cryptojslib/components/pbkdf2.js"></script>
+
+<script src="/js/crypto_helpers.js"></script>
+<script src="/js/session_helper.js"></script>
+<script src="/js/client.js"></script>
+</body>
+</html>

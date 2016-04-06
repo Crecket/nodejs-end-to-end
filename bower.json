@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-end-to-end",
+  "version": "1.0.0",
+  "description": "A simple (And probably insecure) attempt at end-to-end encryption using Javscript and NodeJS",
+  "authors": [
+    "Gregory Goijaerts"
+  ],
+  "dependencies": {
+    "jquery": "2.1.4",
+    "jquery-pjax": "1.9.2",
+    "socket.io-client": "~1.3.7",
+    "font-awesome-animation": "~0.0.7",
+    "moment": "^2.11.2",
+    "livestamp": "^1.1.2",
+    "FileSaver": "*",
+    "js-cookie": "^2.1.0",
+    "jsencrypt": "^2.2.0",
+    "sjcl": "^1.0.3",
+    "cryptojslib": "^3.1.2",
+    "bootstrap": "^3.3.6",
+    "font-awesome": "^4.5.0",
+    "jsencrypt": "^2.2.0"
+  },
+  "private": true
+}
