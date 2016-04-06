@@ -182,29 +182,30 @@ io.on('connection', function (socket) {
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (username, password_hash) {
 
+        var success = false;
+
         mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = ?', [username], function (err, result, fields) {
             if (err) {
-                socket.emit('login_attempt_callback', false);
+                socket.emit('login_attempt_callback', success);
                 throw err;
             }
 
             // Only want 1 user/result
             if (result.length === 1) {
 
+                // hash and salt from the database
                 var db_salt = result[0].salt;
                 var db_hash = result[0].hash;
 
                 if (checkPkbdf2(password_hash, db_salt, db_hash)) {
                     // valid
-                    
-                } else {
-                    // Invalid
-                    socket.emit('login_attempt_callback', false);
+                    success = true;
+                    return;
                 }
-
             }
         });
 
+        socket.emit('login_attempt_callback', success);
     });
 
 })

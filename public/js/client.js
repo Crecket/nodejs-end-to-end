@@ -17,8 +17,15 @@ socket.on('connect', function () {
     $('#content').addClass('hidden');
 }).on('login_attempt_callback', function (bool) {
     loading = false;
-    $('#login_section').show();
-    $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
+
+    console.log('login callback: ' + bool);
+
+    if(bool === false){
+        $('#login_section').show();
+        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
+    }else{
+        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-check');
+    }
 
 });
 
