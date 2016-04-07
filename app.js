@@ -22,6 +22,9 @@ var app = express();
 // Jwt token authentication
 var jwt = require('jsonwebtoken');
 
+// RSA encryption
+var NodeRSA = require('node-rsa');
+
 // Mysql library
 var mysql = require('mysql');
 
@@ -50,20 +53,32 @@ console.log('Server started over https');
 eval(fs.readFileSync('app-vars.js') + '');
 
 /*
- A rsa key example are in this repo, make sure to generate your own in production enviroments!
-
- Create with CryptoHelper.createKeySet(keySize) function 
- or follow the following commands: https://github.com/travist/jsencrypt
-
- Pro tip: You can easily create multiline variables by using  at the end of the line
-
+ A rsa key example is in this repo, make sure to generate your own in production enviroments!
 */
 // Load RSA private and public key
 var RSAPrivateKey = fs.readFileSync('rsaPrivateKey.key') + '';
-var RSAPublicKey = fs.readFileSync('rsaPublicKey.crt') + '';
+var RSAPrivateKeyBits = new NodeRSA(RSAPrivateKey, 'private');
 
-console.log(RSAPrivateKey);
-console.log(RSAPrivateKey);
+var RSAPublicKey = fs.readFileSync('rsaPublicKey.crt') + '';
+var RSAPublicKeyBits = new NodeRSA(RSAPublicKey , 'public');
+
+
+// Create rsa key example
+// var key = new NodeRSA({b: 2048});
+//
+// var publicDer = key.exportKey('public');
+// var privateDer = key.exportKey('private');
+//
+// console.log('');
+// console.log('Private');
+// console.log('');
+// console.log(publicDer);
+// console.log('');
+// console.log('Public');
+// console.log('');
+// console.log(privateDer);
+//
+// process.exit();
 
 // Create mysql connection
 var mysqlConnection = mysql.createConnection('mysql://root:1234@localhost/nodejs_db?debug=false');
@@ -157,8 +172,10 @@ io.use(function (socket, next) {
 
 // Io connection listener
 io.on('connection', function (socket) {
+
     // Ip address
     var ip = socket.handshake.address;
+
     // Socketid shortcut
     var socketid = socket.id;
 
@@ -187,10 +204,17 @@ io.on('connection', function (socket) {
 
     // TODO session track failed attempts
     // Receive a hash password and re-hash it to verify with the server
-    socket.on('login_attempt', function (username, password_hash) {
+    socket.on('login_attempt', function (username, password_cipher) {
 
         console.log('');
         console.log('Login attempt');
+        console.log(password_cipher);
+
+        if(password_cipher){
+            var password_hash = rsaDecrypt(password_cipher);
+        }
+
+        console.log(password_hash);
 
         var callbackResult = {'success': false, 'message': "Invalid login attempt"};
 
@@ -256,6 +280,20 @@ io.on('connection', function (socket) {
 // Get view contents
 function getView(name) {
     return fs.readFileSync(__dirname + '/views/' + name + '.ejs', 'utf8');
+}
+
+// ================================================================================
+// ============================== Cypto functions =================================
+// ================================================================================
+
+// Encrypt with private key
+function rsaEncrypt(data){
+    return RSAPublicKeyBits.encrypt(data, 'base64');
+}
+
+// Decrypt with public key
+function rsaDecrypt(data){
+    return RSAPrivateKeyBits.decrypt(data, 'utf8', 'base64');
 }
 
 // Random 128 byte token

@@ -8,9 +8,9 @@
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
-    "jsencrypt": "^2.2.0",
     "jsonwebtoken": "^5.5.4",
     "mysql": "felixge/node-mysql",
+    "node-rsa": "^0.3.2",
     "session-file-store": "^0.2.0",
     "sjcl": "^1.0.3",
     "socket.io": "^1.4.5"

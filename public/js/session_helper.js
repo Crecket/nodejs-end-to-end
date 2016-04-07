@@ -2,9 +2,8 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     var verified = false;
 
-    // Crypto stuffs
-    var privateKey = false;
-    var publicKey = false;
+    // NodeJS public key
+    this.publicKey = false;
 
     // Attempt to verify username with server
     this.loginAttempt = function (username, password) {
@@ -12,8 +11,11 @@ function ConnectionHelper(socket, CryptoHelper) {
         // Hash password before submitting
         var passwordHash = CryptoHelper.hash(password);
 
+        // Encrypt with server's public key
+        var passwordCipher = CryptoHelper.rsaEncryptPublicKey(this.publicKey, passwordHash);
+
         // Send attempt to server
-        socket.emit('login_attempt', username, passwordHash);
+        socket.emit('login_attempt', username, passwordCipher);
 
     }
 
