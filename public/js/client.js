@@ -12,6 +12,8 @@ var loading = false;
 // Socket event listeners
 socket.on('connect', function () {
     $('#messages').append('<li>Connected</li>');
+}).on('public_key', function (response) {
+    console.log(response);
 }).on('request verify', function () {
     $('#login_screen').removeClass('hidden');
     $('#content').addClass('hidden');

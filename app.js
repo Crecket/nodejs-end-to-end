@@ -34,29 +34,36 @@ var FileStore = require('session-file-store')(session);
 // socket.io listens on port:
 var port = 8000;
 
-// boolean whether we should use ssl
-var useSSL = true;
+// Use ssl with self-signed certificates
+// generate your own if you use this in production!
+var options = {
+    key: fs.readFileSync('domain.key'),
+    cert: fs.readFileSync('domain.crt'),
+    requestCert: false
+};
+var https = require('https');
+var server = https.createServer(options, app);
+console.log('Server started over https');
 
-if (useSSL) {
 
-    // Use ssl with self-signed certificates
-    // generate your own if you use this in production!
-    var options = {
-        key: fs.readFileSync('domain.key'),
-        cert: fs.readFileSync('domain.crt'),
-        requestCert: false
-    };
-    var https = require('https');
-    var server = https.createServer(options, app);
-    console.log('Server started over https');
+// Load app-vars
+eval(fs.readFileSync('app-vars.js') + '');
 
-} else {
+/*
+ A rsa key example are in this repo, make sure to generate your own in production enviroments!
 
-    var http = require('http');
-    var server = http.createServer(app);
-    console.log('Server started over http');
+ Create with CryptoHelper.createKeySet(keySize) function 
+ or follow the following commands: https://github.com/travist/jsencrypt
 
-}
+ Pro tip: You can easily create multiline variables by using  at the end of the line
+
+*/
+// Load RSA private and public key
+var RSAPrivateKey = fs.readFileSync('rsaPrivateKey.key') + '';
+var RSAPublicKey = fs.readFileSync('rsaPublicKey.crt') + '';
+
+console.log(RSAPrivateKey);
+console.log(RSAPrivateKey);
 
 // Create mysql connection
 var mysqlConnection = mysql.createConnection('mysql://root:1234@localhost/nodejs_db?debug=false');
@@ -134,8 +141,6 @@ app.get('/', function (req, res, next) {
         // console.log(req.session);
     });
 
-    var salt = generateSalt();
-
     res.render('index', {
         'login_screen': ejs.render(getView('login_screen'))
     });
@@ -156,6 +161,8 @@ io.on('connection', function (socket) {
     var ip = socket.handshake.address;
     // Socketid shortcut
     var socketid = socket.id;
+
+    socket.emit('public_key', RSAPublicKey);
 
     // Session failure, exit server
     if (typeof socket.request.session === "undefined") {

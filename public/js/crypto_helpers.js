@@ -40,7 +40,6 @@ function CryptoHelper() {
     };
 
     // Create new RSA keyset, default keysize is 1024
-
     this.createKeySet = function (keySize) {
 
         if (!keySize) {
@@ -48,16 +47,12 @@ function CryptoHelper() {
         }
 
         var crypt = new JSEncrypt({default_key_size: keySize});
-
         crypt.getKey();
-
-        var privateKey = crypt.getPrivateKey();
-        var publilcKey = crypt.getPublicKey();
 
         return {
             'keySize': keySize,
-            'privateKey': privateKey,
-            'publicKey': publilcKey
+            'privateKey': crypt.getPrivateKey(),
+            'publicKey': crypt.getPublicKey()
         };
     };
 
