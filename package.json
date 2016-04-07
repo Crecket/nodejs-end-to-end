@@ -4,6 +4,7 @@
   "description": "A simple (And probably insecure) attempt at end-to-end encryption using Javscript and NodeJS",
   "main": "app.js",
   "dependencies": {
+    "bcrypt": "^0.8.5",
     "crypto-js": "^3.1.6",
     "ejs": "^2.4.1",
     "express": "^4.13.4",

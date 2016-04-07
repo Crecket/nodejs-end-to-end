@@ -28,6 +28,9 @@ var NodeRSA = require('node-rsa');
 // Mysql library
 var mysql = require('mysql');
 
+// Bcrypt support
+var bcrypt = require('bcrypt');
+
 // Express sessions
 var session = require('express-session')
 
@@ -54,31 +57,31 @@ eval(fs.readFileSync('app-vars.js') + '');
 
 /*
  A rsa key example is in this repo, make sure to generate your own in production enviroments!
-*/
+ */
 // Load RSA private and public key
 var RSAPrivateKey = fs.readFileSync('rsaPrivateKey.key') + '';
 var RSAPrivateKeyBits = new NodeRSA(RSAPrivateKey, 'private');
 
 var RSAPublicKey = fs.readFileSync('rsaPublicKey.crt') + '';
-var RSAPublicKeyBits = new NodeRSA(RSAPublicKey , 'public');
+var RSAPublicKeyBits = new NodeRSA(RSAPublicKey, 'public');
 
 
 // Create rsa key example
-var key = new NodeRSA({b: 2048});
-
-var publicDer = key.exportKey('public');
-var privateDer = key.exportKey('private');
-
-console.log('');
-console.log('Public');
-console.log('');
-console.log(publicDer);
-console.log('');
-console.log('Private');
-console.log('');
-console.log(privateDer);
-
-process.exit();
+// var key = new NodeRSA({b: 2048});
+//
+// var publicDer = key.exportKey('public');
+// var privateDer = key.exportKey('private');
+//
+// console.log('');
+// console.log('Public');
+// console.log('');
+// console.log(publicDer);
+// console.log('');
+// console.log('Private');
+// console.log('');
+// console.log(privateDer);
+//
+// process.exit();
 
 // Create mysql connection
 var mysqlConnection = mysql.createConnection('mysql://root:1234@localhost/nodejs_db?debug=false');
@@ -102,7 +105,7 @@ server.listen(port);
 console.log('Express started at port: ' + port);
 
 /* ================================================== */
-/* ================== SETTINGS ======================= */
+/* ================== SETTINGS ====================== */
 /* ================================================== */
 
 // Make express use ejs for rendering views
@@ -111,50 +114,50 @@ app.set('view engine', 'ejs');
 app.set('trust proxy', 1)
 
 // Session settings
-var sessionSettings = {
-    store: new FileStore({}),
-    secret: 'y2ndtyr4378q9mf09egmhq9s4gfs0q9g4fyhy091pf,hq90m4fq87ngf47z4nfg',
-    resave: true,
-    cookie: {
-        maxAge: (1000 * 60 * 60)
-    },
-    saveUninitialized: true
-};
-
+// var sessionSettings = {
+//     store: new FileStore({}),
+//     secret: 'y2ndtyr4378q9mf09egmhq9s4gfs0q9g4fyhy091pf,hq90m4fq87ngf47z4nfg',
+//     resave: true,
+//     cookie: {
+//         maxAge: (1000 * 60 * 60)
+//     },
+//     saveUninitialized: true
+// };
 
 // Make express use sessions
-var sessionMiddleware = session(sessionSettings);
+// var sessionMiddleware = session(sessionSettings);
 
-app.use(sessionMiddleware);
+// app.use(sessionMiddleware);
 
 // home path
 app.get('/', function (req, res, next) {
-    var data = req.session.data;
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-    if (!data) {
-        // Default session values
-        data = {
-            'verified': false,
-            'ipChanged': false,
-            'ip': ip
-        };
-    } else {
-        // Check if ip changed
-        if (data.ip !== ip) {
-            data.ipChanged = true;
-        }
-        // update ip
-        data.ip = ip;
-    }
-
-    // Store in session
-    req.session.data = data;
-    req.session.save(function (err) {
-        // console.log('');
-        // console.log('Express');
-        // console.log(req.session);
-    });
+    // var data = req.session.data;
+    // var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    //
+    // if (!data) {
+    //     // Default session values
+    //     data = {
+    //         'verified': false,
+    //         'ipChanged': false,
+    //         'ip': ip
+    //     };
+    // } else {
+    //     // Check if ip changed
+    //     if (data.ip !== ip) {
+    //         data.ipChanged = true;
+    //     }
+    //     // update ip
+    //     data.ip = ip;
+    // }
+    //
+    // // Store in session
+    // req.session.data = data;
+    // req.session.save(function (err) {
+    //     // console.log('');
+    //     // console.log('Express');
+    //     // console.log(req.session);
+    // });
 
     res.render('index', {
         'login_screen': ejs.render(getView('login_screen'))
@@ -166,12 +169,15 @@ app.get('/', function (req, res, next) {
 app.use(express.static('public'));
 
 // Use express' sessions
-io.use(function (socket, next) {
-    sessionMiddleware(socket.request, socket.request.res, next);
-});
+// io.use(function (socket, next) {
+//     sessionMiddleware(socket.request, socket.request.res, next);
+// });
 
 // Io connection listener
 io.on('connection', function (socket) {
+
+    // Whether socket is verified or not
+    var verified = false;
 
     // Ip address
     var ip = socket.handshake.address;
@@ -181,22 +187,22 @@ io.on('connection', function (socket) {
 
     socket.emit('public_key', RSAPublicKey);
 
-    // Session failure, exit server
-    if (typeof socket.request.session === "undefined") {
-        console.log('Failed to load session data in sockets');
-        process.exit();
-    }
-
-    var sessionData = socket.request.session.data;
-
-    // Check if not-verified or ip has changed
-    if (sessionData.verified === false || sessionData.ipChanged) {
-        sessionData = {
-            'verified': false,
-            'ipChanged': false,
-            'ip': ip
-        };
-    }
+    // // Session failure, exit server
+    // if (typeof socket.request.session === "undefined") {
+    //     console.log('Failed to load session data in sockets');
+    //     process.exit();
+    // }
+    //
+    // var sessionData = socket.request.session.data;
+    //
+    // // Check if not-verified or ip has changed
+    // if (sessionData.verified === false || sessionData.ipChanged) {
+    //     sessionData = {
+    //         'verified': false,
+    //         'ipChanged': false,
+    //         'ip': ip
+    //     };
+    // }
 
     // TODO check if user is already verified
     // Send verify request to user (Show login form)
@@ -206,48 +212,62 @@ io.on('connection', function (socket) {
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (username, password_cipher) {
 
-        console.log('');
-        console.log('Login attempt');
-        console.log(password_cipher);
-
-        if(password_cipher){
-            var password_hash = rsaDecrypt(password_cipher);
-        }
-
-        console.log(password_hash);
-
         var callbackResult = {'success': false, 'message': "Invalid login attempt"};
 
-        mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [username], function (err, result, fields) {
-            if (err) {
-                callbackResult.message = "Something went wrong";
-                socket.emit('login_attempt_callback', callbackResult);
-                throw err;
+        if (!verified) {
+
+            console.log('');
+            console.log('Login attempt');
+
+            if (password_cipher) {
+                var password_hash = rsaDecrypt(password_cipher);
             }
 
-            // Only want 1 user/result
-            if (result.length === 1) {
-                // hash and salt from the database
-                var db_salt = result[0].salt;
-                var db_hash = result[0].hash;
-
-                console.log('1 mysql result');
-
-                if (checkPkbdf2(password_hash, db_salt, db_hash)) {
-                    console.log('Valid');
-                    callbackResult.success = true;
-                    callbackResult.message = 'Succesfully logged in';
-                } else {
-                    console.log('Invalid');
-                    callbackResult.message = "Invalid login attempt2";
+            mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [username], function (err, result, fields) {
+                if (err) {
+                    callbackResult.message = "Something went wrong";
+                    socket.emit('login_attempt_callback', callbackResult);
+                    throw err;
                 }
-            } else {
-                callbackResult.message = "Invalid login attempt1";
-            }
 
-            console.log('Return result', callbackResult);
+                // Only want 1 user/result
+                if (result.length === 1) {
+                    console.log('1 mysql result');
+
+                    // hash from the database
+                    var db_hash = result[0].hash;
+
+                    console.log(password_hash, db_hash);
+
+                    // compare password ahsh with db_hash
+                    bcrypt.compare(password_hash, db_hash, function (err, res) {
+                        if (res) {
+                            console.log('Valid');
+                            callbackResult.success = true;
+                            callbackResult.message = 'Succesfully logged in';
+                            verified = true;
+                        } else {
+                            console.log('Invalid');
+                            callbackResult.message = "Invalid login attempt2";
+                        }
+                        socket.emit('login_attempt_callback', callbackResult);
+
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+
+                } else {
+                    callbackResult.message = "Invalid login attempt1";
+                    console.log('Return result', callbackResult);
+                    socket.emit('login_attempt_callback', callbackResult);
+                }
+            });
+        }else{
+            callbackResult.message = "You're already logged in";
+            callbackResult.success = true;
             socket.emit('login_attempt_callback', callbackResult);
-        });
+        }
     });
 
     // TODO registration
@@ -265,6 +285,12 @@ io.on('connection', function (socket) {
             // Only want 1 user/result
             if (result.length === 0) {
 
+                // hahs password
+                // bcrypt.genSalt(10, function (err, salt) {
+                //     bcrypt.hash("B4c0/\/", salt, function (err, hash) {
+                //         // Store hash in your password DB.
+                //     });
+                // });
 
             } else {
                 result.message = "Username is taken";
@@ -287,12 +313,12 @@ function getView(name) {
 // ================================================================================
 
 // Encrypt with private key
-function rsaEncrypt(data){
+function rsaEncrypt(data) {
     return RSAPublicKeyBits.encrypt(data, 'base64');
 }
 
 // Decrypt with public key
-function rsaDecrypt(data){
+function rsaDecrypt(data) {
     return RSAPrivateKeyBits.decrypt(data, 'utf8', 'base64');
 }
 

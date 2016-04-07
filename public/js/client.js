@@ -1,6 +1,3 @@
-// Non-ssl
-// var socket = io.connect('http://localhost:8000');
-
 // Connect ssl sockets
 var socket = io.connect('https://localhost:8000', {secure: true});
 
@@ -15,7 +12,7 @@ socket.on('connect', function () {
     $('#messages').append('<li>Connected</li>');
 
 }).on('public_key', function (response) {
-    
+
     // Receive public key from server
     SessionHelper.publicKey = response;
 
@@ -29,6 +26,7 @@ socket.on('connect', function () {
     loading = false;
 
     console.log('login callback: ' + res.success);
+    console.log(res);
 
     if(res.success === false){
         $('#login_section').show();
