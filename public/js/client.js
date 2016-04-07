@@ -15,12 +15,12 @@ socket.on('connect', function () {
 }).on('request verify', function () {
     $('#login_screen').removeClass('hidden');
     $('#content').addClass('hidden');
-}).on('login_attempt_callback', function (bool) {
+}).on('login_attempt_callback', function (res) {
     loading = false;
 
-    console.log('login callback: ' + bool);
+    console.log('login callback: ' + res.success);
 
-    if(bool === false){
+    if(res.success === false){
         $('#login_section').show();
         $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
     }else{
@@ -40,7 +40,7 @@ $(document.body).on('submit', '#login_form', function () {
         $('#login_section').hide();
         $('#login_button').addClass('fa-spin fa-refresh').removeClass('fa-sign-in');
 
-        if (username.length > 3 && username.length < 16 && password.length > 5 && password.length < 100) {
+        if (username.length > 3 && username.length < 16 && CryptoHelper.validPasswordType(password)) {
 
             setTimeout(function () {
                 SessionHelper.loginAttempt(username, password);

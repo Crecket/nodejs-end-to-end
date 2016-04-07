@@ -33,7 +33,7 @@ function CryptoHelper() {
 
     // Verify password length/type etz
     this.validPasswordType = function (password) {
-        if (password.length < 8) {
+        if (password.length < 1 || password.length > 512) {
             return false;
         }
         return true;

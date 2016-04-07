@@ -182,34 +182,68 @@ io.on('connection', function (socket) {
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (username, password_hash) {
 
-        var success = false;
+        console.log('');
+        console.log('Login attempt');
 
-        mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = ?', [username], function (err, result, fields) {
+        var callbackResult = {'success': false, 'message': "Invalid login attempt"};
+
+        mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [username], function (err, result, fields) {
             if (err) {
-                socket.emit('login_attempt_callback', success);
+                callbackResult.message = "Something went wrong";
+                socket.emit('login_attempt_callback', callbackResult);
                 throw err;
             }
 
             // Only want 1 user/result
             if (result.length === 1) {
-
                 // hash and salt from the database
                 var db_salt = result[0].salt;
                 var db_hash = result[0].hash;
 
+                console.log('1 mysql result');
+
                 if (checkPkbdf2(password_hash, db_salt, db_hash)) {
-                    // valid
-                    success = true;
-                    return;
+                    console.log('Valid');
+                    callbackResult.success = true;
+                    callbackResult.message = 'Succesfully logged in';
+                } else {
+                    console.log('Invalid');
+                    callbackResult.message = "Invalid login attempt2";
                 }
+            } else {
+                callbackResult.message = "Invalid login attempt1";
+            }
+
+            console.log('Return result', callbackResult);
+            socket.emit('login_attempt_callback', callbackResult);
+        });
+    });
+
+    // TODO registration
+    socket.on('register_attempt', function (username, password_hash) {
+
+        var result = {'success': false, 'message': ""};
+
+        mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = ?', [username], function (err, result, fields) {
+            if (err) {
+                result.message = "Something went wrong";
+                socket.emit('login_attempt_callback', result);
+                throw err;
+            }
+
+            // Only want 1 user/result
+            if (result.length === 0) {
+
+
+            } else {
+                result.message = "Username is taken";
             }
         });
 
-        socket.emit('login_attempt_callback', success);
+        socket.emit('login_attempt_callback', result);
     });
 
-})
-;
+});
 
 
 // Get view contents
@@ -256,6 +290,7 @@ function generateSalt(explicitIterations) {
     // convert iterations to Hexadecimal
     var iterations = (explicitIterations || defaultHashIterations).toString(16);
 
+    console.log('finish create salt');
     // concat the iterations and random bytes together.
     return iterations + "." + bytes.toString(CryptoJS.enc.Base64);
 }
@@ -265,9 +300,11 @@ function hashPkbdf2(value, salt) {
     var iters = parseInt(salt.substring(0, i), 16);
     var key = CryptoJS.PBKDF2(value, salt, {"keySize": KEY_SIZE, "iterations": iters});
 
+    console.log('finish hashing');
     return key.toString(CryptoJS.enc.Base64);
 }
 
 function checkPkbdf2(candidate, salt, hashed) {
+    console.log('finish verify');
     return hashPkbdf2(candidate, salt) === hashed;
 }
