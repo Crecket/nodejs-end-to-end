@@ -64,21 +64,21 @@ var RSAPublicKeyBits = new NodeRSA(RSAPublicKey , 'public');
 
 
 // Create rsa key example
-// var key = new NodeRSA({b: 2048});
-//
-// var publicDer = key.exportKey('public');
-// var privateDer = key.exportKey('private');
-//
-// console.log('');
-// console.log('Private');
-// console.log('');
-// console.log(publicDer);
-// console.log('');
-// console.log('Public');
-// console.log('');
-// console.log(privateDer);
-//
-// process.exit();
+var key = new NodeRSA({b: 2048});
+
+var publicDer = key.exportKey('public');
+var privateDer = key.exportKey('private');
+
+console.log('');
+console.log('Public');
+console.log('');
+console.log(publicDer);
+console.log('');
+console.log('Private');
+console.log('');
+console.log(privateDer);
+
+process.exit();
 
 // Create mysql connection
 var mysqlConnection = mysql.createConnection('mysql://root:1234@localhost/nodejs_db?debug=false');
