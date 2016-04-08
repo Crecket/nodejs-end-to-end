@@ -12,13 +12,10 @@ session fix
 - npm 
 - bower
 - node.js
-- npm browserify package
+- npm browserify package (npm install -g browserify)
 
 ## Installation commands
 
-- npm install
-- bower install
-- npm install -g browserify (Only if you havn't already installed it)
-- browserify -r node-rsa > ./public/js/node-bundle.js
+- npm install (runs all required install/update commands)
 - node app
 

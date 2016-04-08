@@ -219,6 +219,12 @@ io.on('connection', function (socket) {
     // Send verify request to user (Show login form)
     socket.emit('request verify');
 
+    // disconnected user
+    socket.on('disconnect', function () {
+        removeUser(username);
+    });
+
+    // incoming message request
     socket.on('message', function (message) {
 
         var messageCallback = {'success': false, "message": "", "username": username};
@@ -230,12 +236,19 @@ io.on('connection', function (socket) {
                 if (verified) {
                     messageCallback.success = true;
                     messageCallback.message = message;
-                    socket.emit('message', messageCallback);
+                    io.emit('message', messageCallback);
                 }
             }
         }
 
         socket.emit('message_callback', messageCallback);
+    });
+
+    // incoming message request
+    socket.on('public_key', function (inputKey) {
+        if (verified) {
+            setUserKey(username, inputKey);
+        }
     });
 
     // TODO session track failed attempts
@@ -304,15 +317,21 @@ io.on('connection', function (socket) {
 
 });
 
-// Server custom heartbeat
-setInterval(function () {
-    io.emit('server_info', {'user_list': userList});
-}, 1000);
+// Set username public key
+// param2: key as plain text
+function setUserKey(username, key) {
+    var tempKey = new NodeRSA(key, 'public');
+
+    if (tempKey.isPublic()) {
+        userList[username]['public_key'] = tempKey.exportKey('public');
+    }
+}
 
 // Add user to userlist
 function addUser(userName) {
-    userList[userName] = userName;
+    userList[userName] = {'username': userName, 'public_key': false};
 }
+
 // Remove user from userlist
 function removeUser(userName) {
     delete userList[userName];
@@ -342,3 +361,14 @@ function randomToken() {
     return crypto.randomBytes(128).toString('hex');
 }
 
+// Extra timer
+setInterval(function () {
+    console.log('');
+    console.log(userList);
+}, 5000);
+
+
+// Server custom heartbeat
+setInterval(function () {
+    io.emit('server_info', {'user_list': userList});
+}, 1000);

@@ -16,6 +16,9 @@
     "sjcl": "^1.0.3",
     "socket.io": "^1.4.5"
   },
+  "scripts": {
+    "install": "bower install && npm install -g browserify"
+  },
   "devDependencies": {},
   "repository": {
     "type": "git",

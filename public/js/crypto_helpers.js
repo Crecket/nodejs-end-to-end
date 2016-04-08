@@ -13,12 +13,22 @@ function CryptoHelper() {
         return sjcl.encrypt(password, data, encryptionSettings);
     };
 
-    // Encrypt with a public key
-    this.rsaEncryptPublicKey = function (PublicKey, data) {
+    // Encrypt with a public key in pem format
+    this.rsaEncryptPem = function (PublicKey, data) {
         var NodeRSAObj = new NodeRSA();
-        NodeRSAObj.importKey(PublicKey , 'pkcs8-public');
+        NodeRSAObj.importKey(PublicKey, 'pkcs8-public');
         return NodeRSAObj.encrypt(data, 'base64');
     };
+
+    // Decrypt a cypher using our private key
+    this.rsaDecrypt = function (keySet, cypher) {
+        return keySet.decrypt(cypher, 'utf8');
+    }
+
+    // Encrypt data using our private key
+    this.rsaEncrypt = function (keySet, data) {
+        return keySet.encrypt(data, 'base64');
+    }
 
     // HMAC sha256 create
     this.hash = function (text) {
@@ -48,13 +58,16 @@ function CryptoHelper() {
             keySize = 1024;
         }
 
-        var crypt = new JSEncrypt({default_key_size: keySize});
-        crypt.getKey();
+        var NodeRSAKey = new NodeRSA({b: keySize});
+
+        var tempPriv = NodeRSAKey.exportKey('private');
+        var tempPub = NodeRSAKey.exportKey('public');
 
         return {
             'keySize': keySize,
-            'privateKey': crypt.getPrivateKey(),
-            'publicKey': crypt.getPublicKey()
+            'privateKey': tempPriv,
+            'publicKey': tempPub,
+            'rsaObj': NodeRSAKey
         };
     };
 

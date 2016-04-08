@@ -1,5 +1,22 @@
 // Connect ssl sockets
-var socket = io.connect('https://localhost:8000', {secure: true});
+
+var socket = io.connect('https://' + window.location.host, {secure: true});
+
+var debugSetting = true;
+
+if (!debugSetting) {
+    $('#debug_panel').hide();
+}
+
+function debug(message) {
+    if (debugSetting) {
+        console.log(message);
+        if (Object.prototype.toString.call(message) == '[object String]') {
+            $('#debug_list').prepend("<li><strong>DEBUG</strong>" +
+                ": " + escapeHtml(message) + '</li>');
+        }
+    }
+}
 
 var CryptoHelper = new CryptoHelper();
 var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
@@ -7,15 +24,17 @@ var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 var loginLoading = false;
 var messageLoading = false;
 
+$('#content').hide();
+
 // Socket event listeners
 socket.on('connect', function () {
 
-    $('#messages').append('<li>Connected</li>');
+    debug('Connected to server');
 
 }).on('disconnect', function () {
 
-    $('#login_screen').removeClass('hidden');
-    $('#content').addClass('hidden');
+    $('#login_screen').show();
+    $('#content').hide();
 
 }).on('server_info', function (server_info) {
 
@@ -23,53 +42,49 @@ socket.on('connect', function () {
 
     $('#user_list').html('');
     for (var key in user_list) {
-        $('#user_list').append('<li>' + user_list[key] + '</li>');
+        $('#user_list').append('<li>' + user_list[key].username + '</li>');
     }
 
 }).on('public_key', function (response) {
 
     // Receive public key from server
-    SessionHelper.publicKey = response;
+    SessionHelper.serverPublicKey = response;
 
 }).on('request verify', function () {
 
-    $('#login_screen').removeClass('hidden');
-    $('#content').addClass('hidden');
+    $('#login_screen').show();
+    $('#content').hide();
 
 }).on('login_attempt_callback', function (res) {
 
     loginLoading = false;
 
-    console.log('Login callback');
-    console.log(res);
-
     SessionHelper.loginAttemptCallback(res);
 
     if (res.success === false) {
         $('#login_section').show();
-        $('#content').addClass('hidden');
+        $('#content').hide();
         $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
     } else {
         $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-check');
-        $('#content').removeClass('hidden');
+        $('#content').show();
         $('#login_screen').fadeOut();
     }
 
 }).on('message_callback', function (res) {
 
     messageLoading = false;
-
-    console.log('Message callback');
-    console.log(res);
-
     $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
 
 }).on('message', function (res) {
-    addMessage(res.username, res.message);
+
+    addMessage(res.username, SessionHelper.receiveMessage(res.message));
+
 });
 
 function addMessage(username, text) {
-    $('#messages').append('<li><strong>' + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</li>');
+    debug('Message: ' + text);
+    $('#messages').prepend('<li><strong>' + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</li>');
 }
 
 function escapeHtml(text) {
@@ -105,7 +120,8 @@ $(document.body).on('submit', '#login_form', function () {
             $('#login_section').show();
             $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
 
-            console.log('Username length: ' + username.length + " password length: " + password);
+            debug('Username length: ' + username.length + " password length: " + password);
+            loginLoading = false;
         }
     }
 
@@ -113,7 +129,8 @@ $(document.body).on('submit', '#login_form', function () {
 });
 
 // Message attempt
-$(document.body).on('submit', '#message_form', function () {
+$(document.body).on('submit', '#message_form', function (e) {
+    e.preventDefault();
 
     if (!messageLoading) {
         messageLoading = true;
@@ -127,7 +144,8 @@ $(document.body).on('submit', '#message_form', function () {
             SessionHelper.sendMessage(message);
         } else {
             $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
-            console.log('Message length: ' + message.length);
+            debug('Message length: ' + message.length);
+            messageLoading = false;
         }
     }
 
