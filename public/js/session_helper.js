@@ -1,5 +1,7 @@
 function ConnectionHelper(socket, CryptoHelper) {
 
+    var username = false;
+
     var verified = false;
 
     // NodeJS public key
@@ -17,6 +19,27 @@ function ConnectionHelper(socket, CryptoHelper) {
         // Send attempt to server
         socket.emit('login_attempt', username, passwordCipher);
 
+    }
+
+    // call back from login attempt
+    this.loginAttemptCallback = function (res) {
+        if (res.success !== false) {
+            verified = true;
+            username = res.username;
+        }
+    }
+
+    // Send a message if user is verified
+    this.sendMessage = function (message) {
+        if (this.isVerified()) {
+            socket.emit('message', message);
+        } else {
+            console.log('not verified');
+        }
+    }
+
+    this.isVerified = function () {
+        return verified !== false;
     }
 
 }

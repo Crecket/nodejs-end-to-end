@@ -35,7 +35,7 @@ var bcrypt = require('bcrypt');
 var session = require('express-session')
 
 // File store for express sessions
-var FileStore = require('session-file-store')(session);
+// var FileStore = require('session-file-store')(session);
 
 // socket.io listens on port:
 var port = 8000;
@@ -97,6 +97,11 @@ mysqlConnection.connect(function (err) {
 
 // Socket io app
 var io = require('socket.io').listen(server);
+
+// send heartbeat every 5 seconds
+// io.set('heartbeat interval', 5);
+// disconnect client if socket misses 2 heartbeats
+// io.set('heartbeat timeout', 11);
 
 // Start listening on port
 server.listen(port);
@@ -160,7 +165,8 @@ app.get('/', function (req, res, next) {
     // });
 
     res.render('index', {
-        'login_screen': ejs.render(getView('login_screen'))
+        'login_screen': ejs.render(getView('login_screen')),
+        'chat_screen': ejs.render(getView('chat_screen'))
     });
 
 });
@@ -173,11 +179,16 @@ app.use(express.static('public'));
 //     sessionMiddleware(socket.request, socket.request.res, next);
 // });
 
+var userList = {};
+
 // Io connection listener
 io.on('connection', function (socket) {
 
     // Whether socket is verified or not
     var verified = false;
+
+    // socket's username !== false if verified
+    var username = false;
 
     // Ip address
     var ip = socket.handshake.address;
@@ -208,11 +219,30 @@ io.on('connection', function (socket) {
     // Send verify request to user (Show login form)
     socket.emit('request verify');
 
+    socket.on('message', function (message) {
+
+        var messageCallback = {'success': false, "message": "", "username": username};
+
+        if (verified) {
+            if (message.length > 0 && message.length < 255) {
+                console.log('');
+                console.log('Message: ' + message);
+                if (verified) {
+                    messageCallback.success = true;
+                    messageCallback.message = message;
+                    socket.emit('message', messageCallback);
+                }
+            }
+        }
+
+        socket.emit('message_callback', messageCallback);
+    });
+
     // TODO session track failed attempts
     // Receive a hash password and re-hash it to verify with the server
-    socket.on('login_attempt', function (username, password_cipher) {
+    socket.on('login_attempt', function (usernameInput, password_cipher) {
 
-        var callbackResult = {'success': false, 'message': "Invalid login attempt"};
+        var callbackResult = {'success': false, 'message': "Invalid login attempt", "username": false};
 
         if (!verified) {
 
@@ -223,7 +253,7 @@ io.on('connection', function (socket) {
                 var password_hash = rsaDecrypt(password_cipher);
             }
 
-            mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [username], function (err, result, fields) {
+            mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [usernameInput], function (err, result, fields) {
                 if (err) {
                     callbackResult.message = "Something went wrong";
                     socket.emit('login_attempt_callback', callbackResult);
@@ -232,20 +262,22 @@ io.on('connection', function (socket) {
 
                 // Only want 1 user/result
                 if (result.length === 1) {
-                    console.log('1 mysql result');
-
                     // hash from the database
                     var db_hash = result[0].hash;
-
-                    console.log(password_hash, db_hash);
 
                     // compare password ahsh with db_hash
                     bcrypt.compare(password_hash, db_hash, function (err, res) {
                         if (res) {
-                            console.log('Valid');
+                            console.log('Valid login');
                             callbackResult.success = true;
                             callbackResult.message = 'Succesfully logged in';
+                            callbackResult.username = result[0].username;
                             verified = true;
+
+                            // Add user to userlist
+                            addUser(result[0].username);
+                            username = result[0].username;
+
                         } else {
                             console.log('Invalid');
                             callbackResult.message = "Invalid login attempt2";
@@ -263,45 +295,28 @@ io.on('connection', function (socket) {
                     socket.emit('login_attempt_callback', callbackResult);
                 }
             });
-        }else{
+        } else {
             callbackResult.message = "You're already logged in";
             callbackResult.success = true;
             socket.emit('login_attempt_callback', callbackResult);
         }
     });
 
-    // TODO registration
-    socket.on('register_attempt', function (username, password_hash) {
-
-        var result = {'success': false, 'message': ""};
-
-        mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = ?', [username], function (err, result, fields) {
-            if (err) {
-                result.message = "Something went wrong";
-                socket.emit('login_attempt_callback', result);
-                throw err;
-            }
-
-            // Only want 1 user/result
-            if (result.length === 0) {
-
-                // hahs password
-                // bcrypt.genSalt(10, function (err, salt) {
-                //     bcrypt.hash("B4c0/\/", salt, function (err, hash) {
-                //         // Store hash in your password DB.
-                //     });
-                // });
-
-            } else {
-                result.message = "Username is taken";
-            }
-        });
-
-        socket.emit('login_attempt_callback', result);
-    });
-
 });
 
+// Server custom heartbeat
+setInterval(function () {
+    io.emit('server_info', {'user_list': userList});
+}, 1000);
+
+// Add user to userlist
+function addUser(userName) {
+    userList[userName] = userName;
+}
+// Remove user from userlist
+function removeUser(userName) {
+    delete userList[userName];
+}
 
 // Get view contents
 function getView(name) {
@@ -327,55 +342,3 @@ function randomToken() {
     return crypto.randomBytes(128).toString('hex');
 }
 
-// Checks session data if user is verified
-function isVerified(data) {
-    if (data.data !== undefined && data.data.verified !== false) {
-        return data.data.verified;
-    }
-    return false;
-}
-
-
-// Pbkdf2 settings
-var DEFAULT_HASH_ITERATIONS = 500;
-var SALT_SIZE = 192 / 8;
-var KEY_SIZE = 768 / 32;
-
-function generateSalt(explicitIterations) {
-    var defaultHashIterations = DEFAULT_HASH_ITERATIONS;
-
-    if (explicitIterations !== null && explicitIterations !== undefined) {
-        // make sure explicitIterations is an integer
-        if (parseInt(explicitIterations, 10) === explicitIterations) {
-            throw new Error("explicitIterations must be an integer");
-        }
-        // and that it is smaller than our default hash iterations
-        if (explicitIterations < DEFAULT_HASH_ITERATIONS) {
-            throw new Error("explicitIterations cannot be less than " + DEFAULT_HASH_ITERATIONS);
-        }
-    }
-
-    // get some random bytes
-    var bytes = CryptoJS.lib.WordArray.random(SALT_SIZE);
-
-    // convert iterations to Hexadecimal
-    var iterations = (explicitIterations || defaultHashIterations).toString(16);
-
-    console.log('finish create salt');
-    // concat the iterations and random bytes together.
-    return iterations + "." + bytes.toString(CryptoJS.enc.Base64);
-}
-
-function hashPkbdf2(value, salt) {
-    var i = salt.indexOf(".");
-    var iters = parseInt(salt.substring(0, i), 16);
-    var key = CryptoJS.PBKDF2(value, salt, {"keySize": KEY_SIZE, "iterations": iters});
-
-    console.log('finish hashing');
-    return key.toString(CryptoJS.enc.Base64);
-}
-
-function checkPkbdf2(candidate, salt, hashed) {
-    console.log('finish verify');
-    return hashPkbdf2(candidate, salt) === hashed;
-}
