@@ -13,10 +13,12 @@
 <body>
 
 <div id="content">
-    <ul id="messages"></ul>
+    <%- chat_screen %>
 </div>
 
 <%- login_screen %>
+
+
 
 <script src="/bower_components/jquery/dist/jquery.min.js"></script>
 <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -32,6 +34,11 @@
 <script src="/bower_components/cryptojslib/components/enc-base64.js"></script>
 <script src="/bower_components/cryptojslib/components/pbkdf2.js"></script>
 
+<script src="/js/node-bundle.js"></script>
+<script>
+    // Load node-rsa bundle
+    var NodeRSA = require('node-rsa');
+</script>
 <script src="/js/crypto_helpers.js"></script>
 <script src="/js/session_helper.js"></script>
 <script src="/js/client.js"></script>
