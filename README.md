@@ -19,3 +19,26 @@ session fix
 - npm install (runs all required install/update commands)
 - node app
 
+
+
+## Verification 
+
+- User enters name/password
+- Password hashed with HMAC-SHA26 with the password as salt (Bad practise obviously)
+- Encrypt with the server's public key
+- Check if user exsists by username
+- Check if bcrypt(hashed_password, hashed_password_bcrypt) is true
+- Add user to verified user list and send callback
+
+## Message 
+
+- Client checks if user is logged in
+- Client encrypts message with own private key
+- Client encrypts cypher with target public key
+- Message is sent to the server
+- Server checks if user is logged in
+- Message is sent to the client
+- Client decrypts with own private key
+- Client decrypts with sender public key
+- Message is shown
+

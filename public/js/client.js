@@ -13,6 +13,7 @@ function debug(message) {
         console.log(message);
         if (Object.prototype.toString.call(message) == '[object String]') {
             $('#debug_list').prepend("<li><strong>DEBUG</strong>" +
+                " - " + curDate() +
                 ": " + escapeHtml(message) + '</li>');
         }
     }
@@ -31,7 +32,15 @@ socket.on('connect', function () {
 
     debug('Connected to server');
 
+    $('#server_status').text('Connected');
+    $('#server_status_icon').removeClass('fa-spin fa-refresh fa-warning').addClass('fa-check');
+
 }).on('disconnect', function () {
+
+    debug('Lost contact with server');
+
+    $('#server_status').text('Connected');
+    $('#server_status_icon').removeClass('fa-spin fa-refresh fa-check').addClass('fa-warning');
 
     $('#login_screen').show();
     $('#content').hide();
@@ -42,7 +51,8 @@ socket.on('connect', function () {
 
     $('#user_list').html('');
     for (var key in user_list) {
-        $('#user_list').append('<li>' + user_list[key].username + '</li>');
+        $('#user_list').append('<li><a href="#" class="user-select" data-user="' +
+            user_list[key].username + '">' + user_list[key].username + '</a></li>');
     }
 
 }).on('public_key', function (response) {
@@ -87,15 +97,6 @@ function addMessage(username, text) {
     $('#messages').prepend('<li><strong>' + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</li>');
 }
 
-function escapeHtml(text) {
-    'use strict';
-    return text.replace(/[\"&'\/<>]/g, function (a) {
-        return {
-            '"': '&quot;', '&': '&amp;', "'": '&#39;',
-            '/': '&#47;', '<': '&lt;', '>': '&gt;'
-        }[a];
-    });
-}
 
 // Login attempt
 $(document.body).on('submit', '#login_form', function () {
@@ -106,7 +107,6 @@ $(document.body).on('submit', '#login_form', function () {
         var username = $('#inputName').val();
         var password = $('#inputPassword').val();
 
-        $('#login_section').hide();
         $('#login_button').addClass('fa-spin fa-refresh').removeClass('fa-sign-in');
 
         if (username.length > 3 && username.length < 16 && CryptoHelper.validPasswordType(password)) {
@@ -117,7 +117,6 @@ $(document.body).on('submit', '#login_form', function () {
 
         } else {
 
-            $('#login_section').show();
             $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
 
             debug('Username length: ' + username.length + " password length: " + password);
@@ -150,4 +149,10 @@ $(document.body).on('submit', '#message_form', function (e) {
     }
 
     return false;
+});
+
+$(document.body).on('click', '.user-select', function () {
+    if (SessionHelper.isVerified()) {
+        var userName = $(this).data('user');
+    }
 });

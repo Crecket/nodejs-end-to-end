@@ -51,11 +51,12 @@ function CryptoHelper() {
         return true;
     };
 
-    // Create new RSA keyset, default keysize is 1024
+    // Create new RSA keyset, default keysize is 512, 1024 is recommended 
     this.createKeySet = function (keySize) {
 
         if (!keySize) {
-            keySize = 1024;
+            // TODO should be 1024 on production servers
+            keySize = 512;
         }
 
         var NodeRSAKey = new NodeRSA({b: keySize});

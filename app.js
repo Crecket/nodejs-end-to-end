@@ -166,7 +166,8 @@ app.get('/', function (req, res, next) {
 
     res.render('index', {
         'login_screen': ejs.render(getView('login_screen')),
-        'chat_screen': ejs.render(getView('chat_screen'))
+        'chat_screen': ejs.render(getView('chat_screen')),
+        'debug_screen': ejs.render(getView('debug_screen'))
     });
 
 });
@@ -196,6 +197,7 @@ io.on('connection', function (socket) {
     // Socketid shortcut
     var socketid = socket.id;
 
+    // Send server's public key to client
     socket.emit('public_key', RSAPublicKey);
 
     // // Session failure, exit server
@@ -288,7 +290,7 @@ io.on('connection', function (socket) {
                             verified = true;
 
                             // Add user to userlist
-                            addUser(result[0].username);
+                            addUser(result[0].username, socketid);
                             username = result[0].username;
 
                         } else {
@@ -328,8 +330,8 @@ function setUserKey(username, key) {
 }
 
 // Add user to userlist
-function addUser(userName) {
-    userList[userName] = {'username': userName, 'public_key': false};
+function addUser(userName, socketId) {
+    userList[userName] = {'username': userName, 'public_key': false, 'socketId': socketId};
 }
 
 // Remove user from userlist
@@ -363,8 +365,8 @@ function randomToken() {
 
 // Extra timer
 setInterval(function () {
-    console.log('');
-    console.log(userList);
+    // console.log('');
+    // console.log(userList);
 }, 5000);
 
 

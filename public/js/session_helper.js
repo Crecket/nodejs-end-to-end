@@ -1,12 +1,13 @@
 function ConnectionHelper(socket, CryptoHelper) {
 
+    // current username
     var username = false;
 
+    // boolean wheter this client is verified or not
     var verified = false;
 
     // NodeJS public key
     this.serverPublicKey = false;
-
 
     // Full key set, used for decryption/encryption
     var keySet = false;
@@ -41,8 +42,7 @@ function ConnectionHelper(socket, CryptoHelper) {
             verified = true;
             username = res.username;
 
-            debug('Sending public key to server');
-            socket.emit('public_key', publicKey);
+            this.updateKey();
         }
     }
 
@@ -67,6 +67,14 @@ function ConnectionHelper(socket, CryptoHelper) {
         return verified !== false;
     }
 
+    // if user is verified, send the server the current key
+    this.updateKey = function () {
+        if (verified) {
+            debug('Sending public key to server');
+            socket.emit('public_key', publicKey);
+        }
+    }
+
     // create a new key set for this client
     this.newKeySet = function () {
         var newKeyData = CryptoHelper.createKeySet();
@@ -78,6 +86,8 @@ function ConnectionHelper(socket, CryptoHelper) {
 
         privateKey = newKeyData.privateKey;
         publicKey = newKeyData.publicKey;
+
+        this.updateKey();
     }
 
     // create initial keyset

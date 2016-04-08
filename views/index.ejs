@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="background-color: #000;">
+<html>
 <head>
     <meta name="description" content="NodeJS end-to-end">
     <meta name="keywords" content="NodeJS, end-to-end, sockets, rsa, encryption, sjcl">
@@ -12,21 +12,16 @@
 </head>
 <body>
 
-<div id="content">
-    <%- chat_screen %>
-</div>
+<div id="main" class="container-fluid">
 
-<%- login_screen %>
-
-<div class="col-xs-12" id="debug_panel">
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            Debug
-        </div>
-        <div class="panel-body">
-            <ul id="debug_list"></ul>
-        </div>
+    <div id="content">
+        <%- chat_screen %>
     </div>
+
+    <%- login_screen %>
+
+    <%- debug_screen %>
+
 </div>
 
 <script src="/bower_components/jquery/dist/jquery.min.js"></script>
@@ -48,6 +43,7 @@
     // Load node-rsa bundle
     var NodeRSA = require('node-rsa');
 </script>
+<script src="/js/utils.js"></script>
 <script src="/js/crypto_helpers.js"></script>
 <script src="/js/session_helper.js"></script>
 <script src="/js/client.js"></script>

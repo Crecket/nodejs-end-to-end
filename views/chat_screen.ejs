@@ -1,6 +1,6 @@
 <div id="chat_screen">
 
-    <div class="col-xs-12 col-md-8">
+    <div class="col-xs-12 col-md-6 col-lg-4">
         <div class="panel panel-info">
             <div class="panel-heading">
                 Messages
@@ -10,8 +10,7 @@
             </div>
         </div>
     </div>
-
-    <div class="col-xs-12 col-md-4">
+    <div class="col-xs-12 col-md-6 col-lg-4">
         <div class="panel panel-info">
             <div class="panel-heading">
                 Users
@@ -22,17 +21,32 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+    <div class="col-xs-12 col-md-6 col-lg-4">
         <form id="message_form" method="post">
-            <label for="inputMessage" class="">Message</label>
-            <input type="text" id="inputMessage" name="inputMessage" class="form-control input-lg" placeholder="Message"
-                   required autofocus>
 
-            <button class="btn btn-lg btn-primary btn-block" type="submit">
-                <span id="message_button" class="fa fa-mail-forward fa-3x"></span>
-            </button>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    Message
+                </div>
+                <div class="panel-body">
+
+                    <label for="inputMessage" class="sr-only">Message</label>
+                    <input type="text" id="inputMessage" name="inputMessage" class="form-control input-lg"
+                           placeholder="Message" required>
+
+                    <label for="inputTarget" class="sr-only">Message</label>
+                    <input type="text" id="inputTarget" name="inputTarget" class="form-control input-lg"
+                           placeholder="None" readonly required>
+
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">
+                        Send
+                    </button>
+                </div>
+            </div>
+
         </form>
     </div>
+
 </div>
 
 
