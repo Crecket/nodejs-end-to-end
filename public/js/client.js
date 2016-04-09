@@ -1,5 +1,7 @@
 // Connect ssl sockets
 
+$('#content').hide();
+
 var socket = io.connect('https://' + window.location.host, {secure: true});
 
 var debugSetting = true;
@@ -12,9 +14,8 @@ function debug(message) {
     if (debugSetting) {
         console.log(message);
         if (Object.prototype.toString.call(message) == '[object String]') {
-            $('#debug_list').prepend("<li><strong>DEBUG</strong>" +
-                " - " + curDate() +
-                ": " + escapeHtml(message) + '</li>');
+            $('#debug_list').prepend("<p>" + curDate() +
+                ": " + escapeHtml(message) + '</p>');
         }
     }
 }
@@ -22,10 +23,13 @@ function debug(message) {
 var CryptoHelper = new CryptoHelper();
 var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
+SessionHelper.newKeySet(function(keys){
+   $('#public_key_input').text(keys.publicKey);
+   $('#private_key_input').text(keys.privateKey);
+});
+
 var loginLoading = false;
 var messageLoading = false;
-
-$('#content').hide();
 
 // Socket event listeners
 socket.on('connect', function () {
@@ -39,7 +43,7 @@ socket.on('connect', function () {
 
     debug('Lost contact with server');
 
-    $('#server_status').text('Connected');
+    $('#server_status').text('Disconnected');
     $('#server_status_icon').removeClass('fa-spin fa-refresh fa-check').addClass('fa-warning');
 
     $('#login_screen').show();
@@ -48,6 +52,9 @@ socket.on('connect', function () {
 }).on('server_info', function (server_info) {
 
     var user_list = server_info.user_list;
+
+    // Update the public key list
+    SessionHelper.updateUserList(user_list);
 
     $('#user_list').html('');
     for (var key in user_list) {
@@ -58,7 +65,7 @@ socket.on('connect', function () {
 }).on('public_key', function (response) {
 
     // Receive public key from server
-    SessionHelper.serverPublicKey = response;
+    SessionHelper.setServerPublicKey(response);
 
 }).on('request verify', function () {
 
@@ -67,18 +74,25 @@ socket.on('connect', function () {
 
 }).on('login_attempt_callback', function (res) {
 
+    debug('Login callback ' + res.success);
+
     loginLoading = false;
 
     SessionHelper.loginAttemptCallback(res);
 
     if (res.success === false) {
+        // Invalid login attempt
         $('#login_section').show();
         $('#content').hide();
         $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
+
     } else {
+
         $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-check');
-        $('#content').show();
-        $('#login_screen').fadeOut();
+        $('#login_screen').fadeOut("slow", function () {
+            $('#content').fadeIn();
+        });
+
     }
 
 }).on('message_callback', function (res) {
@@ -88,15 +102,20 @@ socket.on('connect', function () {
 
 }).on('message', function (res) {
 
-    addMessage(res.username, SessionHelper.receiveMessage(res.message));
+    SessionHelper.receiveMessage(res, function (callbackMessage) {
+        if (callbackMessage !== false) {
+            addMessage(res.from, callbackMessage);
+        }
+    });
 
 });
 
 function addMessage(username, text) {
     debug('Message: ' + text);
-    $('#messages').prepend('<li><strong>' + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</li>');
+    if (text) {
+        $('#messages').prepend('<p><strong>' + curDate() + " - " + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</p>');
+    }
 }
-
 
 // Login attempt
 $(document.body).on('submit', '#login_form', function () {
@@ -118,7 +137,6 @@ $(document.body).on('submit', '#login_form', function () {
         } else {
 
             $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
-
             debug('Username length: ' + username.length + " password length: " + password);
             loginLoading = false;
         }
@@ -131,7 +149,7 @@ $(document.body).on('submit', '#login_form', function () {
 $(document.body).on('submit', '#message_form', function (e) {
     e.preventDefault();
 
-    if (!messageLoading) {
+    if (!messageLoading && SessionHelper.hasTarget()) {
         messageLoading = true;
         var message = $('#inputMessage').val().trim();
 
@@ -141,6 +159,8 @@ $(document.body).on('submit', '#message_form', function (e) {
 
         if (message.length > 0 && message.length < 255) {
             SessionHelper.sendMessage(message);
+
+            addMessage(SessionHelper.getUsername(), message);
         } else {
             $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
             debug('Message length: ' + message.length);
@@ -154,5 +174,15 @@ $(document.body).on('submit', '#message_form', function (e) {
 $(document.body).on('click', '.user-select', function () {
     if (SessionHelper.isVerified()) {
         var userName = $(this).data('user');
+        if (SessionHelper.setTarget(userName)) {
+            $('#inputTarget').val(userName);
+            debug('Setting target to: ' + userName);
+        }
     }
+    return false;
+});
+
+$('.body_toggle').on('click', function () {
+    var targetDiv = $(this).data('toggle');
+    $('#' + targetDiv).slideToggle();
 });

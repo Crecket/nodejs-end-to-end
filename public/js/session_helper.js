@@ -2,21 +2,25 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // current username
     var username = false;
-
     // boolean wheter this client is verified or not
     var verified = false;
-
-    // NodeJS public key
-    this.serverPublicKey = false;
-
     // Full key set, used for decryption/encryption
     var keySet = false;
-
     // This client's private key, only used for exporting
     var privateKey = false;
-
     // This client's public key, only used for exporting
     var publicKey = false;
+
+    // NodeJS public key
+    var serverPublicKey = false;
+
+    // List off all user's public key lists and username
+    var userList = {};
+
+    // username of current target for chat messages
+    var targetName = false;
+    // Public key of current target for chat messages
+    var targetKey = false;
 
     // Attempt to verify username with server
     this.loginAttempt = function (username, password) {
@@ -27,7 +31,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         var passwordHash = CryptoHelper.hash(password);
 
         // Encrypt with server's public key
-        var passwordCipher = CryptoHelper.rsaEncryptPem(this.serverPublicKey, passwordHash);
+        var passwordCipher = CryptoHelper.rsaEncryptPem(serverPublicKey, passwordHash);
 
         // Send attempt to server
         socket.emit('login_attempt', username, passwordCipher);
@@ -35,9 +39,6 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // call back from login attempt
     this.loginAttemptCallback = function (res) {
-
-        debug('Login callback ' + res.success);
-
         if (res.success !== false) {
             verified = true;
             username = res.username;
@@ -46,17 +47,37 @@ function ConnectionHelper(socket, CryptoHelper) {
         }
     }
 
-    // Decrypt a message using our private key
-    this.receiveMessage = function (cypher) {
-        var message = CryptoHelper.rsaDecrypt(keySet, cypher);
-        return message;
+    // Decrypt a cypher by using our private key
+    // Next, decrypt the new cypher with the sender's public key
+    this.receiveMessage = function (receivedData, callback) {
+
+        // First decrypt with our own private key
+        var cypher2 = CryptoHelper.rsaDecrypt(keySet, receivedData.cypher);
+
+        // get the sender's public key from the stored user list
+        var senderPublickey = userList[receivedData.from]['public_key'];
+
+        // Decrypt with the sender's public key
+        var message = CryptoHelper.rsaDecryptPemPub(senderPublickey, cypher2);
+
+        callback(message);
     }
 
     // Send a message if user is verified
     this.sendMessage = function (message) {
-        if (this.isVerified()) {
-            var messageCypher = CryptoHelper.rsaEncryptPem(publicKey, message);
-            socket.emit('message', messageCypher);
+        if (this.isVerified() && this.hasTarget()) {
+
+            // First encrypt with our own private key
+            var messageCypher1 = CryptoHelper.rsaEncryptPriv(keySet, message);
+
+            // Encrypt with target public key
+            var messageCypher2 = CryptoHelper.rsaEncryptPem(targetKey, messageCypher1);
+
+            socket.emit('message', {
+                'cypher': messageCypher2,
+                'target': targetName
+            });
+
         } else {
             debug('Not verified');
         }
@@ -75,9 +96,38 @@ function ConnectionHelper(socket, CryptoHelper) {
         }
     }
 
+    // Update the user list and check if current target is still available
+    this.updateUserList = function (newUserList) {
+        userList = newUserList;
+        if (!userList[targetName]) {
+            targetKey = false;
+            targetName = false;
+        }
+    }
+
+    // check if target is set
+    this.hasTarget = function () {
+        return targetName !== false;
+    }
+
+    // set the new target name and public key
+    this.setTarget = function (newTarget) {
+        if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
+            targetName = newTarget;
+            targetKey = userList[newTarget]['public_key'];
+            return true;
+        }
+        return false;
+    }
+
+    // set the server's public key
+    this.setServerPublicKey = function (key) {
+        serverPublicKey = key;
+    }
+
     // create a new key set for this client
-    this.newKeySet = function () {
-        var newKeyData = CryptoHelper.createKeySet();
+    this.newKeySet = function (callback) {
+        var newKeyData = CryptoHelper.createKeySet(1024);
 
         keySet = newKeyData.rsaObj;
 
@@ -87,9 +137,16 @@ function ConnectionHelper(socket, CryptoHelper) {
         privateKey = newKeyData.privateKey;
         publicKey = newKeyData.publicKey;
 
+        if(callback){
+            callback({'privateKey': privateKey, 'publicKey':publicKey});
+        }
+
         this.updateKey();
     }
 
-    // create initial keyset
-    this.newKeySet();
+    // return current username
+    this.getUsername = function () {
+        return username;
+    }
+
 }

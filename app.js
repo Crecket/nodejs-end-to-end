@@ -34,11 +34,8 @@ var bcrypt = require('bcrypt');
 // Express sessions
 var session = require('express-session')
 
-// File store for express sessions
-// var FileStore = require('session-file-store')(session);
-
 // socket.io listens on port:
-var port = 8000;
+var port = 8888;
 
 // Use ssl with self-signed certificates
 // generate your own if you use this in production!
@@ -118,52 +115,8 @@ app.set('view engine', 'ejs');
 // trust first proxy
 app.set('trust proxy', 1)
 
-// Session settings
-// var sessionSettings = {
-//     store: new FileStore({}),
-//     secret: 'y2ndtyr4378q9mf09egmhq9s4gfs0q9g4fyhy091pf,hq90m4fq87ngf47z4nfg',
-//     resave: true,
-//     cookie: {
-//         maxAge: (1000 * 60 * 60)
-//     },
-//     saveUninitialized: true
-// };
-
-// Make express use sessions
-// var sessionMiddleware = session(sessionSettings);
-
-// app.use(sessionMiddleware);
-
 // home path
 app.get('/', function (req, res, next) {
-
-    // var data = req.session.data;
-    // var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    //
-    // if (!data) {
-    //     // Default session values
-    //     data = {
-    //         'verified': false,
-    //         'ipChanged': false,
-    //         'ip': ip
-    //     };
-    // } else {
-    //     // Check if ip changed
-    //     if (data.ip !== ip) {
-    //         data.ipChanged = true;
-    //     }
-    //     // update ip
-    //     data.ip = ip;
-    // }
-    //
-    // // Store in session
-    // req.session.data = data;
-    // req.session.save(function (err) {
-    //     // console.log('');
-    //     // console.log('Express');
-    //     // console.log(req.session);
-    // });
-
     res.render('index', {
         'login_screen': ejs.render(getView('login_screen')),
         'chat_screen': ejs.render(getView('chat_screen')),
@@ -174,11 +127,6 @@ app.get('/', function (req, res, next) {
 
 // Static files
 app.use(express.static('public'));
-
-// Use express' sessions
-// io.use(function (socket, next) {
-//     sessionMiddleware(socket.request, socket.request.res, next);
-// });
 
 var userList = {};
 
@@ -200,23 +148,6 @@ io.on('connection', function (socket) {
     // Send server's public key to client
     socket.emit('public_key', RSAPublicKey);
 
-    // // Session failure, exit server
-    // if (typeof socket.request.session === "undefined") {
-    //     console.log('Failed to load session data in sockets');
-    //     process.exit();
-    // }
-    //
-    // var sessionData = socket.request.session.data;
-    //
-    // // Check if not-verified or ip has changed
-    // if (sessionData.verified === false || sessionData.ipChanged) {
-    //     sessionData = {
-    //         'verified': false,
-    //         'ipChanged': false,
-    //         'ip': ip
-    //     };
-    // }
-
     // TODO check if user is already verified
     // Send verify request to user (Show login form)
     socket.emit('request verify');
@@ -227,23 +158,37 @@ io.on('connection', function (socket) {
     });
 
     // incoming message request
-    socket.on('message', function (message) {
+    socket.on('message', function (messageData) {
 
-        var messageCallback = {'success': false, "message": "", "username": username};
-
+        var messageCallback = {'success': false, "message": ""};
         if (verified) {
-            if (message.length > 0 && message.length < 255) {
-                console.log('');
-                console.log('Message: ' + message);
-                if (verified) {
-                    messageCallback.success = true;
-                    messageCallback.message = message;
-                    io.emit('message', messageCallback);
-                }
-            }
-        }
 
-        socket.emit('message_callback', messageCallback);
+            var cypher = messageData.cypher;
+            var target = messageData.target;
+
+            if (userList[target]) {
+                var targetData = userList[target];
+
+                if (cypher.length > 0 && cypher.length < 2500) {
+
+                    console.log('');
+                    console.log('Message from ' + username);
+
+                    messageCallback.success = true;
+                    messageCallback.message = 'Message was sent';
+                    // add username so client knows which public key to use for decryption
+
+                    io.sockets.connected[targetData.socketId].emit('message', {
+                        'cypher': cypher,
+                        'from': username
+                    });
+                }
+            } else {
+                messageCallback.message = "User not found"
+            }
+
+            socket.emit('message_callback', messageCallback);
+        }
     });
 
     // incoming message request
@@ -253,7 +198,7 @@ io.on('connection', function (socket) {
         }
     });
 
-    // TODO session track failed attempts
+    // TODO track failed attempts
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (usernameInput, password_cipher) {
 
@@ -283,14 +228,14 @@ io.on('connection', function (socket) {
                     // compare password ahsh with db_hash
                     bcrypt.compare(password_hash, db_hash, function (err, res) {
                         if (res) {
-                            console.log('Valid login');
+                            console.log('Valid login ' + usernameInput);
                             callbackResult.success = true;
                             callbackResult.message = 'Succesfully logged in';
                             callbackResult.username = result[0].username;
                             verified = true;
 
                             // Add user to userlist
-                            addUser(result[0].username, socketid);
+                            addUser(result[0].username, socketid, ip);
                             username = result[0].username;
 
                         } else {
@@ -330,8 +275,8 @@ function setUserKey(username, key) {
 }
 
 // Add user to userlist
-function addUser(userName, socketId) {
-    userList[userName] = {'username': userName, 'public_key': false, 'socketId': socketId};
+function addUser(userName, socketId, ip) {
+    userList[userName] = {'username': userName, 'public_key': false, 'socketId': socketId, 'ip': ip};
 }
 
 // Remove user from userlist
@@ -372,5 +317,14 @@ setInterval(function () {
 
 // Server custom heartbeat
 setInterval(function () {
-    io.emit('server_info', {'user_list': userList});
+    var tempArray = {};
+
+    // Selective data sending
+    for (var key in userList) {
+        tempArray[key] = {};
+        tempArray[key]['username'] = userList[key]['username'];
+        tempArray[key]['public_key'] = userList[key]['public_key'];
+    }
+
+    io.emit('server_info', {'user_list': tempArray});
 }, 1000);

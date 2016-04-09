@@ -1,16 +1,30 @@
-.hidden {
-    display: none;
-}
-
-li, p, h1, h2, h3, h4, h5, h6 {
-    word-break: break-all;
-}
-
-body {
-    padding: 30px;
-}
 html,
 body,
 #main {
     background-color: #222;
+}
+
+li {
+    word-break: break-all;
+}
+
+textarea.key-text {
+    height: 150px;
+    /* To make sure text looks like the correct length for each line */
+    font-family: monospace;
+}
+
+.scroll-div{
+    overflow-y: scroll;
+}
+
+@media (min-width: 1024px) {
+    body {
+        padding: 30px;
+    }
+}
+
+#messages {
+    height: 300px;
+    overflow-y: scroll;
 }

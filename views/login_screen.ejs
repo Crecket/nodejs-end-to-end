@@ -1,30 +1,36 @@
 <div id="login_screen">
-    <div class="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
-        <form id="login_form" _lpchecked="1" method="post" action="/verify">
-            <div class="panel panel-success">
 
-                <div class="panel-heading">
-                    Enter your username and password
+    <div class="row">
+
+        <div class="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+            <form id="login_form" _lpchecked="1" method="post" action="/verify">
+                <div class="panel panel-success">
+
+                    <div class="panel-heading">
+                        Enter your username and password
+                    </div>
+
+                    <div class="panel-body">
+                        <label for="inputEmail">Username</label>
+                        <input type="text" id="inputName" name="inputName" class="form-control input-lg"
+                               placeholder="Username" required autofocus>
+
+                        <label for="inputPassword">Password</label>
+                        <input type="password" id="inputPassword" name="inputPassword" class="form-control input-lg"
+                               placeholder="Password" required>
+
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">
+                            Login
+                        </button>
+                    </div>
+
                 </div>
+            </form>
+        </div>
 
-                <div class="panel-body">
-                    <label for="inputEmail">Username</label>
-                    <input type="text" id="inputName" name="inputName" class="form-control input-lg"
-                           placeholder="Username"
-                           required autofocus>
-
-                    <label for="inputPassword">Password</label>
-                    <input type="password" id="inputPassword" name="inputPassword" class="form-control input-lg"
-                           placeholder="Password" required>
-
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">
-                        Login
-                    </button>
-                </div>
-
-            </div>
-        </form>
     </div>
+
+
 </div>
 
 

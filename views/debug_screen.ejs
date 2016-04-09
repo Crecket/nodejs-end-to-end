@@ -1,14 +1,36 @@
-<div class="col-xs-12">
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <span class="pull-right">
-                <i id="server_status" class="">Loading</i>
-                <i id="server_status_icon" class="fa fa-refresh fa-spin"></i>
-            </span>
-            Debug
+<div id="testasd">
+
+    <div class="col-xs-12">
+        <div class="panel panel-danger">
+            <div class="panel-heading body_toggle" data-toggle="debug_body">
+                <span class="pull-right">
+                    <i id="server_status" class="">Loading</i>
+                    <i id="server_status_icon" class="fa fa-refresh fa-spin"></i>
+                </span>
+                Debug
+            </div>
+            <div class="panel-body scroll-div" id="debug_body" style="display: none;">
+                <div id="debug_list"></div>
+            </div>
         </div>
-        <div class="panel-body">
-            <ul id="debug_list"></ul>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading body_toggle" data-toggle="settings_body">
+                Settings
+            </div>
+            <div class="panel-body" id="settings_body" style="display: none;">
+
+                <label for="inputTarget">Public key</label>
+                <textarea class="form-control key-text" id="public_key_input"></textarea>
+
+                <label for="inputTarget">Private key</label>
+                <textarea class="form-control key-text" id="private_key_input"></textarea>
+
+            </div>
         </div>
+
     </div>
+
 </div>
+
+
