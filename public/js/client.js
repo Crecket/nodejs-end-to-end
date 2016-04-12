@@ -26,6 +26,7 @@ var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 SessionHelper.newKeySet(function(keys){
    $('#public_key_input').text(keys.publicKey);
    $('#private_key_input').text(keys.privateKey);
+    $('#qr_code_img').attr('src', 'https://crecket.me/qr/createcode/' + encodeURIComponent(encodeURIComponent(JSON.stringify({'key': keys.publicKey}))));
 });
 
 var loginLoading = false;
