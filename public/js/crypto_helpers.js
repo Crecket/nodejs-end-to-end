@@ -54,12 +54,16 @@ function CryptoHelper() {
     }
 
     // HMAC sha256 create
-    this.hash = function (text) {
+    this.hash = function (text, salt) {
+        // salt check
+        if (!salt) {
+            salt = CryptoJS.SHA512(text);
+        }
+        
         // Not very secure, but sufficient to send to the server for testing
-        // TODO stronger algorithm/salt
         var hmac = CryptoJS.HmacSHA256(
             text,
-            CryptoJS.SHA1(text)
+            salt
         );
 
         return CryptoJS.enc.Hex.stringify(hmac);
