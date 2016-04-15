@@ -213,6 +213,15 @@ io.on('connection', function (socket) {
                 var password_hash = rsaDecrypt(password_cipher);
             }
 
+            // bcrypt hashing exmple
+            // bcrypt.genSalt(11, function(err, salt) {
+            //     bcrypt.hash(password_hash, salt, function(err, hash) {
+            //         console.log('');
+            //         console.log(hash);
+            //         console.log('');
+            //     });
+            // });
+
             mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [usernameInput], function (err, result, fields) {
                 if (err) {
                     callbackResult.message = "Something went wrong";

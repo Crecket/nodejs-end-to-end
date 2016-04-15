@@ -1,3 +1,5 @@
+var NodeRSA = require('node-rsa');
+
 function CryptoHelper() {
 
     var encryptionSettings = {
@@ -55,11 +57,11 @@ function CryptoHelper() {
 
     // HMAC sha256 create
     this.hash = function (text) {
-        // Not very secure, but sufficient to send to the server for testing
+        // insecure, but sufficient to send to the server for testing
         // TODO stronger algorithm/salt
         var hmac = CryptoJS.HmacSHA256(
             text,
-            CryptoJS.SHA1(text)
+            CryptoJS.HmacSHA256(text, text)
         );
 
         return CryptoJS.enc.Hex.stringify(hmac);
