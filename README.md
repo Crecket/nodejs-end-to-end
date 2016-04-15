@@ -12,13 +12,11 @@ session fix
 - npm 
 - bower
 - node.js
-- npm browserify package (npm install -g browserify)
+- npm browserify package (install with: 'npm install -g browserify')
 
 ## Installation commands
-- npm install (runs all required install/update commands)
+- npm run generate
 - node app
-
-
 
 ## Verification 
 - User enters name/password
@@ -30,13 +28,13 @@ session fix
 
 ## Message 
 - Client checks if user is logged in
-- Client encrypts message with own private key
-- Client encrypts cypher with target public key
+- Client encrypts message with own rsa private key
+- Client encrypts cypher with target rsa public key
 - Message is sent to the server
 - Server checks if user is logged in
 - Message is sent to the client
-- Client decrypts with own private key
-- Client decrypts with sender public key
+- Client decrypts with own private rsa key
+- Client decrypts with sender public rsa key
 - Message is shown
 
 

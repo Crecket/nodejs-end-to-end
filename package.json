@@ -30,7 +30,8 @@
     "socket.io": "^1.4.5"
   },
   "scripts": {
-    "generate": "npm install && bower install && npm install -g browserify && browserify -r node-rsa > ./public/js/node-bundle.js && gulp default"
+    "generate": "npm install && bower install && npm run browser && gulp",
+    "browser": "browserify -r node-rsa > ./js/node-bundle.js"
   },
   "devDependencies": {},
   "repository": {

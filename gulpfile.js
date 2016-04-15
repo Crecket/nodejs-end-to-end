@@ -32,7 +32,16 @@ var cssFiles = [
     'bower_components/font-awesome/css/font-awesome.min.css',
     'css/style.css'
 ];
+
+// custom js files
 gulp.task('js', function () {
+    return gulp.src(sources)
+        .pipe(sourcemaps.init())
+        .pipe(concat('main.js'))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
+});
+gulp.task('js-min', function () {
     return gulp.src(sources)
         .pipe(sourcemaps.init())
         .pipe(concat('main.js'))
@@ -40,36 +49,15 @@ gulp.task('js', function () {
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('public/dist'));
 });
-gulp.task('min', function () {
-    return gulp.src(sources)
-        .pipe(sourcemaps.init())
-        .pipe(concat('main.js'))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('public/dist'));
-});
+
+// css
 gulp.task('css', function () {
     gulp.src(cssFiles)
         .pipe(concat('style.css'))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9'))
         .pipe(gulp.dest('public/dist'))
 });
-
-gulp.task('js-package', function () {
-    return gulp.src(package_sources)
-        .pipe(sourcemaps.init())
-        .pipe(concat('package.js'))
-        .pipe(uglify())
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('public/dist'));
-});
-gulp.task('min-package', function () {
-    return gulp.src(package_sources)
-        .pipe(sourcemaps.init())
-        .pipe(concat('package.js'))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('public/dist'));
-});
-gulp.task('css-minify', function () {
+gulp.task('css-min', function () {
     gulp.src(cssFiles)
         .pipe(concat('style.css'))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9'))
@@ -77,15 +65,34 @@ gulp.task('css-minify', function () {
         .pipe(gulp.dest('public/dist'))
 });
 
+// bower/npm package stuff
+gulp.task('jspackage', function () {
+    return gulp.src(package_sources)
+        .pipe(sourcemaps.init())
+        .pipe(concat('package.js'))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
+});
+gulp.task('jspackage-min', function () {
+    return gulp.src(package_sources)
+        .pipe(sourcemaps.init())
+        .pipe(concat('package.js'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
+});
 
 
 gulp.task('watch', function () {
-    gulp.watch(sources, ['js']);
-    gulp.watch(package_sources, ['min']);
+    gulp.watch(sources, ['js-min']);
+    gulp.watch(package_sources, ['jspackage-min']);
+    gulp.watch(cssFiles, ['css-min']);
 });
 gulp.task('watch-dev', function () {
-    gulp.watch(sources, ['js-min']);
-    gulp.watch(package_sources, ['min-package']);
+    gulp.watch(sources, ['js']);
+    gulp.watch(package_sources, ['jspackage']);
+    gulp.watch(cssFiles, ['css']);
 });
-gulp.task('default', ['js', 'js-package']);
-gulp.task('min', ['js-min', 'min-package'])
+
+gulp.task('default', ['js', 'jspackage', 'css']);
+gulp.task('min', ['js-min', 'jspackage-min', 'css-min'])

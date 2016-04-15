@@ -20,9 +20,11 @@ function debug(message) {
     }
 }
 
+// crypto and session helper init
 var CryptoHelper = new CryptoHelper();
 var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
+// create new key set on startup
 SessionHelper.newKeySet(function (keys) {
     $('#public_key_input').text(keys.publicKey);
     $('#private_key_input').text(keys.privateKey);
@@ -98,26 +100,9 @@ socket.on('connect', function () {
 
 }).on('login_salt_callback', function (res) {
 
-    debug('Login callback ' + res.success);
-
-    loginLoading = false;
-
-    SessionHelper.loginAttemptCallback(res);
-
-    if (res.success === false) {
-        // Invalid login attempt
-        $('#login_section').show();
-        $('#content').hide();
-        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
-
-    } else {
-
-        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-check');
-        $('#login_screen').fadeOut("slow", function () {
-            $('#content').fadeIn();
-        });
-
-    }
+    debug('Salt callback');
+    // send to session handler
+    SessionHelper.loginSaltCallback(res);
 
 }).on('message_callback', function (res) {
 
@@ -155,6 +140,7 @@ $(document.body).on('submit', '#login_form', function () {
         if (username.length > 3 && username.length < 16 && CryptoHelper.validPasswordType(password)) {
 
             setTimeout(function () {
+                debug('Login attempt');
                 SessionHelper.loginAttempt(username, password);
             }, 100);
 
