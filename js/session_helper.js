@@ -22,13 +22,33 @@ function ConnectionHelper(socket, CryptoHelper) {
     // Public key of current target for chat messages
     var targetKey = false;
 
+    var tempPassword = "";
+
     // Attempt to verify username with server
     this.loginAttempt = function (username, password) {
-
         debug('Login attempt');
 
+        // Temporarily store password in var
+        tempPassword = password;
+
+        // fallback for unsetting password to make sure it isn't stored in memory
+        setTimeout(function () {
+            tempPassword = "";
+        }, 2000);
+
+        // Send attempt to server
+        socket.emit('request_salt', username);
+    }
+
+    // Salt Callback for login attempt
+    this.loginSaltCallback = function (salt) {
+        debug('Salt callback');
+
         // Hash password before submitting
-        var passwordHash = CryptoHelper.hash(password);
+        var passwordHash = CryptoHelper.hash(tempPassword, salt);
+
+        // unset temp
+        tempPassword = "";
 
         // Encrypt with server's public key
         var passwordCipher = CryptoHelper.rsaEncryptPem(serverPublicKey, passwordHash);
@@ -137,8 +157,8 @@ function ConnectionHelper(socket, CryptoHelper) {
         privateKey = newKeyData.privateKey;
         publicKey = newKeyData.publicKey;
 
-        if(callback){
-            callback({'privateKey': privateKey, 'publicKey':publicKey});
+        if (callback) {
+            callback({'privateKey': privateKey, 'publicKey': publicKey});
         }
 
         this.updateKey();

@@ -194,6 +194,28 @@ io.on('connection', function (socket) {
         }
     });
 
+    // send back salt
+    socket.on('request_salt', function (username) {
+
+        var salt = false;
+
+        // select salt for this user
+        mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [username], function (err, result, fields) {
+            if (err) {
+            } else if (result.length === 1) {
+                salt = result[0].salt;
+            }
+        });
+
+        // TODO create random salt to hide that no user was found. Main issue is that salt is different if no user is found each time
+        if (!salt) {
+            salt = randomToken();
+        }
+
+        // call back to client
+        socket.emit('login_salt_callback', salt);
+    });
+
     // incoming message request
     socket.on('public_key', function (inputKey) {
         if (verified) {
