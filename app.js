@@ -80,6 +80,9 @@ var RSAPublicKeyBits = new NodeRSA(RSAPublicKey, 'public');
 //
 // process.exit();
 
+// var test = bcrypt.hashSync("40022382bedf6076837be1c7aa045f12d88320de96bc03c05d75052acb9a3b39", bcrypt.genSaltSync(11));
+// console.log(test);
+
 // Create mysql connection
 var mysqlConnection = mysql.createConnection('mysql://root:1234@localhost/nodejs_db?debug=false');
 
@@ -234,10 +237,10 @@ io.on('connection', function (socket) {
                     // hash from the database
                     var db_hash = result[0].hash;
 
-                    // compare password ahsh with db_hash
+                    // compare password hash with db_hash
                     bcrypt.compare(password_hash, db_hash, function (err, res) {
                         if (res) {
-                            console.log('Valid login ' + usernameInput);
+
                             callbackResult.success = true;
                             callbackResult.message = 'Succesfully logged in';
                             callbackResult.username = result[0].username;
