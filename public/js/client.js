@@ -96,28 +96,10 @@ socket.on('connect', function () {
 
     }
 
-}).on('login_salt_callback', function (res) {
+}).on('login_salt_callback', function (salt) {
 
-    debug('Login callback ' + res.success);
-
-    loginLoading = false;
-
-    SessionHelper.loginAttemptCallback(res);
-
-    if (res.success === false) {
-        // Invalid login attempt
-        $('#login_section').show();
-        $('#content').hide();
-        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
-
-    } else {
-
-        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-check');
-        $('#login_screen').fadeOut("slow", function () {
-            $('#content').fadeIn();
-        });
-
-    }
+    debug('Login salt callback ' + salt);
+    SessionHelper.loginSaltCallback(salt);
 
 }).on('message_callback', function (res) {
 

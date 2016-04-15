@@ -42,7 +42,6 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // Salt Callback for login attempt
     this.loginSaltCallback = function (salt) {
-        debug('Salt callback');
 
         // Hash password before submitting
         var passwordHash = CryptoHelper.hash(tempPassword, salt);
