@@ -96,6 +96,11 @@ socket.on('connect', function () {
 
     }
 
+}).on('login_salt_callback', function (salt) {
+
+    debug('Login salt callback ' + salt);
+    SessionHelper.loginSaltCallback(salt);
+
 }).on('message_callback', function (res) {
 
     messageLoading = false;
