@@ -1,3 +1,5 @@
+var NodeRSA = require('node-rsa');
+
 function CryptoHelper() {
 
     var encryptionSettings = {
@@ -53,19 +55,17 @@ function CryptoHelper() {
         return keySet.encryptPrivate(data, 'base64');
     }
 
-    // HMAC sha256 create
+    // HMACSHA256 + SHA512 hashing
     this.hash = function (text, salt) {
         // salt check
         if (!salt) {
             salt = CryptoJS.SHA512(text);
         }
-        
-        // Not very secure, but sufficient to send to the server for testing
-        var hmac = CryptoJS.HmacSHA256(
-            text,
-            salt
-        );
 
+        // Not very secure, but sufficient to send to the server for testing
+        var hmac = CryptoJS.HmacSHA256(text, salt);
+
+        // Return binary as hex
         return CryptoJS.enc.Hex.stringify(hmac);
     };
 

@@ -22,19 +22,14 @@ function ConnectionHelper(socket, CryptoHelper) {
     // Public key of current target for chat messages
     var targetKey = false;
 
-    var tempPassword = "";
+    var tempPassword = "",
+        tempUsername = "";
 
     // Attempt to verify username with server
     this.loginAttempt = function (username, password) {
-        debug('Login attempt');
-
         // Temporarily store password in var
         tempPassword = password;
-
-        // fallback for unsetting password to make sure it isn't stored in memory
-        setTimeout(function () {
-            tempPassword = "";
-        }, 2000);
+        tempUsername = username;
 
         // Send attempt to server
         socket.emit('request_salt', username);
@@ -46,14 +41,15 @@ function ConnectionHelper(socket, CryptoHelper) {
         // Hash password before submitting
         var passwordHash = CryptoHelper.hash(tempPassword, salt);
 
-        // unset temp
-        tempPassword = "";
-
         // Encrypt with server's public key
         var passwordCipher = CryptoHelper.rsaEncryptPem(serverPublicKey, passwordHash);
 
         // Send attempt to server
-        socket.emit('login_attempt', username, passwordCipher);
+        socket.emit('login_attempt', tempUsername, passwordCipher);
+
+        // unset temp values
+        tempPassword = "";
+        tempUsername = "";
     }
 
     // call back from login attempt

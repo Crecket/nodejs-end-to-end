@@ -1,95 +1,98 @@
-// Defining base pathes
-var basePaths = {
-    bower: './bower_components/'
-};
-
-// Defining requirements
 var gulp = require('gulp');
-var plumber = require('gulp-plumber');
-var sass = require('gulp-sass');
-var watch = require('gulp-watch');
-var minifyCSS = require('gulp-minify-css');
-var rename = require('gulp-rename');
 var concat = require('gulp-concat');
+var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
-var merge2 = require('merge2');
-var ignore = require('gulp-ignore');
-var rimraf = require('gulp-rimraf');
+var sourcemaps = require('gulp-sourcemaps');
+var minifyCSS = require('gulp-minify-css');
+var autoprefixer = require('gulp-autoprefixer');
 
+var package_sources = [
+    'bower_components/jquery/dist/jquery.min.js',
+    'bower_components/bootstrap/dist/js/bootstrap.min.js',
+    'bower_components/socket.io-client/socket.io.js',
+    'bower_components/sjcl/sjcl.js',
+    'bower_components/cryptojslib/components/core.js',
+    'bower_components/cryptojslib/components/hmac.js',
+    'bower_components/cryptojslib/components/md5.js',
+    'bower_components/cryptojslib/components/sha1.js',
+    'bower_components/cryptojslib/components/sha256.js',
+    'bower_components/cryptojslib/rollups/sha512.js',
+    'bower_components/cryptojslib/components/enc-base64.js',
+    'bower_components/cryptojslib/components/enc-base64.js',
+];
+var sources = [
+    'js/node-bundle.js',
+    'js/utils.js',
+    'js/crypto_helpers.js',
+    'js/session_helper.js',
+    'js/client.js'
+];
+var cssFiles = [
+    'bower_components/bootstrap/dist/css/bootstrap.min.css',
+    'bower_components/font-awesome/css/font-awesome.min.css',
+    'css/style.css'
+];
 
-// Run: 
-// gulp sass
-// Compiles SCSS files in CSS
-gulp.task('sass', function () {
-    gulp.src('./sass/*.scss')
-        .pipe(plumber())
-        .pipe(sass())
-        .pipe(gulp.dest('./css'));
+// custom js files
+gulp.task('js', function () {
+    return gulp.src(sources)
+        .pipe(sourcemaps.init())
+        .pipe(concat('main.js'))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
+});
+gulp.task('js-min', function () {
+    return gulp.src(sources)
+        .pipe(sourcemaps.init())
+        .pipe(concat('main.js'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
+});
+
+// css
+gulp.task('css', function () {
+    gulp.src(cssFiles)
+        .pipe(concat('style.css'))
+        .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9'))
+        .pipe(gulp.dest('public/dist'))
+});
+gulp.task('css-min', function () {
+    gulp.src(cssFiles)
+        .pipe(concat('style.css'))
+        .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9'))
+        .pipe(minifyCSS())
+        .pipe(gulp.dest('public/dist'))
+});
+
+// bower/npm package stuff
+gulp.task('jspackage', function () {
+    return gulp.src(package_sources)
+        .pipe(sourcemaps.init())
+        .pipe(concat('package.js'))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
+});
+gulp.task('jspackage-min', function () {
+    return gulp.src(package_sources)
+        .pipe(sourcemaps.init())
+        .pipe(concat('package.js'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
 });
 
 
-// Run: 
-// gulp watch
-// Starts watcher. Watcher runs gulp sass task on changes
 gulp.task('watch', function () {
-    gulp.watch('./sass/**/*.scss', ['sass']);
-    gulp.watch('./css/theme.css', ['minifycss']);
+    gulp.watch(sources, ['js-min']);
+    gulp.watch(package_sources, ['jspackage-min']);
+    gulp.watch(cssFiles, ['css-min']);
+});
+gulp.task('watch-dev', function () {
+    gulp.watch(sources, ['js']);
+    gulp.watch(package_sources, ['jspackage']);
+    gulp.watch(cssFiles, ['css']);
 });
 
-
-// Run: 
-// gulp minifycss
-// Minifies CSS files
-gulp.task('minifycss', ['cleancss'], function(){
-  return gulp.src('./css/*.css')
-    .pipe(plumber())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(minifyCSS({keepBreaks:false}))
-    .pipe(gulp.dest('./css/'));
-}); 
-gulp.task('cleancss', function() {
-  return gulp.src('./css/*.min.css', { read: false }) // much faster 
-    .pipe(ignore('theme.css'))
-    .pipe(rimraf());
-});
-
-
-// Run: 
-// gulp copy-assets. 
-// Copy all needed dependency assets files from bower_component assets to themes /js, /scss and /fonts folder. Run this task after bower install or bower update
-
-// Copy all Bootstrap JS files 
-gulp.task('copy-assets', function() {
-    gulp.src(basePaths.bower + 'bootstrap-sass/assets/javascripts/**/*.js')
-       .pipe(gulp.dest('./js'));
-
-// Copy all Bootstrap SCSS files
-    gulp.src(basePaths.bower + 'bootstrap-sass/assets/stylesheets/**/*.scss')
-       .pipe(gulp.dest('./sass/bootstrap-sass'));
-
-// Copy all Bootstrap Fonts
-    gulp.src(basePaths.bower + 'bootstrap-sass/assets/fonts/bootstrap/*.{ttf,woff,woff2,eof,svg}')
-        .pipe(gulp.dest('./fonts'));
-
-// Copy all Font Awesome Fonts
-    gulp.src(basePaths.bower + 'fontawesome/fonts/**/*.{ttf,woff,woff2,eof,svg}')
-        .pipe(gulp.dest('./fonts'));
-
-// Copy all Font Awesome SCSS files
-    gulp.src(basePaths.bower + 'fontawesome/scss/*.scss')
-        .pipe(gulp.dest('./sass/fontawesome'));
-
-// Copy jQuery
-    gulp.src(basePaths.bower + 'jquery/dist/*.js')
-        .pipe(gulp.dest('./js'));
-
-// Copy owl carousel
-    gulp.src(basePaths.bower + 'OwlCarousel2/dist/*.js')
-        .pipe(gulp.dest('./js'));
-    gulp.src(basePaths.bower + 'OwlCarousel2/dist/assets/*.css')
-        .pipe(gulp.dest('./css'));
-
-// _s JS files
-    gulp.src(basePaths.bower + '_s/js/*.js')
-        .pipe(gulp.dest('./js'));
-});
+gulp.task('default', ['js', 'jspackage', 'css']);
+gulp.task('min', ['js-min', 'jspackage-min', 'css-min'])

@@ -201,19 +201,15 @@ io.on('connection', function (socket) {
 
         // select salt for this user
         mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [username], function (err, result, fields) {
-            if (err) {
-            } else if (result.length === 1) {
+            if (err || result.length !== 1) {
+                // TODO if no user is found salt varies each time so if salt !== salt in > 2 attempts than user doesn't exist
+                salt = randomToken();
+            } else {
                 salt = result[0].salt;
             }
+            socket.emit('login_salt_callback', salt);
         });
 
-        // TODO create random salt to hide that no user was found. Main issue is that salt is different if no user is found each time
-        if (!salt) {
-            salt = randomToken();
-        }
-
-        // call back to client
-        socket.emit('login_salt_callback', salt);
     });
 
     // incoming message request
@@ -238,12 +234,25 @@ io.on('connection', function (socket) {
                 var password_hash = rsaDecrypt(password_cipher);
             }
 
+            // // bcrypt hashing exmple, use it to create new users for now
+            // bcrypt.genSalt(11, function (err, salt) {
+            //     bcrypt.hash(password_hash, salt, function (err, hash) {
+            //         console.log('');
+            //         console.log(password_hash);
+            //         console.log('');
+            //         console.log(hash);
+            //         console.log('');
+            //     });
+            // });
+
             mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [usernameInput], function (err, result, fields) {
                 if (err) {
                     callbackResult.message = "Something went wrong";
                     socket.emit('login_attempt_callback', callbackResult);
                     throw err;
                 }
+
+                console.log(usernameInput);
 
                 // Only want 1 user/result
                 if (result.length === 1) {
@@ -252,7 +261,7 @@ io.on('connection', function (socket) {
 
                     // compare password hash with db_hash
                     bcrypt.compare(password_hash, db_hash, function (err, res) {
-                        if (res) {
+                        if (!err && res) {
 
                             callbackResult.success = true;
                             callbackResult.message = 'Succesfully logged in';
@@ -265,7 +274,7 @@ io.on('connection', function (socket) {
 
                         } else {
                             console.log('Invalid');
-                            callbackResult.message = "Invalid login attempt2";
+                            callbackResult.message = "Invalid login attempt";
                         }
                         socket.emit('login_attempt_callback', callbackResult);
 
@@ -275,7 +284,7 @@ io.on('connection', function (socket) {
                     });
 
                 } else {
-                    callbackResult.message = "Invalid login attempt1";
+                    callbackResult.message = "Invalid login attempt";
                     console.log('Return result', callbackResult);
                     socket.emit('login_attempt_callback', callbackResult);
                 }
