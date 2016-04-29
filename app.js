@@ -116,7 +116,7 @@ console.log('Express started at port: ' + port);
 // Make express use ejs for rendering views
 app.set('view engine', 'ejs');
 // trust first proxy
-app.set('trust proxy', 1)
+app.set('trust proxy', 1);
 
 // home path
 app.get('/', function (req, res, next) {
