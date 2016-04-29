@@ -44,8 +44,4 @@ session fix
 Could be solved by allowing users to enter their own public/private keys which they can than send over a different chat service.
 
 #### Stronger setup should be used to send password to server 
-HMAC-SHA256 without unique salts isn't sufficient. This would expose user's with the same password once atleast 1 hash has been bruteforced.
-
-A system has to be added to create a unique salt for each login attempt OR a different system has to be added.
-
-Creating a unique salt for a user and encrypting this salt with the user's password could be a fix. Next that cypher could be stored in the database and sent to the client when the client wants to log in.
+SHA512 + unique salt which is created on register is created on login attempt. salt is now exposed to client

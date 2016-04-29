@@ -6,13 +6,23 @@ function ConnectionHelper(socket, CryptoHelper) {
     var username = false;
     // boolean wheter this client is verified or not
     var verified = false;
+
+    // ===========================================
     // Full key set, used for decryption/encryption
     var keySet = false;
     // This client's private key, only used for exporting
     var privateKey = false;
     // This client's public key, only used for exporting
     var publicKey = false;
+    // ===========================================
+    // Full key set, used for signing/verification
+    var keySetSign = false;
+    // This client's private key, only used for exporting Sign key
+    var privateKeySign = false;
+    // This client's public key, only used for exporting Sign key
+    var publicKeySign = false;
 
+    // ===========================================
     // NodeJS public key
     var serverPublicKey = false;
 
@@ -88,16 +98,13 @@ function ConnectionHelper(socket, CryptoHelper) {
     this.sendMessage = function (message) {
         if (this.isVerified() && this.hasTarget()) {
 
-            // TODO encrypt with aes
-            // First encrypt with our own private key
-            var messageCypher1 = CryptoHelper.rsaEncryptPriv(keySet, message);
-
-            // Encrypt with target public key
-            var messageCypher2 = CryptoHelper.rsaEncryptPem(targetKey, messageCypher1);
+            // Encryp with a stored aes key
+            var messageCypher = CryptoHelper.aesEncrypt(message, targetKey.key, targetKey.iv);
 
             socket.emit('message', {
-                'cypher': messageCypher2,
-                'target': targetName
+                'cypher': messageCypher,
+                'target': targetName,
+                'from': username
             });
 
         } else {
@@ -114,7 +121,7 @@ function ConnectionHelper(socket, CryptoHelper) {
     this.updateKey = function () {
         if (verified) {
             debug('Sending public key to server');
-            socket.emit('public_key', publicKey);
+            socket.emit('public_key', {'publicKey': publicKey, 'publicKeySign': publicKeySign});
         }
     };
 
@@ -137,47 +144,80 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // set the new target name and public key
     this.setTarget = function (newTarget) {
+        // check if user is verified, exists and target is not self
         if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
-            targetName = newTarget;
 
             // check if we already have a aes key
-            if (storedKeys[newTarget]) {
-                targetKey = userList[newTarget]['public_key'];
+            if (storedKeys[newTarget] && storedKeys[newTarget]['key']) {
+                // we have as stored key, set the iv/key
+                targetKey = {'key': storedKeys[newTarget]['key'], 'iv': userList[newTarget]['iv']};
+                targetName = newTarget;
+                debug('Setting target to: ' + newTarget);
+                return true;
             } else {
+                // we dont have a stored key, request a new one from target
                 fn.requestAesKey(newTarget);
+                // set to true to avoid double requests
+                storedKeys[newTarget] = true;
+                debug('Requires new key');
             }
-
-            return true;
         }
         return false;
     };
 
+    // TODO aes exchange use rsa in the request for verification
     // request a new aes key from a target
     this.requestAesKey = function (target) {
         console.log('Aes request for ' + target);
-        socket.emit('request_aes', target);
+
+        // for verification
+        var cypher = CryptoHelper.rsaEncryptPriv(keySet, responseSerialized);
+
+        socket.emit('request_aes', {'target': target, 'from': username});
     };
 
-    // set a aes key for usage with a client
-    this.setAesKey = function (callback) {
-        // decrypt with our private key
+    // store a aes key and iv after other client sends it
+    this.setAesKey = function (response, callback) {
 
-        // First decrypt with our own private key
-        var cypher2 = CryptoHelper.rsaDecrypt(keySet, callback.cypher);
+        var resultname = "";
 
-        // get the sender's public key from the stored user list
-        var senderPublickey = userList[receivedData.from]['public_key'];
+        if (response.success) {
 
-        // Decrypt with the sender's public key
-        var serializedData = CryptoHelper.rsaDecryptPemPub(senderPublickey, cypher2);
+            // get the sender's data
+            var fromData = userList[response.from];
 
-        var normalData = parseArray(serializedData);
+            if (fromData) {
 
-        console.log("=======");
-        console.log(normalData);
+                // get the sender's public key from the stored user list
+                var senderPublicKey = fromData['public_key'];
+
+                if (fromData) {
+
+                    // Next decrypt with our own private key
+                    var cypher = CryptoHelper.rsaDecrypt(keySet, response.cypher);
+
+                    // First decrypt with the sender's public key
+                    var serializedData = CryptoHelper.rsaDecryptPemPub(senderPublicKey, cypher);
+
+                    // parse data
+                    var normalData = parseArray(serializedData);
+
+                    // verify iv and key
+                    if (normalData.iv.length === 32 && normalData.key.length === 64) {
+
+                        // store the key and iv
+                        storedKeys[response.from] = {'iv': normalData.iv, 'key': normalData.key};
+                        targetName = resultname = response.from;
+
+                    }
+                }
+            }
+        }
+        // callback
+        callback(resultname);
     };
 
-    // create a new aes key and iv to use with different client
+    // create a new aes key and iv to use after other client requests it
     this.createNewAes = function (request) {
 
         // generate new random iv and key
@@ -185,7 +225,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         var key = CryptoHelper.newAesKey();
 
         // store the key and iv
-        storedKeys[request.username] = {'iv': iv, 'key': key};
+        storedKeys[request.from] = {'iv': iv, 'key': key};
 
         // serialize the data
         var responseSerialized = serializeArray({'iv': iv, 'key': key, 'comment': 'Iv 16bit, Key 32bit'});
@@ -194,14 +234,24 @@ function ConnectionHelper(socket, CryptoHelper) {
         var cypher = CryptoHelper.rsaEncryptPriv(keySet, responseSerialized);
 
         // get the sender's public key from the stored user list
-        var senderPublickey = userList[receivedData.username]['public_key'];
+        var senderPublickey = userList[request.from]['public_key'];
 
         // encryp with sender's public key
         var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, cypher);
 
         // send to the server
-        socket.emit('response_aes_request', {'cypher': cypherResult, 'from': request.username});
+        socket.emit('response_aes_request', {
+            'cypher': cypherResult,
+            'from': username,
+            'target': request.from
+        });
     };
+
+    // check if key and iv are setup propperly after setting them up
+    this.aesConfirmationCheck = function (cypher, from) {
+
+        debug('Setting target to: ' + userName);
+    }
 
     // set the server's public key
     this.setServerPublicKey = function (key) {
@@ -226,6 +276,30 @@ function ConnectionHelper(socket, CryptoHelper) {
 
         this.updateKey();
     };
+
+    // create a new key set for this client
+    this.newKeySetSign = function (callback) {
+        var newKeyData = CryptoHelper.createKeySet(1024);
+
+        keySetSign = newKeyData.rsaObj;
+
+        debug('Creating new rsa key set signing');
+        debug(keySet);
+
+        privateKey = newKeyData.privateKey;
+        publicKey = newKeyData.publicKey;
+
+        if (callback) {
+            callback({'privateKey': privateKey, 'publicKey': publicKey});
+        }
+
+        this.updateKey();
+    };
+
+    // check if a aes key is stored for given username
+    this.hasAes = function (name) {
+        return;
+    }
 
     // return current username
     this.getUsername = function () {

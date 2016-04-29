@@ -24,11 +24,16 @@ function debug(message) {
 var CryptoHelper = new CryptoHelper();
 var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
-// create new key set on startup
+// create new encryption key set on startup
 SessionHelper.newKeySet(function (keys) {
     $('#public_key_input').text(keys.publicKey);
     $('#private_key_input').text(keys.privateKey);
-    $('#qr_code_img').attr('src', 'https://crecket.me/qr/createcode/' + encodeURIComponent(encodeURIComponent(JSON.stringify({'key': keys.publicKey}))));
+});
+
+// create new signing key set on startup
+SessionHelper.newKeySetSign(function (keys) {
+    $('#public_key_sign_input').text(keys.publicKey);
+    $('#private_key_sign_input').text(keys.privateKey);
 });
 
 var loginLoading = false;
@@ -146,11 +151,16 @@ socket.on('message', function (res) {
 
 // someone wants to chat and is requesting that we create a new aes key to use
 socket.on('aesKeyRequest', function (request) {
+    debug('Received AES request');
     SessionHelper.createNewAes(request);
 });
 
+// the client a aes key was requested from has sent a response
 socket.on('aesKeyResponse', function (response) {
-    // SessionHelper
+    debug('Received AES response');
+    SessionHelper.setAesKey(response, function(username){
+        $('#inputTarget').val(username);
+    });
 });
 
 function addMessage(username, text) {
@@ -221,7 +231,6 @@ $(document.body).on('click', '.user-select', function () {
         var userName = $(this).data('user');
         if (SessionHelper.setTarget(userName)) {
             $('#inputTarget').val(userName);
-            debug('Setting target to: ' + userName);
         }
     }
     return false;

@@ -151,7 +151,6 @@ io.on('connection', function (socket) {
     // Send server's public key to client
     socket.emit('public_key', RSAPublicKey);
 
-    // TODO check if user is already verified
     // Send verify request to user (Show login form)
     socket.emit('request verify');
 
@@ -193,43 +192,42 @@ io.on('connection', function (socket) {
             socket.emit('message_callback', messageCallback);
         }
     });
-
+    
     // client wants to create a new aes key with another client
-    socket.on('request_aes', function (username) {
+    socket.on('request_aes', function (request) {
 
         var messageCallback = {'success': false, "message": ""};
 
-        if (userList[username]) {
-            var targetData = userList[username];
+        if (userList[request.target]) {
+            var targetData = userList[request.target];
 
             io.sockets.connected[targetData.socketId].emit('aesKeyRequest', {
-                'username': username
+                'target': request.target,
+                'from': request.from
             });
 
         } else {
-            messageCallback.message = "User was not found.";
+            messageCallback.message = "User not found.";
+            socket.emit('aesKeyResponse', messageCallback);
         }
-
-        // socket.emit('aesKeyResponse', messageCallback);
     });
 
     // client wants to create a new aes key with another client
     socket.on('response_aes_request', function (response) {
 
-        var messageCallback = {'success': false, "message": ""};
+        if (userList[response.target]) {
+            var targetData = userList[response.target];
 
-        if (userList[username]) {
-            var targetData = userList[username];
-
-            io.sockets.connected[targetData.socketId].emit('aesKeyRequest', {
-                'username': username
+            io.sockets.connected[targetData.socketId].emit('aesKeyResponse', {
+                'target': response.target,
+                'from': response.from,
+                'success': true,
+                'cypher': response.cypher
             });
 
         } else {
-            messageCallback.message = "User was not found.";
+            socket.emit('aesKeyResponse', {'success': false, "message": "User was not found."});
         }
-
-        socket.emit('aesKeyResponse', messageCallback);
     });
 
     // send back salt
@@ -251,9 +249,9 @@ io.on('connection', function (socket) {
     });
 
     // incoming message request
-    socket.on('public_key', function (inputKey) {
+    socket.on('public_key', function (inputKeys) {
         if (verified) {
-            setUserKey(username, inputKey);
+            setUserKeys(username, inputKeys);
         }
     });
 
@@ -338,11 +336,13 @@ io.on('connection', function (socket) {
 
 // Set username public key
 // param2: key as plain text
-function setUserKey(username, key) {
-    var tempKey = new NodeRSA(key, 'public');
+function setUserKeys(username, keys) {
+    var tempKey = new NodeRSA(keys.publicKey, 'public');
+    var tempKeySign = new NodeRSA(keys.publicKeySign, 'public');
 
-    if (tempKey.isPublic()) {
+    if (tempKey.isPublic() && tempKeySign.isPublic()) {
         userList[username]['public_key'] = tempKey.exportKey('public');
+        userList[username]['public_key_sign'] = tempKeySign.exportKey('public');
     }
 }
 
@@ -396,6 +396,7 @@ setInterval(function () {
         tempArray[key] = {};
         tempArray[key]['username'] = userList[key]['username'];
         tempArray[key]['public_key'] = userList[key]['public_key'];
+        tempArray[key]['public_key_sign'] = userList[key]['public_key_sign'];
     }
 
     io.emit('server_info', {'user_list': tempArray});

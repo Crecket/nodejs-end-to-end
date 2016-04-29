@@ -4,19 +4,6 @@ function CryptoHelper() {
 
     var fn = this;
 
-    // var encryptionSettings = {
-    //     adata: "",
-    //     iter: 25000,
-    //     mode: "ccm",
-    //     ts: 128,
-    //     ks: 256
-    // };
-
-    // // Encrypt with password
-    // this.encryptPassword = function (password, data) {
-    //     return sjcl.encrypt(password, data, encryptionSettings);
-    // };
-
     // Encrypt with a public key in pem format
     this.rsaEncryptPem = function (inputPublickey, data) {
         var NodeRSAObj = new NodeRSA(inputPublickey, 'pkcs8-public');
@@ -59,7 +46,7 @@ function CryptoHelper() {
 
     // generate a AES compatible Key
     this.newAesKey = function () {
-        return CryptoJS.enc.Hex.stringify(fn.randomBytes(32)); // 32 * 8 bit = 256 bit
+        return fn.randomBytes(32); // 32 * 8 bit = 256 bit
     };
     // generate a AES compatible IV, 16 or 32 byte
     this.newAesIv = function (size) {
@@ -70,7 +57,7 @@ function CryptoHelper() {
                 size = 16;
             }
         }
-        return CryptoJS.enc.Hex.stringify(fn.randomBytes(size));
+        return fn.randomBytes(size);
     };
     // aes encryption with CBC mode
     this.aesEncrypt = function (text, key, iv) {
@@ -144,7 +131,7 @@ function CryptoHelper() {
     // Verify password length/type etz
     // TODO password requirements character-wise
     this.validPasswordType = function (password) {
-        if (password.length < 1 || password.length > 512) {
+        if (password.length < 0 || password.length > 512) {
             return false;
         }
         return true;
