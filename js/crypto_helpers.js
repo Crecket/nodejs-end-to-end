@@ -2,18 +2,20 @@ var NodeRSA = require('node-rsa');
 
 function CryptoHelper() {
 
-    var encryptionSettings = {
-        adata: "",
-        iter: 25000,
-        mode: "ccm",
-        ts: 128,
-        ks: 256
-    };
+    var fn = this;
 
-    // Encrypt with password
-    this.encryptPassword = function (password, data) {
-        return sjcl.encrypt(password, data, encryptionSettings);
-    };
+    // var encryptionSettings = {
+    //     adata: "",
+    //     iter: 25000,
+    //     mode: "ccm",
+    //     ts: 128,
+    //     ks: 256
+    // };
+
+    // // Encrypt with password
+    // this.encryptPassword = function (password, data) {
+    //     return sjcl.encrypt(password, data, encryptionSettings);
+    // };
 
     // Encrypt with a public key in pem format
     this.rsaEncryptPem = function (inputPublickey, data) {
@@ -40,33 +42,103 @@ function CryptoHelper() {
     // Decrypt a cypher using our private key
     this.rsaDecrypt = function (keySet, cypher) {
         return keySet.decrypt(cypher, 'utf8');
-    }
+    };
     // Decrypt a cypher using our public key
     this.rsaDecryptPub = function (keySet, cypher) {
         return keySet.decryptPublic(cypher, 'utf8');
-    }
+    };
 
     // Encrypt data using our public key
     this.rsaEncrypt = function (keySet, data) {
         return keySet.encrypt(data, 'base64');
-    }
+    };
     // Encrypt data using our private key
     this.rsaEncryptPriv = function (keySet, data) {
         return keySet.encryptPrivate(data, 'base64');
-    }
+    };
 
-    // HMACSHA256 + SHA512 hashing
-    this.hash = function (text, salt) {
-        // salt check
-        if (!salt) {
-            salt = CryptoJS.SHA512(text);
+    // generate a AES compatible Key
+    this.newAesKey = function () {
+        return CryptoJS.enc.Hex.stringify(fn.randomBytes(32)); // 32 * 8 bit = 256 bit
+    };
+    // generate a AES compatible IV, 16 or 32 byte
+    this.newAesIv = function (size) {
+        if (!size) {
+            size = 16; // 16 * 8 bit = 128 bit
+        } else {
+            if (size !== 16 && size !== 32) {
+                size = 16;
+            }
+        }
+        return CryptoJS.enc.Hex.stringify(fn.randomBytes(size));
+    };
+    // aes encryption with CBC mode
+    this.aesEncrypt = function (text, key, iv) {
+
+        // fallback
+        if (!key) {
+            key = fn.newAesKey();
         }
 
-        // Not very secure, but sufficient to send to the server for testing
-        var hmac = CryptoJS.HmacSHA256(text, salt);
+        if (!iv) {
+            iv = fn.newAesIv();
+        }
 
+        // encrypt text
+        var encrypted = CryptoJS.AES.encrypt(
+            text,
+            key,
+            {
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }
+        );
+
+        // turn raw data into Base64 string
+        var ciphertext = encrypted.toString();
+
+        return {
+            'cipher': ciphertext,
+            'key': key,
+            'iv': iv
+        }
+    };
+    // aes decryption with CBC mode
+    this.aesDecrypt = function (cipher, key, iv) {
+
+        // fallback
+        if (!key) {
+            return false;
+        }
+
+        if (!iv) {
+            return false;
+        }
+
+        if (!cipher) {
+            return false;
+        }
+
+        // decrypt cipher with key and iv
+        var decrypted = CryptoJS.AES.decrypt(
+            cipher,
+            key,
+            {
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }
+        );
+
+        // Return decrypted text
+        return decrypted.toString(CryptoJS.enc.Utf8);
+    };
+
+    // SHA512 hashing
+    this.hash = function (text) {
         // Return binary as hex
-        return CryptoJS.enc.Hex.stringify(hmac);
+        return CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(text));
     };
 
     // Verify password length/type etz
@@ -98,4 +170,22 @@ function CryptoHelper() {
         };
     };
 
+    // generate random hex string for given amount of bytes
+    this.randomBytes = function (length, raw) {
+        if (!length) {
+            length = 16;
+        }
+
+        // return as raw bytes array
+        if (!raw) {
+            raw = false;
+        }
+
+        // generate random array
+        var bytes = CryptoJS.lib.WordArray.random(length);
+        if (raw) {
+            return bytes;
+        }
+        return CryptoJS.enc.Hex.stringify(bytes);
+    };
 }

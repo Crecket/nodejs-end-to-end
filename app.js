@@ -172,15 +172,15 @@ io.on('connection', function (socket) {
             if (userList[target]) {
                 var targetData = userList[target];
 
-                if (cypher.length > 0 && cypher.length < 2500) {
+                if (cypher.length > 0 && cypher.length < 5000) {
 
                     console.log('');
                     console.log('Message from ' + username);
 
                     messageCallback.success = true;
                     messageCallback.message = 'Message was sent';
-                    // add username so client knows which public key to use for decryption
 
+                    // add username so client knows which public key to use for decryption
                     io.sockets.connected[targetData.socketId].emit('message', {
                         'cypher': cypher,
                         'from': username
@@ -192,6 +192,44 @@ io.on('connection', function (socket) {
 
             socket.emit('message_callback', messageCallback);
         }
+    });
+
+    // client wants to create a new aes key with another client
+    socket.on('request_aes', function (username) {
+
+        var messageCallback = {'success': false, "message": ""};
+
+        if (userList[username]) {
+            var targetData = userList[username];
+
+            io.sockets.connected[targetData.socketId].emit('aesKeyRequest', {
+                'username': username
+            });
+
+        } else {
+            messageCallback.message = "User was not found.";
+        }
+
+        // socket.emit('aesKeyResponse', messageCallback);
+    });
+
+    // client wants to create a new aes key with another client
+    socket.on('response_aes_request', function (response) {
+
+        var messageCallback = {'success': false, "message": ""};
+
+        if (userList[username]) {
+            var targetData = userList[username];
+
+            io.sockets.connected[targetData.socketId].emit('aesKeyRequest', {
+                'username': username
+            });
+
+        } else {
+            messageCallback.message = "User was not found.";
+        }
+
+        socket.emit('aesKeyResponse', messageCallback);
     });
 
     // send back salt
@@ -219,7 +257,7 @@ io.on('connection', function (socket) {
         }
     });
 
-    // TODO track failed attempts
+    // TODO track failed attempts and other login essentials
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (usernameInput, password_cipher) {
 

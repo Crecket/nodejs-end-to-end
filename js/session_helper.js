@@ -1,5 +1,7 @@
 function ConnectionHelper(socket, CryptoHelper) {
 
+    var fn = this;
+
     // current username
     var username = false;
     // boolean wheter this client is verified or not
@@ -17,11 +19,15 @@ function ConnectionHelper(socket, CryptoHelper) {
     // List off all user's public key lists and username
     var userList = {};
 
+    // stored aes keys for different users
+    var storedKeys = {};
+
     // username of current target for chat messages
     var targetName = false;
     // Public key of current target for chat messages
     var targetKey = false;
 
+    // shitty fix to store passwords while waiting for the salt
     var tempPassword = "",
         tempUsername = "";
 
@@ -33,10 +39,11 @@ function ConnectionHelper(socket, CryptoHelper) {
 
         // Send attempt to server
         socket.emit('request_salt', username);
-    }
+    };
 
     // Salt Callback for login attempt
     this.loginSaltCallback = function (salt) {
+
         // Hash password before submitting
         var passwordHash = CryptoHelper.hash(tempPassword, salt);
 
@@ -49,7 +56,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         // unset temp values
         tempPassword = "";
         tempUsername = "";
-    }
+    };
 
     // call back from login attempt
     this.loginAttemptCallback = function (res) {
@@ -59,7 +66,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
             this.updateKey();
         }
-    }
+    };
 
     // Decrypt a cypher by using our private key
     // Next, decrypt the new cypher with the sender's public key
@@ -75,12 +82,13 @@ function ConnectionHelper(socket, CryptoHelper) {
         var message = CryptoHelper.rsaDecryptPemPub(senderPublickey, cypher2);
 
         callback(message);
-    }
+    };
 
     // Send a message if user is verified
     this.sendMessage = function (message) {
         if (this.isVerified() && this.hasTarget()) {
 
+            // TODO encrypt with aes
             // First encrypt with our own private key
             var messageCypher1 = CryptoHelper.rsaEncryptPriv(keySet, message);
 
@@ -95,12 +103,12 @@ function ConnectionHelper(socket, CryptoHelper) {
         } else {
             debug('Not verified');
         }
-    }
+    };
 
     // return if this private verified variable is true/false
     this.isVerified = function () {
         return verified !== false;
-    }
+    };
 
     // if user is verified, send the server the current key
     this.updateKey = function () {
@@ -108,36 +116,97 @@ function ConnectionHelper(socket, CryptoHelper) {
             debug('Sending public key to server');
             socket.emit('public_key', publicKey);
         }
-    }
+    };
 
     // Update the user list and check if current target is still available
     this.updateUserList = function (newUserList) {
         userList = newUserList;
+        // check if target still exists
         if (!userList[targetName]) {
             targetKey = false;
             targetName = false;
+            return false;
         }
-    }
+        return true;
+    };
 
     // check if target is set
     this.hasTarget = function () {
         return targetName !== false;
-    }
+    };
 
     // set the new target name and public key
     this.setTarget = function (newTarget) {
         if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
             targetName = newTarget;
-            targetKey = userList[newTarget]['public_key'];
+
+            // check if we already have a aes key
+            if (storedKeys[newTarget]) {
+                targetKey = userList[newTarget]['public_key'];
+            } else {
+                fn.requestAesKey(newTarget);
+            }
+
             return true;
         }
         return false;
-    }
+    };
+
+    // request a new aes key from a target
+    this.requestAesKey = function (target) {
+        console.log('Aes request for ' + target);
+        socket.emit('request_aes', target);
+    };
+
+    // set a aes key for usage with a client
+    this.setAesKey = function (callback) {
+        // decrypt with our private key
+
+        // First decrypt with our own private key
+        var cypher2 = CryptoHelper.rsaDecrypt(keySet, callback.cypher);
+
+        // get the sender's public key from the stored user list
+        var senderPublickey = userList[receivedData.from]['public_key'];
+
+        // Decrypt with the sender's public key
+        var serializedData = CryptoHelper.rsaDecryptPemPub(senderPublickey, cypher2);
+
+        var normalData = parseArray(serializedData);
+
+        console.log("=======");
+        console.log(normalData);
+    };
+
+    // create a new aes key and iv to use with different client
+    this.createNewAes = function (request) {
+
+        // generate new random iv and key
+        var iv = CryptoHelper.newAesIv();
+        var key = CryptoHelper.newAesKey();
+
+        // store the key and iv
+        storedKeys[request.username] = {'iv': iv, 'key': key};
+
+        // serialize the data
+        var responseSerialized = serializeArray({'iv': iv, 'key': key, 'comment': 'Iv 16bit, Key 32bit'});
+
+        // First encrypt with our own private key
+        var cypher = CryptoHelper.rsaEncryptPriv(keySet, responseSerialized);
+
+        // get the sender's public key from the stored user list
+        var senderPublickey = userList[receivedData.username]['public_key'];
+
+        // encryp with sender's public key
+        var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, cypher);
+
+        // send to the server
+        socket.emit('response_aes_request', {'cypher': cypherResult, 'from': request.username});
+    };
 
     // set the server's public key
     this.setServerPublicKey = function (key) {
         serverPublicKey = key;
-    }
+    };
 
     // create a new key set for this client
     this.newKeySet = function (callback) {
@@ -156,11 +225,10 @@ function ConnectionHelper(socket, CryptoHelper) {
         }
 
         this.updateKey();
-    }
+    };
 
     // return current username
     this.getUsername = function () {
         return username;
-    }
-
+    };
 }
