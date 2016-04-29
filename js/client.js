@@ -42,7 +42,10 @@ socket.on('connect', function () {
     $('#server_status').text('Connected');
     $('#server_status_icon').removeClass('fa-spin fa-refresh fa-warning').addClass('fa-check');
 
-}).on('disconnect', function () {
+});
+
+// Disconnected from server
+socket.on('disconnect', function () {
 
     debug('Lost contact with server');
 
@@ -52,12 +55,18 @@ socket.on('connect', function () {
     $('#login_screen').show();
     $('#content').hide();
 
-}).on('server_info', function (server_info) {
+});
+
+// Receive server info, userlist
+socket.on('server_info', function (server_info) {
 
     var user_list = server_info.user_list;
 
     // Update the public key list
-    SessionHelper.updateUserList(user_list);
+    if (!SessionHelper.updateUserList(user_list)) {
+        // current target is gone so reset the target input box
+        $('#inputTarget').val('');
+    }
 
     $('#user_list').html('');
     for (var key in user_list) {
@@ -65,17 +74,23 @@ socket.on('connect', function () {
             user_list[key].username + '">' + user_list[key].username + '</a></li>');
     }
 
-}).on('public_key', function (response) {
+});
 
-    // Receive public key from server
+// Receive public key from server
+socket.on('public_key', function (response) {
     SessionHelper.setServerPublicKey(response);
+});
 
-}).on('request verify', function () {
+// Server requests verification
+socket.on('request verify', function () {
 
     $('#login_screen').show();
     $('#content').hide();
 
-}).on('login_attempt_callback', function (res) {
+});
+
+// Login result callback
+socket.on('login_attempt_callback', function (res) {
 
     debug('Login callback ' + res.success);
 
@@ -98,18 +113,28 @@ socket.on('connect', function () {
 
     }
 
-}).on('login_salt_callback', function (salt) {
-    
-    debug('Salt callback');
-    // send to session handler
-    SessionHelper.loginSaltCallback(res);
+});
 
-}).on('message_callback', function (res) {
+// Server returns the user's salt
+socket.on('login_salt_callback', function (salt) {
+
+    debug('Salt callback');
+
+    // send to session handler
+    SessionHelper.loginSaltCallback(salt);
+
+});
+
+// Message server callback
+socket.on('message_callback', function (res) {
 
     messageLoading = false;
     $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
 
-}).on('message', function (res) {
+});
+
+// Received a message from server
+socket.on('message', function (res) {
 
     SessionHelper.receiveMessage(res, function (callbackMessage) {
         if (callbackMessage !== false) {
@@ -117,6 +142,15 @@ socket.on('connect', function () {
         }
     });
 
+});
+
+// someone wants to chat and is requesting that we create a new aes key to use
+socket.on('aesKeyRequest', function (request) {
+    SessionHelper.createNewAes(request);
+});
+
+socket.on('aesKeyResponse', function (response) {
+    // SessionHelper
 });
 
 function addMessage(username, text) {
@@ -181,6 +215,7 @@ $(document.body).on('submit', '#message_form', function (e) {
     return false;
 });
 
+// select a user
 $(document.body).on('click', '.user-select', function () {
     if (SessionHelper.isVerified()) {
         var userName = $(this).data('user');

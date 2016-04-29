@@ -18,3 +18,11 @@ function curDate() {
         (minutes < 10 ? '0' : '') + minutes + ":" +
         (seconds < 10 ? '0' : '') + seconds;
 }
+
+function parseArray(data) {
+    return JSON.parse(data);
+}
+
+function serializeArray(data) {
+    return JSON.stringify(data);
+}
