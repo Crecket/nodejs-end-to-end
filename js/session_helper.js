@@ -26,7 +26,7 @@ function ConnectionHelper(socket, CryptoHelper) {
     // NodeJS public key
     var serverPublicKey = false;
 
-    // List off all user's public key lists and username
+    // List off all user's and their rsa public keys
     var userList = {};
 
     // stored aes keys for different users
@@ -78,18 +78,19 @@ function ConnectionHelper(socket, CryptoHelper) {
         }
     };
 
-    // Decrypt a cypher by using our private key
-    // Next, decrypt the new cypher with the sender's public key
+    // Decrypt a cypher by using the created aes key
     this.receiveMessage = function (receivedData, callback) {
 
-        // First decrypt with our own private key
-        var cypher2 = CryptoHelper.rsaDecrypt(keySet, receivedData.cypher);
-
         // get the sender's public key from the stored user list
-        var senderPublickey = userList[receivedData.from]['public_key'];
+        var aesKeySet = storedKeys[receivedData.from];
 
-        // Decrypt with the sender's public key
-        var message = CryptoHelper.rsaDecryptPemPub(senderPublickey, cypher2);
+        var message = false;
+
+        if (aesKeySet) {
+
+            // Decrypt with the sender's aes key
+            message = CryptoHelper.aesDecrypt(receivedData.cypher, aesKeySet.key, aesKeySet.iv);
+        }
 
         callback(message);
     };
@@ -106,10 +107,9 @@ function ConnectionHelper(socket, CryptoHelper) {
                 'target': targetName,
                 'from': username
             });
-
-        } else {
-            debug('Not verified');
+            return true;
         }
+        return false;
     };
 
     // return if this private verified variable is true/false
@@ -131,6 +131,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         // check if target still exists
         if (!userList[targetName]) {
             targetKey = false;
+            storedKeys[targetName] = false;
             targetName = false;
             return false;
         }
@@ -150,7 +151,7 @@ function ConnectionHelper(socket, CryptoHelper) {
             // check if we already have a aes key
             if (storedKeys[newTarget] && storedKeys[newTarget]['key']) {
                 // we have a stored key, set the iv/key
-                targetKey = {'key': storedKeys[newTarget]['key'], 'iv': userList[newTarget]['iv']};
+                targetKey = storedKeys[newTarget];
                 targetName = newTarget;
                 debug('Setting target to: ' + newTarget);
                 return true;
@@ -165,7 +166,6 @@ function ConnectionHelper(socket, CryptoHelper) {
         return false;
     };
 
-    // TODO aes exchange use rsa in the request for verification
     // request a new aes key from a target
     this.requestAesKey = function (target) {
         console.log('Aes request for ' + target);
@@ -177,9 +177,8 @@ function ConnectionHelper(socket, CryptoHelper) {
     };
 
     // store a aes key and iv after other client sends it
-    this.setAesKey = function (response, callback) {
+    this.setAesKey = function (response) {
 
-        var resultname = "";
         if (response.success) {
 
             // get the sender's data
@@ -202,26 +201,24 @@ function ConnectionHelper(socket, CryptoHelper) {
 
                         // store the key and iv
                         storedKeys[response.from] = {'iv': normalData.iv, 'key': normalData.key};
-                        targetName = resultname = response.from;
-
+                        targetName = response.from;
                     }
                 }
             }
         }
-        // callback
-        callback(resultname);
     };
 
     // create a new aes key and iv to use after other client requests it
     this.createNewAes = function (request) {
 
         // get the sender's public key from the stored user list
-        var senderPublickey = userList[request.from]['public_key_sign'];
+        var senderPublickey = userList[request.from]['public_key'];
+        var senderPublickeySign = userList[request.from]['public_key_sign'];
 
         var payLoad = "Aes request from: " + request.from;
 
         // first verify that the request was actually sent by the 'from' user
-        if (CryptoHelper.rsaVerify(senderPublickey, payLoad, request.signature)) {
+        if (CryptoHelper.rsaVerify(senderPublickeySign, payLoad, request.signature)) {
 
             // generate new random iv and key
             var iv = CryptoHelper.newAesIv();
@@ -261,7 +258,14 @@ function ConnectionHelper(socket, CryptoHelper) {
     // check if key and iv are setup propperly after setting them up
     this.aesConfirmationCheck = function (cypher, from) {
 
-        debug('Setting target to: ' + userName);
+    }
+
+    // check if we have a stored aes key for a given username
+    this.hasAesKey = function (target) {
+        if (storedKeys[target]) {
+            return true;
+        }
+        return false;
     }
 
     // set the server's public key
@@ -307,27 +311,9 @@ function ConnectionHelper(socket, CryptoHelper) {
         this.updateKey();
     };
 
-    // check if a aes key is stored for given username
-    this.hasAes = function (name) {
-        return;
-    }
-
     // return current username
     this.getUsername = function () {
         return username;
     };
 
-    this.testSign = function () {
-        var text = 'some random text';
-
-        var res = CryptoHelper.rsaSign(keySetSign, text);
-
-        debug(res);
-
-        text = 'some random text';
-
-        var res2 = CryptoHelper.rsaVerify(publicKeySign, text, res);
-
-        debug(res2);
-    };
 }

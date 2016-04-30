@@ -80,11 +80,11 @@ function CryptoHelper() {
     // ======================== AES ==========================
 
     // generate a AES compatible Key
-    this.newAesKey = function () {
-        return fn.randomBytes(32); // 32 * 8 bit = 256 bit
+    this.newAesKey = function (raw) {
+        return fn.randomBytes(32, raw); // 32 * 8 bit = 256 bit
     };
     // generate a AES compatible IV, 16 or 32 byte
-    this.newAesIv = function (size) {
+    this.newAesIv = function (size, raw) {
         if (!size) {
             size = 16; // 16 * 8 bit = 128 bit
         } else {
@@ -92,19 +92,17 @@ function CryptoHelper() {
                 size = 16;
             }
         }
-        return fn.randomBytes(size);
+
+        return fn.randomBytes(size, raw);
     };
+
 
     // aes encryption with CBC mode
     this.aesEncrypt = function (text, key, iv) {
 
-        // fallback
-        if (!key) {
-            key = fn.newAesKey();
-        }
-
-        if (!iv) {
-            iv = fn.newAesIv();
+        // key fallback
+        if (!key || !iv) {
+            return false;
         }
 
         // encrypt text
@@ -119,27 +117,13 @@ function CryptoHelper() {
         );
 
         // turn raw data into Base64 string
-        var ciphertext = encrypted.toString();
-
-        return {
-            'cipher': ciphertext,
-            'key': key,
-            'iv': iv
-        }
-    };
+        return encrypted.toString();
+    }
     // aes decryption with CBC mode
     this.aesDecrypt = function (cipher, key, iv) {
 
-        // fallback
-        if (!key) {
-            return false;
-        }
-
-        if (!iv) {
-            return false;
-        }
-
-        if (!cipher) {
+        // key fallback
+        if (!key || !iv || !cipher) {
             return false;
         }
 
@@ -156,7 +140,79 @@ function CryptoHelper() {
 
         // Return decrypted text
         return decrypted.toString(CryptoJS.enc.Utf8);
-    };
+    }
+
+    // // aes encryption with CBC mode, key and iv input is as hex
+    // this.aesEncrypt2 = function (text, key, iv) {
+    //
+    //     // fallback
+    //     if (!key) {
+    //         key = fn.newAesKey(true);
+    //     } else {
+    //         key = CryptoJS.enc.Hex.parse(key);
+    //     }
+    //
+    //     if (!iv) {
+    //         iv = fn.newAesIv(16, true);
+    //     } else {
+    //         iv = CryptoJS.enc.Hex.parse(iv);
+    //     }
+    //
+    //     // encrypt text
+    //     var encrypted = CryptoJS.AES.encrypt(
+    //         text,
+    //         key,
+    //         {
+    //             iv: iv,
+    //             mode: CryptoJS.mode.CBC,
+    //             padding: CryptoJS.pad.Pkcs7
+    //         }
+    //     );
+    //
+    //     // turn raw data into Base64 string
+    //     var ciphertext = encrypted.toString(CryptoJS.enc.Utf8);
+    //
+    //     debug(ciphertext);
+    //
+    //     return ciphertext;
+    // };
+    // // aes decryption with CBC mode
+    // this.aesDecrypt2 = function (cipher, key, iv) {
+    //
+    //     // fallback
+    //     if (!key) {
+    //         return false;
+    //     }
+    //
+    //     if (!iv) {
+    //         return false;
+    //     }
+    //
+    //     if (!cipher) {
+    //         return false;
+    //     }
+    //
+    //     // // parse from hex
+    //     // key = CryptoJS.enc.Hex.parse(key);
+    //     // iv = CryptoJS.enc.Hex.parse(iv);
+    //
+    //     // decrypt cipher with key and iv
+    //     var decrypted = CryptoJS.AES.decrypt(
+    //         cipher,
+    //         key,
+    //         {
+    //             iv: iv,
+    //             mode: CryptoJS.mode.CBC,
+    //             padding: CryptoJS.pad.Pkcs7
+    //         }
+    //     );
+    //
+    //     debug(key);
+    //     debug(iv);
+    //
+    //     // Return decrypted text
+    //     return decrypted.toString(CryptoJS.enc.Utf8);
+    // };
 
     // ======================== Hashing ==========================
 
@@ -177,15 +233,6 @@ function CryptoHelper() {
 
     // generate random hex string for given amount of bytes
     this.randomBytes = function (length, raw) {
-        if (!length) {
-            length = 16;
-        }
-
-        // return as raw bytes array
-        if (!raw) {
-            raw = false;
-        }
-
         // generate random array
         var bytes = CryptoJS.lib.WordArray.random(length);
         if (raw) {

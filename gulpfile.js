@@ -16,6 +16,7 @@ var package_sources = [
     'bower_components/cryptojslib/components/md5.js',
     'bower_components/cryptojslib/components/sha1.js',
     'bower_components/cryptojslib/components/sha256.js',
+    'bower_components/cryptojslib/rollups/aes.js',
     'bower_components/cryptojslib/rollups/sha512.js',
     'bower_components/cryptojslib/components/enc-base64.js',
     'bower_components/cryptojslib/components/enc-base64.js',

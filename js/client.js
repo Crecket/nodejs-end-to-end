@@ -26,7 +26,6 @@ SessionHelper.newKeySet(function (keys) {
 SessionHelper.newKeySetSign(function (keys) {
     $('#public_key_sign_input').text(keys.publicKeySign);
     $('#private_key_sign_input').text(keys.privateKeySign);
-    SessionHelper.testSign();
 });
 
 var loginLoading = false;
@@ -68,8 +67,18 @@ socket.on('server_info', function (server_info) {
 
     $('#user_list').html('');
     for (var key in user_list) {
+
+        var UserIcon = "<i class='fa fa-unlock'></i>";
+        // check if we have a stored aes key for this user, if yes add it
+        if (SessionHelper.hasAesKey(user_list[key].username)) {
+            UserIcon = "<i class='fa fa-lock'></i> ";
+        }
+        if(SessionHelper.getUsername() === user_list[key].username){
+            UserIcon = "<i class='fa fa-user'></i> ";
+        }
+
         $('#user_list').append('<li><a href="#" class="user-select" data-user="' +
-            user_list[key].username + '">' + user_list[key].username + '</a></li>');
+            user_list[key].username + '">' + UserIcon + user_list[key].username + '</a></li>');
     }
 
 });
@@ -151,15 +160,17 @@ socket.on('aesKeyRequest', function (request) {
 // the client a aes key was requested from has sent a response
 socket.on('aesKeyResponse', function (response) {
     debug('Received AES response');
-    SessionHelper.setAesKey(response, function (username) {
-        $('#inputTarget').val(username);
-    });
+    SessionHelper.setAesKey(response);
 });
 
 function addMessage(username, text) {
     debug('Message: ' + text);
     if (text) {
-        $('#messages').prepend('<p><strong>' + curDate() + " - " + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</p>');
+        if (SessionHelper.getUsername() === username) {
+            $('#messages').prepend('<p><strong>' + curDate() + " - " + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</p>');
+        } else {
+            $('#messages').prepend('<p>' + curDate() + " - " + escapeHtml(username) + ": " + escapeHtml(text) + '</p>');
+        }
     }
 }
 
@@ -205,9 +216,9 @@ $(document.body).on('submit', '#message_form', function (e) {
         $('#message_button').addClass('fa-spin fa-refresh').removeClass('fa-mail-forward');
 
         if (message.length > 0 && message.length < 255) {
-            SessionHelper.sendMessage(message);
-
-            addMessage(SessionHelper.getUsername(), message);
+            if (SessionHelper.sendMessage(message)) {
+                addMessage(SessionHelper.getUsername(), message);
+            }
         } else {
             $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
             debug('Message length: ' + message.length);
