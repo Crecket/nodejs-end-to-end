@@ -81,15 +81,14 @@ function ConnectionHelper(socket, CryptoHelper) {
     // Decrypt a cypher by using the created aes key
     this.receiveMessage = function (receivedData, callback) {
 
-        // get the sender's public key from the stored user list
-        var aesKeySet = storedKeys[receivedData.from];
+        debug('Received message: ', receivedData);
 
         var message = false;
 
-        if (aesKeySet) {
+        if (storedKeys[receivedData.from]) {
 
             // Decrypt with the sender's aes key
-            message = CryptoHelper.aesDecrypt(receivedData.cypher, aesKeySet.key, aesKeySet.iv);
+            message = CryptoHelper.aesDecrypt(receivedData.cypher, storedKeys[receivedData.from], receivedData.iv);
         }
 
         callback(message);
@@ -99,11 +98,16 @@ function ConnectionHelper(socket, CryptoHelper) {
     this.sendMessage = function (message) {
         if (this.isVerified() && this.hasTarget()) {
 
-            // Encryp with a stored aes key
-            var messageCypher = CryptoHelper.aesEncrypt(message, targetKey.key, targetKey.iv);
+            // random iv for every encryption
+            var iv = CryptoHelper.newAesIv();
 
+            // Encryp with a stored aes key
+            var messageCypher = CryptoHelper.aesEncrypt(message, targetKey, iv);
+
+            // send the cypher and iv to target
             socket.emit('message', {
                 'cypher': messageCypher,
+                'iv': iv,
                 'target': targetName,
                 'from': username
             });
@@ -149,7 +153,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
 
             // check if we already have a aes key
-            if (storedKeys[newTarget] && storedKeys[newTarget]['key']) {
+            if (storedKeys[newTarget]) {
                 // we have a stored key, set the iv/key
                 targetKey = storedKeys[newTarget];
                 targetName = newTarget;
@@ -158,9 +162,6 @@ function ConnectionHelper(socket, CryptoHelper) {
             } else {
                 // we dont have a stored key, request a new one from target
                 fn.requestAesKey(newTarget);
-                // set to true to avoid double requests
-                storedKeys[newTarget] = true;
-                debug('Requires new key');
             }
         }
         return false;
@@ -168,7 +169,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // request a new aes key from a target
     this.requestAesKey = function (target) {
-        console.log('Aes request for ' + target);
+        debug('Aes key request for ' + target);
 
         // for verification
         var signature = CryptoHelper.rsaSign(keySetSign, 'Aes request from: ' + username);
@@ -197,10 +198,10 @@ function ConnectionHelper(socket, CryptoHelper) {
                     var normalData = parseArray(serializedData);
 
                     // verify iv and key
-                    if (normalData.iv.length === 32 && normalData.key.length === 64) {
+                    if (normalData.key.length === 64) {
 
-                        // store the key and iv
-                        storedKeys[response.from] = {'iv': normalData.iv, 'key': normalData.key};
+                        // store the key
+                        storedKeys[response.from] = normalData.key;
                         targetName = response.from;
                     }
                 }
@@ -221,14 +222,13 @@ function ConnectionHelper(socket, CryptoHelper) {
         if (CryptoHelper.rsaVerify(senderPublickeySign, payLoad, request.signature)) {
 
             // generate new random iv and key
-            var iv = CryptoHelper.newAesIv();
             var key = CryptoHelper.newAesKey();
 
             // store the key and iv
-            storedKeys[request.from] = {'iv': iv, 'key': key};
+            storedKeys[request.from] = key;
 
-            // serialize the data
-            var responseSerialized = serializeArray({'iv': iv, 'key': key, 'comment': 'Iv 16bit, Key 32bit'});
+            // serialize the data we want to send
+            var responseSerialized = serializeArray({'key': key});
 
             // create a signature for our payload
             var signature = CryptoHelper.rsaSign(keySetSign, responseSerialized);

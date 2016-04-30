@@ -161,6 +161,9 @@ socket.on('aesKeyRequest', function (request) {
 socket.on('aesKeyResponse', function (response) {
     debug('Received AES response');
     SessionHelper.setAesKey(response);
+    setTimeout(function(){
+        debug('Deleyed aes response', response);
+    }, 200);
 });
 
 function addMessage(username, text) {

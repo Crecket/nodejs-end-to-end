@@ -162,8 +162,6 @@ io.on('connection', function (socket) {
     // incoming message request
     socket.on('message', function (messageData) {
 
-        console.log(messageData, username);
-
         var messageCallback = {'success': false, "message": ""};
         if (verified) {
 
@@ -176,7 +174,7 @@ io.on('connection', function (socket) {
                 if (cypher.length > 0 && cypher.length < 5000) {
 
                     console.log('');
-                    console.log('Message from ' + username);
+                    console.log('Message from ' + username, messageData);
 
                     messageCallback.success = true;
                     messageCallback.message = 'Message was sent';
@@ -184,6 +182,7 @@ io.on('connection', function (socket) {
                     // add username so client knows which public key to use for decryption
                     io.sockets.connected[targetData.socketId].emit('message', {
                         'cypher': cypher,
+                        'iv': messageData.iv,
                         'target': target,
                         'from': username
                     });
