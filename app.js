@@ -192,41 +192,32 @@ io.on('connection', function (socket) {
             socket.emit('message_callback', messageCallback);
         }
     });
-    
+
     // client wants to create a new aes key with another client
     socket.on('request_aes', function (request) {
 
         var messageCallback = {'success': false, "message": ""};
 
-        if (userList[request.target]) {
-            var targetData = userList[request.target];
+        if (verified) {
+            if (userList[request.target]) {
+                var targetData = userList[request.target];
 
-            io.sockets.connected[targetData.socketId].emit('aesKeyRequest', {
-                'target': request.target,
-                'from': request.from
-            });
-
-        } else {
-            messageCallback.message = "User not found.";
-            socket.emit('aesKeyResponse', messageCallback);
+                io.sockets.connected[targetData.socketId].emit('aesKeyRequest', request);
+            } else {
+                messageCallback.message = "User not found.";
+                socket.emit('aesKeyResponse', messageCallback);
+            }
         }
     });
 
     // client wants to create a new aes key with another client
     socket.on('response_aes_request', function (response) {
+        if (verified) {
+            if (userList[response.target]) {
+                var targetData = userList[response.target];
 
-        if (userList[response.target]) {
-            var targetData = userList[response.target];
-
-            io.sockets.connected[targetData.socketId].emit('aesKeyResponse', {
-                'target': response.target,
-                'from': response.from,
-                'success': true,
-                'cypher': response.cypher
-            });
-
-        } else {
-            socket.emit('aesKeyResponse', {'success': false, "message": "User was not found."});
+                io.sockets.connected[targetData.socketId].emit('aesKeyResponse', response);
+            }
         }
     });
 
@@ -379,13 +370,6 @@ function rsaDecrypt(data) {
 function randomToken() {
     return crypto.randomBytes(128).toString('hex');
 }
-
-// Extra timer
-setInterval(function () {
-    // console.log('');
-    // console.log(userList);
-}, 5000);
-
 
 // Server custom heartbeat
 setInterval(function () {

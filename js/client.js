@@ -10,15 +10,7 @@ if (!debugSetting) {
     $('#debug_panel').hide();
 }
 
-function debug(message) {
-    if (debugSetting) {
-        console.log(message);
-        if (Object.prototype.toString.call(message) == '[object String]') {
-            $('#debug_list').prepend("<p>" + curDate() +
-                ": " + escapeHtml(message) + '</p>');
-        }
-    }
-}
+var debug = console.log.bind(window.console);
 
 // crypto and session helper init
 var CryptoHelper = new CryptoHelper();
@@ -32,8 +24,9 @@ SessionHelper.newKeySet(function (keys) {
 
 // create new signing key set on startup
 SessionHelper.newKeySetSign(function (keys) {
-    $('#public_key_sign_input').text(keys.publicKey);
-    $('#private_key_sign_input').text(keys.privateKey);
+    $('#public_key_sign_input').text(keys.publicKeySign);
+    $('#private_key_sign_input').text(keys.privateKeySign);
+    SessionHelper.testSign();
 });
 
 var loginLoading = false;
@@ -158,7 +151,7 @@ socket.on('aesKeyRequest', function (request) {
 // the client a aes key was requested from has sent a response
 socket.on('aesKeyResponse', function (response) {
     debug('Received AES response');
-    SessionHelper.setAesKey(response, function(username){
+    SessionHelper.setAesKey(response, function (username) {
         $('#inputTarget').val(username);
     });
 });

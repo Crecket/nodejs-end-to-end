@@ -149,7 +149,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
             // check if we already have a aes key
             if (storedKeys[newTarget] && storedKeys[newTarget]['key']) {
-                // we have as stored key, set the iv/key
+                // we have a stored key, set the iv/key
                 targetKey = {'key': storedKeys[newTarget]['key'], 'iv': userList[newTarget]['iv']};
                 targetName = newTarget;
                 debug('Setting target to: ' + newTarget);
@@ -171,33 +171,28 @@ function ConnectionHelper(socket, CryptoHelper) {
         console.log('Aes request for ' + target);
 
         // for verification
-        var cypher = CryptoHelper.rsaEncryptPriv(keySet, responseSerialized);
+        var signature = CryptoHelper.rsaSign(keySetSign, 'Aes request from: ' + username);
 
-        socket.emit('request_aes', {'target': target, 'from': username});
+        socket.emit('request_aes', {'target': target, 'from': username, 'signature': signature});
     };
 
     // store a aes key and iv after other client sends it
     this.setAesKey = function (response, callback) {
 
         var resultname = "";
-
         if (response.success) {
 
             // get the sender's data
-            var fromData = userList[response.from];
-
-            if (fromData) {
+            if (userList[response.from] && userList[response.from]['public_key_sign']) {
 
                 // get the sender's public key from the stored user list
-                var senderPublicKey = fromData['public_key'];
+                var senderPublicKey = userList[response.from]['public_key_sign'];
 
-                if (fromData) {
+                // Next decrypt with our own private key
+                var serializedData = CryptoHelper.rsaDecrypt(keySet, response.cypher);
 
-                    // Next decrypt with our own private key
-                    var cypher = CryptoHelper.rsaDecrypt(keySet, response.cypher);
-
-                    // First decrypt with the sender's public key
-                    var serializedData = CryptoHelper.rsaDecryptPemPub(senderPublicKey, cypher);
+                // verify rsa signed signature
+                if (CryptoHelper.rsaVerify(senderPublicKey, serializedData, response.signature)) {
 
                     // parse data
                     var normalData = parseArray(serializedData);
@@ -220,33 +215,49 @@ function ConnectionHelper(socket, CryptoHelper) {
     // create a new aes key and iv to use after other client requests it
     this.createNewAes = function (request) {
 
-        // generate new random iv and key
-        var iv = CryptoHelper.newAesIv();
-        var key = CryptoHelper.newAesKey();
-
-        // store the key and iv
-        storedKeys[request.from] = {'iv': iv, 'key': key};
-
-        // serialize the data
-        var responseSerialized = serializeArray({'iv': iv, 'key': key, 'comment': 'Iv 16bit, Key 32bit'});
-
-        // First encrypt with our own private key
-        var cypher = CryptoHelper.rsaEncryptPriv(keySet, responseSerialized);
-
         // get the sender's public key from the stored user list
-        var senderPublickey = userList[request.from]['public_key'];
+        var senderPublickey = userList[request.from]['public_key_sign'];
 
-        // encryp with sender's public key
-        var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, cypher);
+        var payLoad = "Aes request from: " + request.from;
 
-        // send to the server
-        socket.emit('response_aes_request', {
-            'cypher': cypherResult,
-            'from': username,
-            'target': request.from
-        });
+        // first verify that the request was actually sent by the 'from' user
+        if (CryptoHelper.rsaVerify(senderPublickey, payLoad, request.signature)) {
+
+            // generate new random iv and key
+            var iv = CryptoHelper.newAesIv();
+            var key = CryptoHelper.newAesKey();
+
+            // store the key and iv
+            storedKeys[request.from] = {'iv': iv, 'key': key};
+
+            // serialize the data
+            var responseSerialized = serializeArray({'iv': iv, 'key': key, 'comment': 'Iv 16bit, Key 32bit'});
+
+            // create a signature for our payload
+            var signature = CryptoHelper.rsaSign(keySetSign, responseSerialized);
+
+            // encryp with sender's public key
+            var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, responseSerialized);
+
+            // send to the server
+            socket.emit('response_aes_request', {
+                'cypher': cypherResult,
+                'signature': signature,
+                'success': true,
+                'from': username,
+                'target': request.from
+            });
+        } else {
+            socket.emit('response_aes_request', {
+                'success': false,
+                'message': "The signature does not seem to be from the right person",
+                'from': username,
+                'target': request.from
+            });
+        }
     };
 
+    // TODO verification that both users have same key
     // check if key and iv are setup propperly after setting them up
     this.aesConfirmationCheck = function (cypher, from) {
 
@@ -284,13 +295,13 @@ function ConnectionHelper(socket, CryptoHelper) {
         keySetSign = newKeyData.rsaObj;
 
         debug('Creating new rsa key set signing');
-        debug(keySet);
+        debug(keySetSign);
 
-        privateKey = newKeyData.privateKey;
-        publicKey = newKeyData.publicKey;
+        privateKeySign = newKeyData.privateKey;
+        publicKeySign = newKeyData.publicKey;
 
         if (callback) {
-            callback({'privateKey': privateKey, 'publicKey': publicKey});
+            callback({'privateKeySign': privateKeySign, 'publicKeySign': publicKeySign});
         }
 
         this.updateKey();
@@ -304,5 +315,19 @@ function ConnectionHelper(socket, CryptoHelper) {
     // return current username
     this.getUsername = function () {
         return username;
+    };
+
+    this.testSign = function () {
+        var text = 'some random text';
+
+        var res = CryptoHelper.rsaSign(keySetSign, text);
+
+        debug(res);
+
+        text = 'some random text';
+
+        var res2 = CryptoHelper.rsaVerify(publicKeySign, text, res);
+
+        debug(res2);
     };
 }

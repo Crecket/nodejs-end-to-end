@@ -4,6 +4,37 @@ function CryptoHelper() {
 
     var fn = this;
 
+    // ======================== RSA ==========================
+
+    // Create new RSA keyset, default keysize 1024 recommended
+    this.createKeySet = function (keySize) {
+
+        if (!keySize) {
+            keySize = 1024;
+        }
+
+        var NodeRSAKey = new NodeRSA({b: keySize});
+
+        var tempPriv = NodeRSAKey.exportKey('private');
+        var tempPub = NodeRSAKey.exportKey('public');
+
+        return {
+            'keySize': keySize,
+            'privateKey': tempPriv,
+            'publicKey': tempPub,
+            'rsaObj': NodeRSAKey
+        };
+    };
+
+    // ========= Encryption =========
+    // Encrypt data using our public key
+    this.rsaEncrypt = function (keySet, data) {
+        return keySet.encrypt(data, 'base64');
+    };
+    // Encrypt data using our private key
+    this.rsaEncryptPriv = function (keySet, data) {
+        return keySet.encryptPrivate(data, 'base64');
+    };
     // Encrypt with a public key in pem format
     this.rsaEncryptPem = function (inputPublickey, data) {
         var NodeRSAObj = new NodeRSA(inputPublickey, 'pkcs8-public');
@@ -15,6 +46,15 @@ function CryptoHelper() {
         return NodeRSAObj.encryptPrivate(data, 'base64');
     };
 
+    // ========= Decryption =========
+    // Decrypt a cypher using our private key
+    this.rsaDecrypt = function (keySet, cypher) {
+        return keySet.decrypt(cypher, 'utf8');
+    };
+    // Decrypt a cypher using our public key
+    this.rsaDecryptPub = function (keySet, cypher) {
+        return keySet.decryptPublic(cypher, 'utf8');
+    };
     // Decrypt with a private key in pem format
     this.rsaDecryptPem = function (inputPrivatekey, data) {
         var NodeRSAObj = new NodeRSA(inputPrivatekey, 'pkcs8-public');
@@ -26,23 +66,18 @@ function CryptoHelper() {
         return NodeRSAObj.decryptPublic(data, 'utf8');
     };
 
-    // Decrypt a cypher using our private key
-    this.rsaDecrypt = function (keySet, cypher) {
-        return keySet.decrypt(cypher, 'utf8');
+    // ========= Signing =========
+    // Sign data with a keyset
+    this.rsaSign = function (keySet, data) {
+        return keySet.sign(data, 'hex', 'utf8');
     };
-    // Decrypt a cypher using our public key
-    this.rsaDecryptPub = function (keySet, cypher) {
-        return keySet.decryptPublic(cypher, 'utf8');
+    // Verify data with a public key
+    this.rsaVerify = function (inputPublicKey, data, signature) {
+        var NodeRSAObj = new NodeRSA(inputPublicKey, 'pkcs8-public');
+        return NodeRSAObj.verify(data, signature, 'utf8', 'hex');
     };
 
-    // Encrypt data using our public key
-    this.rsaEncrypt = function (keySet, data) {
-        return keySet.encrypt(data, 'base64');
-    };
-    // Encrypt data using our private key
-    this.rsaEncryptPriv = function (keySet, data) {
-        return keySet.encryptPrivate(data, 'base64');
-    };
+    // ======================== AES ==========================
 
     // generate a AES compatible Key
     this.newAesKey = function () {
@@ -59,6 +94,7 @@ function CryptoHelper() {
         }
         return fn.randomBytes(size);
     };
+
     // aes encryption with CBC mode
     this.aesEncrypt = function (text, key, iv) {
 
@@ -122,6 +158,8 @@ function CryptoHelper() {
         return decrypted.toString(CryptoJS.enc.Utf8);
     };
 
+    // ======================== Hashing ==========================
+
     // SHA512 hashing
     this.hash = function (text) {
         // Return binary as hex
@@ -135,26 +173,6 @@ function CryptoHelper() {
             return false;
         }
         return true;
-    };
-
-    // Create new RSA keyset, default keysize 1024 recommended
-    this.createKeySet = function (keySize) {
-
-        if (!keySize) {
-            keySize = 1024;
-        }
-
-        var NodeRSAKey = new NodeRSA({b: keySize});
-
-        var tempPriv = NodeRSAKey.exportKey('private');
-        var tempPub = NodeRSAKey.exportKey('public');
-
-        return {
-            'keySize': keySize,
-            'privateKey': tempPriv,
-            'publicKey': tempPub,
-            'rsaObj': NodeRSAKey
-        };
     };
 
     // generate random hex string for given amount of bytes
