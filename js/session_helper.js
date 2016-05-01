@@ -73,20 +73,16 @@ function ConnectionHelper(socket, CryptoHelper) {
         if (res.success !== false) {
             verified = true;
             username = res.username;
-
             this.updateKey();
         }
     };
 
     // Decrypt a cypher by using the created aes key
     this.receiveMessage = function (receivedData, callback) {
-
         debug('Received message: ', receivedData);
 
         var message = false;
-
         if (storedKeys[receivedData.from]) {
-
             // Decrypt with the sender's aes key
             message = CryptoHelper.aesDecrypt(receivedData.cypher, storedKeys[receivedData.from], receivedData.iv);
         }
@@ -275,39 +271,29 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // create a new key set for this client
     this.newKeySet = function (callback) {
-        var newKeyData = CryptoHelper.createKeySet(1024);
-
-        keySet = newKeyData.rsaObj;
-
         debug('Creating new rsa key set');
-        debug(keySet);
-
+        var newKeyData = CryptoHelper.createKeySet(1024);
+        keySet = newKeyData.rsaObj;
         privateKey = newKeyData.privateKey;
         publicKey = newKeyData.publicKey;
 
         if (callback) {
             callback({'privateKey': privateKey, 'publicKey': publicKey});
         }
-
         this.updateKey();
     };
 
     // create a new key set for this client
     this.newKeySetSign = function (callback) {
-        var newKeyData = CryptoHelper.createKeySet(1024);
-
-        keySetSign = newKeyData.rsaObj;
-
         debug('Creating new rsa key set signing');
-        debug(keySetSign);
-
+        var newKeyData = CryptoHelper.createKeySet(1024);
+        keySetSign = newKeyData.rsaObj;
         privateKeySign = newKeyData.privateKey;
         publicKeySign = newKeyData.publicKey;
 
         if (callback) {
             callback({'privateKeySign': privateKeySign, 'publicKeySign': publicKeySign});
         }
-
         this.updateKey();
     };
 

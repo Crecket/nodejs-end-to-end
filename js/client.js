@@ -33,12 +33,9 @@ var messageLoading = false;
 
 // Socket event listeners
 socket.on('connect', function () {
-
     debug('Connected to server');
-
     $('#server_status').text('Connected');
     $('#server_status_icon').removeClass('fa-spin fa-refresh fa-warning').addClass('fa-check');
-
 });
 
 // Disconnected from server
@@ -80,7 +77,6 @@ socket.on('server_info', function (server_info) {
         $('#user_list').append('<li><a href="#" class="user-select" data-user="' +
             user_list[key].username + '">' + UserIcon + user_list[key].username + '</a></li>');
     }
-
 });
 
 // Receive public key from server
@@ -90,10 +86,8 @@ socket.on('public_key', function (response) {
 
 // Server requests verification
 socket.on('request verify', function () {
-
     $('#login_screen').show();
     $('#content').hide();
-
 });
 
 // Login result callback
@@ -124,20 +118,15 @@ socket.on('login_attempt_callback', function (res) {
 
 // Server returns the user's salt
 socket.on('login_salt_callback', function (salt) {
-
     debug('Salt callback');
-
     // send to session handler
     SessionHelper.loginSaltCallback(salt);
-
 });
 
 // Message server callback
 socket.on('message_callback', function (res) {
-
     messageLoading = false;
     $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
-
 });
 
 // Received a message from server
@@ -148,7 +137,6 @@ socket.on('message', function (res) {
             addMessage(res.from, callbackMessage);
         }
     });
-
 });
 
 // someone wants to chat and is requesting that we create a new aes key to use
@@ -240,6 +228,27 @@ $(document.body).on('click', '.user-select', function () {
             $('#inputTarget').val(userName);
         }
     }
+    return false;
+});
+
+
+$('#new_encryption_keypair').on('click', function () {
+    // create new encryption key set
+    SessionHelper.newKeySet(function (keys) {
+        $('#public_key_input').text(keys.publicKey);
+        $('#private_key_input').text(keys.privateKey);
+        debug('Generated new encryption key set');
+    });
+    return false;
+});
+
+$('#new_encryption_sign_keypair').on('click', function () {
+// create new signing key set
+    SessionHelper.newKeySetSign(function (keys) {
+        $('#public_key_sign_input').text(keys.publicKeySign);
+        $('#private_key_sign_input').text(keys.privateKeySign);
+        debug('Generated new signing key set');
+    });
     return false;
 });
 

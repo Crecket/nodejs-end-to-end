@@ -122,7 +122,7 @@ io.on('connection', function (socket) {
     // socket's username !== false if verified
     var username = false;
 
-    // Ip address
+    // ip address
     var ip = socket.handshake.address;
 
     // Socketid shortcut
@@ -225,6 +225,10 @@ io.on('connection', function (socket) {
     socket.on('public_key', function (inputKeys) {
         if (verified) {
             setUserKeys(username, inputKeys);
+            if (inputKeys.publicKey && inputKeys.publicKeySign) {
+                // Only log if both are set to avoid double logs on startup
+                console.log(username, 'Updated public keys');
+            }
         }
     });
 
@@ -356,7 +360,7 @@ function randomToken() {
 // Server custom heartbeat
 setInterval(function () {
     var tempArray = {};
-
+    
     // Selective data sending
     for (var key in userList) {
         tempArray[key] = {};
