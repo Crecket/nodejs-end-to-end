@@ -1,25 +1,33 @@
 var forge = require('node-forge');
 var fs = require('fs');
+var NodeRSA = require('node-rsa');
 
 // shortcuts
 var pki = forge.pki;
 var rsa = pki.rsa;
 
 // default file name
-var file_name = "default_cert";
+var file_name_ssl = "default_cert";
+var file_name_rsa = "default_cert";
+var folder = "";
 
 // parameters
 process.argv.forEach(function (val, index, array) {
-    // console.log(index + ': ' + val);
     if (index === 2) {
-        // overwrite file name
-        file_name = val;
+        file_name_ssl = val;
+    }
+    if (index === 3) {
+        file_name_rsa = val;
+    }
+    if (index === 4) {
+        folder = val;
     }
 });
 
-console.log(file_name);
+generateSslCertificate(2048, file_name_ssl);
+generateRsaKeyPair(2048, file_name_rsa);
 
-function generateKeypair(bitSize, inputFileName) {
+function generateSslCertificate(bitSize, inputFileName) {
 
     var keys = rsa.generateKeyPair(bitSize);
     var cert = pki.createCertificate();
@@ -63,28 +71,38 @@ function generateKeypair(bitSize, inputFileName) {
         console.log('It\'s saved!');
     }
 
-    console.log('Cert');
-    console.log(certPem);
-    fs.writeFile(inputFileName + '.crt', certPem, 'utf8', function (err) {
+    // console.log('Cert');
+    // console.log(certPem);
+    fs.writeFile(folder + inputFileName + '.crt', certPem, 'utf8', function (err) {
         if (err) throw err;
-        console.log('Saved the certificate to: ' + inputFileName + '.crt');
+        console.log('Saved ssl certificate to: ' + folder + inputFileName + '.crt');
     });
 
-    console.log('Private Key');
-    console.log(privKey);
-    fs.writeFile(inputFileName + '.key', privKey, 'utf8', function (err) {
+    // console.log('Private Key');
+    // console.log(privKey);
+    fs.writeFile(folder + inputFileName + '.key', privKey, 'utf8', function (err) {
         if (err) throw err;
-        console.log('Saved the private key to: ' + inputFileName + '.key');
+        console.log('Saved ssl private key to: ' + folder + inputFileName + '.key');
     });
-
-    // Not required
-    // console.log('Public key');
-    // console.log(pubKey);
-    // fs.writeFile(inputFileName + '.pub', pubKey, 'utf8', function (err) {
-    //     if (err) throw err;
-    //     console.log('Saved the public key to: ' + inputFileName + '.pub');
-    // });
 }
 
-generateKeypair(2048, file_name);
-// generateKeypair(1024, file_name);
+function generateRsaKeyPair(bitSize, file_name_rsa) {
+
+    var key = new NodeRSA({b: bitSize});
+
+    var publicDer = key.exportKey('public');
+    var privateDer = key.exportKey('private');
+
+    fs.writeFile(folder + file_name_rsa + '.key', privateDer, 'utf8', function (err) {
+        if (err) throw err;
+        console.log('Saved rsa private key to: ' + folder + file_name_rsa + '.key');
+    });
+
+    fs.writeFile(folder + file_name_rsa + '.crt', publicDer, 'utf8', function (err) {
+        if (err) throw err;
+        console.log('Saved rsa public key to: ' + folder + file_name_rsa + '.crt');
+    });
+}
+
+
+

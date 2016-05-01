@@ -40,8 +40,8 @@ var port = 8888;
 // Use ssl with self-signed certificates
 // generate your own if you use this in production!
 var options = {
-    key: fs.readFileSync('domain.key'),
-    cert: fs.readFileSync('domain.crt'),
+    key: fs.readFileSync('certs/domain.key'),
+    cert: fs.readFileSync('certs/domain.crt'),
     requestCert: false
 };
 var https = require('https');
@@ -56,33 +56,12 @@ eval(fs.readFileSync('app-vars.js') + '');
  A rsa key example is in this repo, make sure to generate your own in production enviroments!
  */
 // Load RSA private and public key
-var RSAPrivateKey = fs.readFileSync('rsaPrivateKey.key') + '';
+var RSAPrivateKey = fs.readFileSync('certs/rsa.key') + '';
 var RSAPrivateKeyBits = new NodeRSA(RSAPrivateKey, 'private');
 
-var RSAPublicKey = fs.readFileSync('rsaPublicKey.crt') + '';
+var RSAPublicKey = fs.readFileSync('certs/rsa.crt') + '';
 var RSAPublicKeyBits = new NodeRSA(RSAPublicKey, 'public');
 
-
-// Create rsa key example
-
-// var key = new NodeRSA({b: 4096});
-//
-// var publicDer = key.exportKey('public');
-// var privateDer = key.exportKey('private');
-//
-// console.log('');
-// console.log('Public');
-// console.log('');
-// console.log(publicDer);
-// console.log('');
-// console.log('Private');
-// console.log('');
-// console.log(privateDer);
-//
-// process.exit();
-
-// var test = bcrypt.hashSync("40022382bedf6076837be1c7aa045f12d88320de96bc03c05d75052acb9a3b39", bcrypt.genSaltSync(11));
-// console.log(test);
 
 // Create mysql connection
 var mysqlConnection = mysql.createConnection('mysql://root:1234@localhost/nodejs_db?debug=false');

@@ -3,3 +3,5 @@
 /public/bower_components
 /sessions
 /public/dist
+/certs/*
+!certs/empty

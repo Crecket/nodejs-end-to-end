@@ -34,7 +34,7 @@
     "install": "npm run refresh && npm run cert",
     "refresh": "npm install && bower install && npm run browser && gulp",
     "browser": "browserify -r node-rsa > ./js/node-bundle.js",
-    "cert": "node generate.js domain"
+    "cert": "node generate.js domain rsa certs/"
   },
   "devDependencies": {},
   "repository": {
