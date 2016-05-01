@@ -261,15 +261,15 @@ io.on('connection', function (socket) {
             }
 
             // // bcrypt hashing exmple, use it to create new users for now
-            // bcrypt.genSalt(11, function (err, salt) {
-            //     bcrypt.hash(password_hash, salt, function (err, hash) {
-            //         console.log('');
-            //         console.log(password_hash);
-            //         console.log('');
-            //         console.log(hash);
-            //         console.log('');
+            //     bcrypt.genSalt(11, function (err, salt) {
+            //         bcrypt.hash(password_hash, salt, function (err, hash) {
+            //             console.log('');
+            //             console.log(password_hash);
+            //             console.log('');
+            //             console.log(hash);
+            //             console.log('');
+            //         });
             //     });
-            // });
 
             mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [usernameInput], function (err, result, fields) {
                 if (err) {
