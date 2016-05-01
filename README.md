@@ -9,7 +9,7 @@ A simple (And probably insecure) attempt at end-to-end encryption using Javscrip
 - python (Used for node-bcrypt)
 
 ## Installation commands
-- npm run install 
+- npm run setup 
 - node app
 
 ## Rsa keys

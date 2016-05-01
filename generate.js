@@ -35,20 +35,19 @@ function generateSslCertificate(bitSize, inputFileName) {
     cert.publicKey = keys.publicKey;
     cert.privateKey = keys.privateKey;
     cert.validity.notBefore = new Date();
-    cert.validity.notAfter = new Date();
     cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
     var attrs = [{
         name: 'commonName',
         value: 'localhost'
     }, {
         name: 'countryName',
-        value: 'US'
+        value: 'NL'
     }, {
         shortName: 'ST',
-        value: 'Virginia'
+        value: 'SomeState'
     }, {
         name: 'localityName',
-        value: 'Blacksburg'
+        value: 'someLocation'
     }, {
         name: 'organizationName',
         value: 'CrecketCerts'
@@ -63,7 +62,7 @@ function generateSslCertificate(bitSize, inputFileName) {
     cert.sign(keys.privateKey, forge.md.sha256.create());
 
     var certPem = pki.certificateToPem(cert);
-    var pubKey = pki.publicKeyToPem(keys.publicKey);
+    // var pubKey = pki.publicKeyToPem(keys.publicKey);
     var privKey = pki.privateKeyToPem(keys.privateKey);
 
     function handleWrite(err) {
