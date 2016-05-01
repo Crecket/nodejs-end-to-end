@@ -8,7 +8,9 @@ A simple (And probably insecure) attempt at end-to-end encryption using Javscrip
 - npm browserify 
 - python (Used for node-bcrypt)
 
-## Installation commands
+## Installation 
+First create a file 'app-vars.js' in the root and enter your mysql password. Next, run the following commands
+
 - npm run setup 
 - node app
 

@@ -5,3 +5,4 @@
 /public/dist
 /certs/*
 !certs/empty
+config.js

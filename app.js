@@ -7,6 +7,9 @@ var sjcl = require("sjcl");
 // Generic crypto
 var crypto = require('crypto');
 
+// system info
+var os = require('os');
+
 // System library used to open files
 var fs = require('fs');
 
@@ -34,23 +37,45 @@ var bcrypt = require('bcrypt');
 // Express sessions
 var session = require('express-session')
 
-// socket.io listens on port:
-var port = 8888;
-
-// Use ssl with self-signed certificates
-// generate your own if you use this in production!
-var options = {
-    key: fs.readFileSync('certs/domain.key'),
-    cert: fs.readFileSync('certs/domain.crt'),
-    requestCert: false
-};
-var https = require('https');
-var server = https.createServer(options, app);
-console.log('Server started over https');
-
-
 // Load app-vars
-eval(fs.readFileSync('app-vars.js') + '');
+var config = require('./config');
+
+if (os.hostname().trim() === "CrecketMe") {
+
+    var options = {
+        key: fs.readFileSync('/home/crecket/crecket.me.key'),
+        cert: fs.readFileSync('/home/crecket/crecket_me.crt'),
+        requestCert: false
+    };
+    var https = require('https');
+    var server = https.createServer(options, app);
+    console.log('Online server started over https');
+
+    // Create mysql connection
+    var mysqlConnection = mysql.createConnection('mysql://crecket:' + config.MysqlPasswordOnline + '@localhost/nodejs_db?debug=false');
+} else {
+
+    var options = {
+        key: fs.readFileSync('certs/domain.key'),
+        cert: fs.readFileSync('certs/domain.crt'),
+        requestCert: false
+    };
+    var https = require('https');
+    var server = https.createServer(options, app);
+    console.log('Offline server started over https');
+
+    // Create mysql connection
+    var mysqlConnection = mysql.createConnection('mysql://root:' + config.MysqlPassword + '@localhost/nodejs_db?debug=false');
+}
+
+// Test mysql connection
+mysqlConnection.connect(function (err) {
+    if (err !== null) {
+        console.log('Mysql error');
+        console.log(err);
+        process.exit(); // Exit proccess
+    }
+});
 
 /*
  A rsa key example is in this repo, make sure to generate your own in production enviroments!
@@ -63,18 +88,6 @@ var RSAPublicKey = fs.readFileSync('certs/rsa.crt') + '';
 var RSAPublicKeyBits = new NodeRSA(RSAPublicKey, 'public');
 
 
-// Create mysql connection
-var mysqlConnection = mysql.createConnection('mysql://root:1234@localhost/nodejs_db?debug=false');
-
-// Test mysql connection
-mysqlConnection.connect(function (err) {
-    if (err !== null) {
-        console.log('Mysql error');
-        // console.log(err);
-        // process.exit(); // Exit proccess
-    }
-});
-
 // Socket io app
 var io = require('socket.io').listen(server);
 
@@ -84,10 +97,10 @@ var io = require('socket.io').listen(server);
 // io.set('heartbeat timeout', 11);
 
 // Start listening on port
-server.listen(port);
+server.listen(config.port);
 
 // Express server static files for public folder
-console.log('Express started at port: ' + port);
+console.log('Express started at port: ' + config.port);
 
 /* ================================================== */
 /* ================== SETTINGS ====================== */
@@ -360,7 +373,7 @@ function randomToken() {
 // Server custom heartbeat
 setInterval(function () {
     var tempArray = {};
-    
+
     // Selective data sending
     for (var key in userList) {
         tempArray[key] = {};

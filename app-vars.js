@@ -1,8 +1,0 @@
-/*
-    Enviroment variables
- */
-
-
-
-
-
