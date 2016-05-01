@@ -24,14 +24,17 @@
     "jsonwebtoken": "^5.5.4",
     "merge2": "^0.3.6",
     "mysql": "felixge/node-mysql",
+    "node-forge": "^0.6.39",
     "node-rsa": "^0.3.2",
     "session-file-store": "^0.2.0",
     "sjcl": "^1.0.3",
     "socket.io": "^1.4.5"
   },
   "scripts": {
-    "generate": "npm install && bower install && npm run browser && gulp",
-    "browser": "browserify -r node-rsa > ./js/node-bundle.js"
+    "install": "npm run refresh && npm run cert",
+    "refresh": "npm install && bower install && npm run browser && gulp",
+    "browser": "browserify -r node-rsa > ./js/node-bundle.js",
+    "cert": "node generate.js domain"
   },
   "devDependencies": {},
   "repository": {

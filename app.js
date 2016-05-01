@@ -64,7 +64,8 @@ var RSAPublicKeyBits = new NodeRSA(RSAPublicKey, 'public');
 
 
 // Create rsa key example
-// var key = new NodeRSA({b: 2048});
+
+// var key = new NodeRSA({b: 4096});
 //
 // var publicDer = key.exportKey('public');
 // var privateDer = key.exportKey('private');
