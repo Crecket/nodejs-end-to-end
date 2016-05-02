@@ -283,7 +283,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // create a new key set for this client
     this.newKeySet = function (callback) {
-        debug('Creating new rsa key set');
+        info('Creating new rsa key set for encryption');
         var newKeyData = CryptoHelper.createKeySet(1024);
         keySet = newKeyData.rsaObj;
         privateKey = newKeyData.privateKey;
@@ -297,7 +297,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // create a new key set for this client
     this.newKeySetSign = function (callback) {
-        debug('Creating new rsa key set signing');
+        info('Creating new rsa key set for signing');
         var newKeyData = CryptoHelper.createKeySet(1024);
         keySetSign = newKeyData.rsaObj;
         privateKeySign = newKeyData.privateKey;

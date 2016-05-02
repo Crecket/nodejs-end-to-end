@@ -26,3 +26,13 @@ function parseArray(data) {
 function serializeArray(data) {
     return JSON.stringify(data);
 }
+
+function storageSet(key, value) {
+    localStorage.setItem(key, value);
+}
+function storageGet(key) {
+    return localStorage.getItem(key);
+}
+function storageDelete(key) {
+    localStorage.removeItem(key);
+}

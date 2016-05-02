@@ -51,7 +51,6 @@ socket.on('connect', function () {
 
 // Disconnected from server
 socket.on('disconnect', function () {
-
     error('Lost contact with server');
 
     $('#server_status').text('Disconnected');
@@ -104,28 +103,25 @@ socket.on('request verify', function () {
 
 // Login result callback
 socket.on('login_attempt_callback', function (res) {
-
-    debug('Login callback ' + res.success);
-
     loginLoading = false;
-
     SessionHelper.loginAttemptCallback(res);
-
     if (res.success === false) {
+        warn('Unsuccesful login attempt');
         // Invalid login attempt
         $('#login_section').show();
         $('#content').hide();
         $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
-
+        $('#login_form_messages_div').text(res.message);
+        $('#login_form_messages').fadeIn();
     } else {
-
+        info('Succesful login attempt');
         $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-check');
+        $('#login_form_messages').hide();
         $('#login_screen').fadeOut("slow", function () {
             $('#content').fadeIn();
         });
-
     }
-
+    debug(res);
 });
 
 // Server returns the user's salt
@@ -187,12 +183,11 @@ $(document.body).on('submit', '#login_form', function () {
         $('#login_button').addClass('fa-spin fa-refresh').removeClass('fa-sign-in');
 
         if (username.length > 3 && username.length < 16 && CryptoHelper.validPasswordType(password)) {
-
             setTimeout(function () {
                 debug('Login attempt');
+                $('#login_form_messages').fadeOut();
                 SessionHelper.loginAttempt(username, password);
             }, 100);
-
         } else {
             $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
             warn('Username length: ' + username.length + " password length: " + password.length);
@@ -206,7 +201,6 @@ $(document.body).on('submit', '#login_form', function () {
 // Message attempt
 $(document.body).on('submit', '#message_form', function (e) {
     e.preventDefault();
-
     if (!messageLoading && SessionHelper.hasTarget()) {
         messageLoading = true;
         var message = $('#inputMessage').val().trim();
@@ -225,7 +219,6 @@ $(document.body).on('submit', '#message_form', function (e) {
             messageLoading = false;
         }
     }
-
     return false;
 });
 
@@ -269,7 +262,7 @@ $('.body_toggle').on('click', function () {
 });
 
 // update hash values
-$('#update_md5_hashes').on('click', function(){
+$('#update_md5_hashes').on('click', function () {
     updateMd5Hashes();
 });
 
@@ -282,4 +275,34 @@ function updateMd5Hashes() {
     $('#public_key_sign_md5hash').text("MD5: " + CryptoJS.MD5($('#public_key_sign_input').val()));
 }
 
+// local storage buttons
 
+
+$('.save_set_data').on('click', function () {
+    // get values for this element
+    var save_key = $(this).data('save_key');
+    var target_field = $(this).data('save_target_field');
+    var value = $(target_field).val();
+    // get the data for the given key
+    storageSet(save_key, value);
+});
+
+$('.save_delete_data').on('click', function () {
+    // get values for this element
+    var remove_key = $(this).data('remove_key');
+    // get the data for the given key
+    storageDelete(remove_key);
+});
+
+$('.save_get_data').on('click', function () {
+    // get values from data values
+    var save_key = $(this).data('save_key');
+    var target_field = $(this).data('save_target_field');
+    // get the data for the given key
+    $(target_field).val(storageGet(save_key));
+});
+
+$('.save_ui_toggle').on('click', function () {
+    var target_ui = $(this).data('target_ui');
+    $(target_ui).fadeToggle();
+});
