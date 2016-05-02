@@ -113,7 +113,7 @@ param3: folder store location
 $ node generate.js ssl rsa certs/
 
 This will create the following files in the certs/ folder:
-cers/
+certs/
     ssl.crt
     ssl.key
     rsa.key
