@@ -218,7 +218,6 @@ io.on('connection', function (socket) {
 
     // send back salt
     socket.on('request_salt', function (username) {
-
         var salt = false;
 
         // select salt for this user
@@ -299,8 +298,8 @@ io.on('connection', function (socket) {
                             username = result[0].username;
 
                         } else {
-                            console.log('Invalid');
                             callbackResult.message = "Invalid login attempt";
+                            console.log('Return result', callbackResult);
                         }
                         socket.emit('login_attempt_callback', callbackResult);
 
@@ -316,7 +315,7 @@ io.on('connection', function (socket) {
                 }
             });
         } else {
-            callbackResult.message = "You're already logged in";
+            callbackResult.message = "";
             callbackResult.success = true;
             socket.emit('login_attempt_callback', callbackResult);
         }

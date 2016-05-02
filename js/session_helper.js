@@ -79,7 +79,8 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // Decrypt a cypher by using the created aes key
     this.receiveMessage = function (receivedData, callback) {
-        debug('Received message: ', receivedData);
+        info('Received message');
+        debug(receivedData);
 
         var message = false;
         if (storedKeys[receivedData.from]) {
@@ -101,12 +102,15 @@ function ConnectionHelper(socket, CryptoHelper) {
             var messageCypher = CryptoHelper.aesEncrypt(message, targetKey, iv);
 
             // send the cypher and iv to target
-            socket.emit('message', {
+            var messageData = {
                 'cypher': messageCypher,
                 'iv': iv,
                 'target': targetName,
                 'from': username
-            });
+            };
+            socket.emit('message', messageData);
+            info('Sending message to ' + targetName);
+            debug(message, messageData);
             return true;
         }
         return false;
@@ -233,20 +237,28 @@ function ConnectionHelper(socket, CryptoHelper) {
             var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, responseSerialized);
 
             // send to the server
-            socket.emit('response_aes_request', {
+            var payload = {
                 'cypher': cypherResult,
                 'signature': signature,
                 'success': true,
                 'from': username,
                 'target': request.from
-            });
+            };
+            socket.emit('response_aes_request', payload);
+            info('AES request is valid');
+            debug("Request", request);
+            debug("Response", payload);
         } else {
-            socket.emit('response_aes_request', {
+            warn(request.from + "'s aes request contained a invalid signature");
+            var payload = {
                 'success': false,
                 'message': "The signature does not seem to be from the right person",
                 'from': username,
                 'target': request.from
-            });
+            };
+            socket.emit('response_aes_request', payload);
+            debug("Request", request);
+            debug("Response", payload);
         }
     };
 
@@ -302,4 +314,8 @@ function ConnectionHelper(socket, CryptoHelper) {
         return username;
     };
 
+    // remove all aes keys
+    this.resetUserList = function () {
+        storedKeys = {};
+    };
 }

@@ -10,7 +10,11 @@ if (!debugSetting) {
     $('#debug_panel').hide();
 }
 
-var debug = console.log.bind(window.console);
+var warn = console.warn.bind(window.console);
+var error = console.error.bind(window.console);
+var log = console.log.bind(window.console);
+var debug = console.debug.bind(window.console);
+var info = console.info.bind(window.console);
 
 // crypto and session helper init
 var CryptoHelper = new CryptoHelper();
@@ -33,7 +37,7 @@ var messageLoading = false;
 
 // Socket event listeners
 socket.on('connect', function () {
-    debug('Connected to server');
+    info('Connected to server');
     $('#server_status').text('Connected');
     $('#server_status_icon').removeClass('fa-spin fa-refresh fa-warning').addClass('fa-check');
 });
@@ -41,7 +45,7 @@ socket.on('connect', function () {
 // Disconnected from server
 socket.on('disconnect', function () {
 
-    debug('Lost contact with server');
+    error('Lost contact with server');
 
     $('#server_status').text('Disconnected');
     $('#server_status_icon').removeClass('fa-spin fa-refresh fa-check').addClass('fa-warning');
@@ -49,6 +53,7 @@ socket.on('disconnect', function () {
     $('#login_screen').show();
     $('#content').hide();
 
+    SessionHelper.resetUserList();
 });
 
 // Receive server info, userlist
@@ -70,7 +75,7 @@ socket.on('server_info', function (server_info) {
         if (SessionHelper.hasAesKey(user_list[key].username)) {
             UserIcon = "<i class='fa fa-lock'></i> ";
         }
-        if(SessionHelper.getUsername() === user_list[key].username){
+        if (SessionHelper.getUsername() === user_list[key].username) {
             UserIcon = "<i class='fa fa-user'></i> ";
         }
 
@@ -131,7 +136,6 @@ socket.on('message_callback', function (res) {
 
 // Received a message from server
 socket.on('message', function (res) {
-
     SessionHelper.receiveMessage(res, function (callbackMessage) {
         if (callbackMessage !== false) {
             addMessage(res.from, callbackMessage);
@@ -141,21 +145,20 @@ socket.on('message', function (res) {
 
 // someone wants to chat and is requesting that we create a new aes key to use
 socket.on('aesKeyRequest', function (request) {
-    debug('Received AES request');
+    info('Received AES request');
     SessionHelper.createNewAes(request);
 });
 
 // the client a aes key was requested from has sent a response
 socket.on('aesKeyResponse', function (response) {
-    debug('Received AES response');
     SessionHelper.setAesKey(response);
-    setTimeout(function(){
-        debug('Deleyed aes response', response);
+    setTimeout(function () {
+        info('Received AES response', response);
     }, 200);
 });
 
 function addMessage(username, text) {
-    debug('Message: ' + text);
+    debug(username + ' Message: ' + text);
     if (text) {
         if (SessionHelper.getUsername() === username) {
             $('#messages').prepend('<p><strong>' + curDate() + " - " + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</p>');
@@ -184,9 +187,8 @@ $(document.body).on('submit', '#login_form', function () {
             }, 100);
 
         } else {
-
             $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
-            debug('Username length: ' + username.length + " password length: " + password);
+            warn('Username length: ' + username.length + " password length: " + password.length);
             loginLoading = false;
         }
     }

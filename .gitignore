@@ -6,3 +6,4 @@
 /certs/*
 !certs/empty
 config.js
+/js/node-bundle.js
