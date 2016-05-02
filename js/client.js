@@ -35,6 +35,11 @@ SessionHelper.newKeySetSign(function (keys) {
 var loginLoading = false;
 var messageLoading = false;
 
+setInterval(function(){
+    // stay alive through heartbeat
+   socket.emit('heart_beat', 'oi');
+}, 5000);
+
 // Socket event listeners
 socket.on('connect', function () {
     info('Connected to server');

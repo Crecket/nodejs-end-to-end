@@ -1,6 +1,5 @@
 var forge = require('node-forge');
 var fs = require('fs');
-var NodeRSA = require('node-rsa');
 
 // shortcuts
 var pki = forge.pki;
@@ -23,9 +22,6 @@ process.argv.forEach(function (val, index, array) {
         folder = val;
     }
 });
-
-generateSslCertificate(2048, file_name_ssl);
-generateRsaKeyPair(2048, file_name_rsa);
 
 function generateSslCertificate(bitSize, inputFileName) {
 
@@ -87,10 +83,9 @@ function generateSslCertificate(bitSize, inputFileName) {
 
 function generateRsaKeyPair(bitSize, file_name_rsa) {
 
-    var key = new NodeRSA({b: bitSize});
-
-    var publicDer = key.exportKey('public');
-    var privateDer = key.exportKey('private');
+    var keys = rsa.generateKeyPair(bitSize);
+    var publicDer = pki.publicKeyToPem(keys.publicKey);
+    var privateDer = pki.privateKeyToPem(keys.privateKey);
 
     fs.writeFile(folder + file_name_rsa + '.key', privateDer, 'utf8', function (err) {
         if (err) throw err;
@@ -105,3 +100,22 @@ function generateRsaKeyPair(bitSize, file_name_rsa) {
 
 
 
+// generate a ssl certificate
+generateSslCertificate(2048, file_name_ssl);
+// generate a rsa certificate
+generateRsaKeyPair(2048, file_name_rsa);
+
+/*
+param1: ssl file name
+param2: rsa file name
+param3: folder store location
+
+$ node generate.js ssl rsa certs/
+
+This will create the following files in the certs/ folder:
+cers/
+    ssl.crt
+    ssl.key
+    rsa.key
+    rsa.crt
+ */

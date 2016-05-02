@@ -321,6 +321,11 @@ io.on('connection', function (socket) {
         }
     });
 
+    socket.on('heart_beat', function () {
+        if (verified) {
+            refreshUser(username);
+        }
+    });
 });
 
 // Set username public key
@@ -337,12 +342,22 @@ function setUserKeys(username, keys) {
 
 // Add user to userlist
 function addUser(userName, socketId, ip) {
-    userList[userName] = {'username': userName, 'public_key': false, 'socketId': socketId, 'ip': ip};
+    userList[userName] = {
+        'username': userName,
+        'public_key': false,
+        'socketId': socketId,
+        'ip': ip,
+        'last_activity': new Date()
+    };
 }
 
 // Remove user from userlist
 function removeUser(userName) {
     delete userList[userName];
+}
+
+function refreshUser(userName) {
+    userList[userName]['last_activity'] = new Date();
 }
 
 // Get view contents
