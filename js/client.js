@@ -22,16 +22,16 @@ var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
 // create new encryption key set on startup
 SessionHelper.newKeySet(function (keys) {
-    $('#public_key_input').text(keys.publicKey);
-    $('#private_key_input').text(keys.privateKey);
-    updateMd5Hashes();
+    $('#public_key_input').val(keys.publicKey);
+    $('#private_key_input').val(keys.privateKey);
+    updateChecksums();
 });
 
 // create new signing key set on startup
 SessionHelper.newKeySetSign(function (keys) {
-    $('#public_key_sign_input').text(keys.publicKeySign);
-    $('#private_key_sign_input').text(keys.privateKeySign);
-    updateMd5Hashes();
+    $('#public_key_sign_input').val(keys.publicKeySign);
+    $('#private_key_sign_input').val(keys.privateKeySign);
+    updateChecksums();
 });
 
 var loginLoading = false;
@@ -236,10 +236,10 @@ $(document.body).on('click', '.user-select', function () {
 // create new encryption key set
 $('#new_encryption_keypair').on('click', function () {
     SessionHelper.newKeySet(function (keys) {
-        $('#public_key_input').text(keys.publicKey);
-        $('#private_key_input').text(keys.privateKey);
+        $('#public_key_input').val(keys.publicKey);
+        $('#private_key_input').val(keys.privateKey);
         debug('Generated new encryption key set');
-        updateMd5Hashes();
+        updateChecksums();
     });
     return false;
 });
@@ -247,10 +247,10 @@ $('#new_encryption_keypair').on('click', function () {
 // create new signing key set
 $('#new_encryption_sign_keypair').on('click', function () {
     SessionHelper.newKeySetSign(function (keys) {
-        $('#public_key_sign_input').text(keys.publicKeySign);
-        $('#private_key_sign_input').text(keys.privateKeySign);
+        $('#public_key_sign_input').val(keys.publicKeySign);
+        $('#private_key_sign_input').val(keys.privateKeySign);
         debug('Generated new signing key set');
-        updateMd5Hashes();
+        updateChecksums();
     });
     return false;
 });
@@ -263,21 +263,19 @@ $('.body_toggle').on('click', function () {
 
 // update hash values
 $('#update_md5_hashes').on('click', function () {
-    updateMd5Hashes();
+    updateChecksums();
 });
 
 // update the md5 fingerprints for rsa keys
-function updateMd5Hashes() {
-    debug('Updating md5 hashes');
-    $('#private_key_md5hash').text("MD5: " + CryptoJS.MD5($('#private_key_input').val()));
-    $('#public_key_md5hash').text("MD5: " + CryptoJS.MD5($('#public_key_input').val()));
-    $('#private_key_sign_md5hash').text("MD5: " + CryptoJS.MD5($('#private_key_sign_input').val()));
-    $('#public_key_sign_md5hash').text("MD5: " + CryptoJS.MD5($('#public_key_sign_input').val()));
+function updateChecksums() {
+    debug('Updating checksums');
+    $('#private_key_md5hash').text("Checksum: " + CryptoJS.SHA256($('#private_key_input').val()));
+    $('#public_key_md5hash').text("Checksum: " + CryptoJS.SHA256($('#public_key_input').val()));
+    $('#private_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#private_key_sign_input').val()));
+    $('#public_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#public_key_sign_input').val()));
 }
 
 // local storage buttons
-
-
 $('.save_set_data').on('click', function () {
     // get values for this element
     var save_key = $(this).data('save_key');
@@ -286,14 +284,12 @@ $('.save_set_data').on('click', function () {
     // get the data for the given key
     storageSet(save_key, value);
 });
-
 $('.save_delete_data').on('click', function () {
     // get values for this element
     var remove_key = $(this).data('remove_key');
     // get the data for the given key
     storageDelete(remove_key);
 });
-
 $('.save_get_data').on('click', function () {
     // get values from data values
     var save_key = $(this).data('save_key');
@@ -302,7 +298,21 @@ $('.save_get_data').on('click', function () {
     $(target_field).val(storageGet(save_key));
 });
 
-$('.save_ui_toggle').on('click', function () {
-    var target_ui = $(this).data('target_ui');
-    $(target_ui).fadeToggle();
+$('.save_keypair').on('click', function () {
+    if ($(this).data('type') === "encryption") {
+        storageSet('encryption_private_key', $('#private_key_input').val());
+        storageSet('encryption_public_key', $('#public_key_input').val());
+    } else {
+        storageSet('encryption_private_sign_key', $('#private_key_sign_input').val());
+        storageSet('encryption_public_sign_key', $('#public_key_sign_input').val());
+    }
+});
+$('.load_keypair').on('click', function () {
+    if ($(this).data('type') === "encryption") {
+        $('#private_key_input').val(storageGet('encryption_private_key'));
+        $('#public_key_input').val(storageGet('encryption_public_key'));
+    } else {
+        $('#private_key_sign_input').val(storageGet('encryption_private_sign_key'));
+        $('#public_key_sign_input').val(storageGet('encryption_public_sign_key'));
+    }
 });

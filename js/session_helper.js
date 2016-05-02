@@ -85,7 +85,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         var message = false;
         if (storedKeys[receivedData.from]) {
             // Decrypt with the sender's aes key
-            message = CryptoHelper.aesDecrypt(receivedData.cypher, storedKeys[receivedData.from], receivedData.iv);
+            message = CryptoHelper.aesDecrypt(receivedData.cypher, storedKeys[receivedData.from]['key'], receivedData.iv);
         }
 
         callback(message);
@@ -155,7 +155,7 @@ function ConnectionHelper(socket, CryptoHelper) {
             // check if we already have a aes key
             if (storedKeys[newTarget]) {
                 // we have a stored key, set the iv/key
-                targetKey = storedKeys[newTarget];
+                targetKey = storedKeys[newTarget]['key'];
                 targetName = newTarget;
                 debug('Setting target to: ' + newTarget);
                 return true;
@@ -201,7 +201,7 @@ function ConnectionHelper(socket, CryptoHelper) {
                     if (normalData.key.length === 64) {
 
                         // store the key
-                        storedKeys[response.from] = normalData.key;
+                        storedKeys[response.from] = {'key': normalData.key, 'rsa_keys': userList[response.from]};
                         targetName = response.from;
                     }
                 }
@@ -225,7 +225,7 @@ function ConnectionHelper(socket, CryptoHelper) {
             var key = CryptoHelper.newAesKey();
 
             // store the key and iv
-            storedKeys[request.from] = key;
+            storedKeys[request.from] = {'key': key, 'rsa_keys': userList[request.from]};
 
             // serialize the data we want to send
             var responseSerialized = serializeArray({'key': key});

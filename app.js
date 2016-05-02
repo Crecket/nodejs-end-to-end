@@ -230,7 +230,6 @@ io.on('connection', function (socket) {
             }
             socket.emit('login_salt_callback', salt);
         });
-
     });
 
     // incoming message request
