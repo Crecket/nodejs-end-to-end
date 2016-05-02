@@ -1,21 +1,25 @@
-<div id="testasd">
+<div>
 
     <div class="col-xs-12">
-        <div class="panel panel-danger">
-            <div class="panel-heading body_toggle" data-toggle="debug_body">
+        <!--<div class="panel panel-danger">-->
+            <!--<div class="panel-heading body_toggle" data-toggle="debug_body">-->
+                <!--<span class="pull-right">-->
+                    <!--<i id="server_status" class="">Loading</i>-->
+                    <!--<i id="server_status_icon" class="fa fa-refresh fa-spin"></i>-->
+                <!--</span>-->
+                <!--Debug-->
+            <!--</div>-->
+            <!--<div class="panel-body scroll-div" id="debug_body" style="display: none;">-->
+                <!--<div id="debug_list"></div>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div class="panel panel-primary">
+            <div class="panel-heading body_toggle" data-toggle="settings_body">
                 <span class="pull-right">
                     <i id="server_status" class="">Loading</i>
                     <i id="server_status_icon" class="fa fa-refresh fa-spin"></i>
                 </span>
-                Debug
-            </div>
-            <!--<div class="panel-body scroll-div" id="debug_body" style="display: none;">-->
-                <!--<div id="debug_list"></div>-->
-            <!--</div>-->
-        </div>
-
-        <div class="panel panel-primary">
-            <div class="panel-heading body_toggle" data-toggle="settings_body">
                 Settings
             </div>
             <div class="panel-body" id="settings_body" style="display: none;">
@@ -24,12 +28,14 @@
                     <div class="row">
                         <label for="inputTarget">Private decryption key</label>
                         <textarea class="form-control key-text" id="private_key_input"></textarea>
+                        <span id="private_key_md5hash"></span>
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <div class="row">
                         <label for="inputTarget">Public encryption key</label>
                         <textarea class="form-control key-text" id="public_key_input"></textarea>
+                        <span id="public_key_md5hash"></span>
                     </div>
                 </div>
                 <div class="col-xs-12">
@@ -43,16 +49,19 @@
                     <div class="row">
                         <label for="inputTarget">Private signing key</label>
                         <textarea class="form-control key-text" id="private_key_sign_input"></textarea>
+                        <span id="private_key_sign_md5hash"></span>
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <div class="row">
                         <label for="inputTarget">Public verification key</label>
                         <textarea class="form-control key-text" id="public_key_sign_input"></textarea>
+                        <span id="public_key_sign_md5hash"></span>
                     </div>
                 </div>
                 <div class="col-xs-12">
                     <div class="row">
+                        <a class="btn btn-success pull-right" id="update_md5_hashes">Refresh MD5 hashes</a>
                         <a class="btn btn-warning" id="new_encryption_sign_keypair">New signing keypair</a>
                     </div>
                 </div>

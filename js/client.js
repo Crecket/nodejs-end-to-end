@@ -24,20 +24,22 @@ var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 SessionHelper.newKeySet(function (keys) {
     $('#public_key_input').text(keys.publicKey);
     $('#private_key_input').text(keys.privateKey);
+    updateMd5Hashes();
 });
 
 // create new signing key set on startup
 SessionHelper.newKeySetSign(function (keys) {
     $('#public_key_sign_input').text(keys.publicKeySign);
     $('#private_key_sign_input').text(keys.privateKeySign);
+    updateMd5Hashes();
 });
 
 var loginLoading = false;
 var messageLoading = false;
 
-setInterval(function(){
+setInterval(function () {
     // stay alive through heartbeat
-   socket.emit('heart_beat', 'oi');
+    socket.emit('heart_beat', 'oi');
 }, 5000);
 
 // Socket event listeners
@@ -238,28 +240,46 @@ $(document.body).on('click', '.user-select', function () {
     return false;
 });
 
-
+// create new encryption key set
 $('#new_encryption_keypair').on('click', function () {
-    // create new encryption key set
     SessionHelper.newKeySet(function (keys) {
         $('#public_key_input').text(keys.publicKey);
         $('#private_key_input').text(keys.privateKey);
         debug('Generated new encryption key set');
+        updateMd5Hashes();
     });
     return false;
 });
 
-$('#new_encryption_sign_keypair').on('click', function () {
 // create new signing key set
+$('#new_encryption_sign_keypair').on('click', function () {
     SessionHelper.newKeySetSign(function (keys) {
         $('#public_key_sign_input').text(keys.publicKeySign);
         $('#private_key_sign_input').text(keys.privateKeySign);
         debug('Generated new signing key set');
+        updateMd5Hashes();
     });
     return false;
 });
 
+// toggle div collapse
 $('.body_toggle').on('click', function () {
     var targetDiv = $(this).data('toggle');
     $('#' + targetDiv).slideToggle();
 });
+
+// update hash values
+$('#update_md5_hashes').on('click', function(){
+    updateMd5Hashes();
+});
+
+// update the md5 fingerprints for rsa keys
+function updateMd5Hashes() {
+    debug('Updating md5 hashes');
+    $('#private_key_md5hash').text("MD5: " + CryptoJS.MD5($('#private_key_input').val()));
+    $('#public_key_md5hash').text("MD5: " + CryptoJS.MD5($('#public_key_input').val()));
+    $('#private_key_sign_md5hash').text("MD5: " + CryptoJS.MD5($('#private_key_sign_input').val()));
+    $('#public_key_sign_md5hash').text("MD5: " + CryptoJS.MD5($('#public_key_sign_input').val()));
+}
+
+

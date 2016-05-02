@@ -1,6 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 /node_modules
 /public/bower_components
+/bower_components
 /sessions
 /public/dist
 /certs/*
