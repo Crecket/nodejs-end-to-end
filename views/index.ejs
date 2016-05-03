@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<div id="main" class="container-fluid">
+<div id="main" class="container-fluid" style="display: none;">
 
     <div id="content" style="display: none;">
         <%- chat_screen %>
@@ -20,6 +20,11 @@
 
     <%- debug_screen %>
 
+</div>
+
+<div id="loader" class="text-center" style="color: #fff;">
+    <h1 id="server_status" class="">Loading</h1>
+    <h1 id="server_status_icon" class="fa fa-refresh fa-spin fa-5x"></h1>
 </div>
 
 <script src="dist/package.js"></script>

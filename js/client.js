@@ -47,6 +47,8 @@ socket.on('connect', function () {
     info('Connected to server');
     $('#server_status').text('Connected');
     $('#server_status_icon').removeClass('fa-spin fa-refresh fa-warning').addClass('fa-check');
+    $('#loader').fadeOut();
+    $('#main').fadeIn();
 });
 
 // Disconnected from server
@@ -58,6 +60,9 @@ socket.on('disconnect', function () {
 
     $('#login_screen').show();
     $('#content').hide();
+
+    $('#loader').fadeIn();
+    $('#main').fadeOut();
 
     SessionHelper.resetUserList();
 });
