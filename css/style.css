@@ -28,3 +28,7 @@ textarea.key-text {
     height: 300px;
     overflow-y: scroll;
 }
+
+.color-white{
+    color: #ffffff;
+}

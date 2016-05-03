@@ -57,10 +57,8 @@ socket.on('disconnect', function () {
 
     $('#server_status').text('Disconnected');
     $('#server_status_icon').removeClass('fa-spin fa-refresh fa-check').addClass('fa-warning');
-
     $('#login_screen').show();
     $('#content').hide();
-
     $('#loader').fadeIn();
     $('#main').fadeOut();
 
@@ -93,6 +91,8 @@ socket.on('server_info', function (server_info) {
         $('#user_list').append('<li><a href="#" class="user-select" data-user="' +
             user_list[key].username + '">' + UserIcon + user_list[key].username + '</a></li>');
     }
+
+    loadKeyListDiv();
 });
 
 // Receive public key from server
@@ -321,3 +321,40 @@ $('.load_keypair').on('click', function () {
         $('#public_key_sign_input').val(storageGet('encryption_public_sign_key'));
     }
 });
+
+function loadKeyListDiv() {
+    // create stored aes keys div
+    var keyList = SessionHelper.getKeyList();
+    var resultDiv = "";
+    for (var key in keyList) {
+        resultDiv +=
+            '<div class="panel panel-primary">' +
+            '<div class="panel-heading body_toggle">' +
+            "Username: " + key +
+            '</div>' +
+            '<div class="panel-body">' +
+            '<div class="col-xs-12">' +
+            '<div class="row">' +
+            '<label for="inputTarget">AES key</label>' +
+            '<input class="form-control" type="text" value="' + keyList[key]['key'] + '">' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-xs-12 col-sm-6">' +
+            '<div class="row">' +
+            '<label for="inputTarget">Encryption key</label>' +
+            '<textarea class="form-control key-text">' + keyList[key]['rsa_keys']['public_key'] + '</textarea>' +
+            '<p>Checksum: ' + CryptoJS.SHA256(keyList[key]['rsa_keys']['public_key']).toString() + '</p>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-xs-12 col-sm-6">' +
+            '<div class="row">' +
+            '<label for="inputTarget">Verification key</label>' +
+            '<textarea class="form-control key-text">' + keyList[key]['rsa_keys']['public_key_sign'] + '</textarea>' +
+            '<p>Checksum: ' + CryptoJS.SHA256(keyList[key]['rsa_keys']['public_key_sign']).toString() + '</p>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '</div>';
+    }
+    $('#stored_key_div').html(resultDiv);
+}

@@ -135,7 +135,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         // check if target still exists
         if (!userList[targetName]) {
             targetKey = false;
-            storedKeys[targetName] = false;
+            delete storedKeys[targetName];
             targetName = false;
             return false;
         }
@@ -313,6 +313,11 @@ function ConnectionHelper(socket, CryptoHelper) {
     this.getUsername = function () {
         return username;
     };
+
+    // return the key list
+    this.getKeyList = function () {
+        return storedKeys;
+    }
 
     // remove all aes keys
     this.resetUserList = function () {
