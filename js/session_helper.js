@@ -154,6 +154,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
             // check if we already have a aes key
             if (storedKeys[newTarget]) {
+                
                 // we have a stored key, set the iv/key
                 targetKey = storedKeys[newTarget]['key'];
                 targetName = newTarget;
@@ -179,7 +180,6 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // store a aes key and iv after other client sends it
     this.setAesKey = function (response) {
-
         if (response.success) {
 
             // get the sender's data

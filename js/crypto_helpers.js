@@ -8,13 +8,11 @@ function CryptoHelper() {
 
     // Create new RSA keyset, default keysize 1024 recommended
     this.createKeySet = function (keySize) {
-
         if (!keySize) {
             keySize = 1024;
         }
 
         var NodeRSAKey = new NodeRSA({b: keySize});
-
         var tempPriv = NodeRSAKey.exportKey('private');
         var tempPub = NodeRSAKey.exportKey('public');
 
@@ -118,7 +116,7 @@ function CryptoHelper() {
 
         // turn raw data into Base64 string
         return encrypted.toString();
-    }
+    };
     // aes decryption with CBC mode
     this.aesDecrypt = function (cipher, key, iv) {
 
@@ -140,8 +138,8 @@ function CryptoHelper() {
 
         // Return decrypted text
         return decrypted.toString(CryptoJS.enc.Utf8);
-    }
-    
+    };
+
     // ======================== Hashing ==========================
 
     // SHA512 hashing
