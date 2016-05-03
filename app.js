@@ -43,8 +43,10 @@ var config = require('./config');
 if (os.hostname().trim() === "CrecketMe") {
 
     var options = {
-        key: fs.readFileSync('/home/crecket/crecket.me.key'),
-        cert: fs.readFileSync('/home/crecket/crecket_me.crt'),
+        // key: fs.readFileSync('/home/crecket/crecket.me.key'),
+        // cert: fs.readFileSync('/home/crecket/crecket_me.crt'),
+        key: fs.readFileSync('/etc/letsencrypt/live/crecket.me/privkey.pem'),
+        cert: fs.readFileSync('/etc/letsencrypt/live/crecket.me/cert.pem'),
         requestCert: false
     };
     var https = require('https');
