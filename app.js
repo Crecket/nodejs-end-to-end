@@ -47,11 +47,12 @@ if (os.hostname().trim() === "CrecketMe") {
         // cert: fs.readFileSync('/home/crecket/crecket_me.crt'),
         key: fs.readFileSync('/etc/letsencrypt/live/crecket.me/privkey.pem'),
         cert: fs.readFileSync('/etc/letsencrypt/live/crecket.me/cert.pem'),
+        ca: [fs.readFileSync('/etc/letsencrypt/live/crecket.me/chain.pem')],
         requestCert: false
     };
     var https = require('https');
     var server = https.createServer(options, app);
-    console.log('Online server started over https');
+    console.log('Online server started over https. ' + os.hostname().trim());
 
     // Create mysql connection
     var mysqlConnection = mysql.createConnection('mysql://crecket:' + config.MysqlPasswordOnline + '@localhost/nodejs_db?debug=false');
@@ -64,7 +65,7 @@ if (os.hostname().trim() === "CrecketMe") {
     };
     var https = require('https');
     var server = https.createServer(options, app);
-    console.log('Offline server started over https');
+    console.log('Offline server started over https. ' + os.hostname().trim());
 
     // Create mysql connection
     var mysqlConnection = mysql.createConnection('mysql://root:' + config.MysqlPassword + '@localhost/nodejs_db?debug=false');
