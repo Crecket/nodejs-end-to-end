@@ -36,6 +36,7 @@ SessionHelper.newKeySetSign(function (keys) {
 
 var loginLoading = false;
 var messageLoading = false;
+var sendingFile = false;
 
 setInterval(function () {
     // stay alive through heartbeat
@@ -177,7 +178,7 @@ function addMessage(username, text) {
 }
 
 // Login attempt
-$(document.body).on('submit', '#login_form', function () {
+$('#login_form').on('submit', function () {
 
     if (!loginLoading) {
         loginLoading = true;
@@ -204,7 +205,7 @@ $(document.body).on('submit', '#login_form', function () {
 });
 
 // Message attempt
-$(document.body).on('submit', '#message_form', function (e) {
+$('#message_form').on('submit', function (e) {
     e.preventDefault();
     if (!messageLoading && SessionHelper.hasTarget()) {
         messageLoading = true;
@@ -228,7 +229,7 @@ $(document.body).on('submit', '#message_form', function (e) {
 });
 
 // select a user
-$(document.body).on('click', '.user-select', function () {
+$('.user-select').on('click', function () {
     if (SessionHelper.isVerified()) {
         var userName = $(this).data('user');
         if (SessionHelper.setTarget(userName)) {
@@ -236,6 +237,46 @@ $(document.body).on('click', '.user-select', function () {
         }
     }
     return false;
+});
+
+// file upload testing
+$('#file_upload').on('click', function () {
+    // check if no other file is being sent
+    if (true || !sendingFile && SessionHelper.hasTarget()) {
+
+        // basic file info
+        var file_info = getFileinfo('file_upload_test');
+
+        // 1b < file-size < 1mb
+        if (file_info && file_info.size > 0 && file_info.size < 1024 * 1024) {
+
+            // update status
+            sendingFile = true;
+
+            // button text update to loader icon
+            $('#file_upload').html('<i class="fa fa-spin fa-refresh"></i>');
+
+            // get contents from input
+            getFileContents('file_upload_test', function (res) {
+                log(res);
+                var packages = stringToPackage(res.result);
+
+                SessionHelper.sendFile(packages, function (result) {
+                    log(result);
+                    if (result === true) {
+                        resetFormElement($('#file_upload_test'));
+                        $('#file_upload').html('Send a file');
+                        sendingFile = false;
+                    } else {
+                        // $('#file_upload').html('Progress: ' + Math.round(result) + '%');
+                        $('#file_upload').html('Progress: ' + result.toFixed(2) + '%');
+                    }
+                });
+            });
+        } else {
+            warn('Invalid file size, max file size is 5mb');
+        }
+    }
 });
 
 // create new encryption key set
@@ -303,6 +344,7 @@ $('.save_get_data').on('click', function () {
     $(target_field).val(storageGet(save_key));
 });
 
+// save and load keypairs for settings tab
 $('.save_keypair').on('click', function () {
     if ($(this).data('type') === "encryption") {
         storageSet('encryption_private_key', $('#private_key_input').val());
@@ -322,6 +364,7 @@ $('.load_keypair').on('click', function () {
     }
 });
 
+// load aes key list divs
 function loadKeyListDiv() {
     // create stored aes keys div
     var keyList = SessionHelper.getKeyList();

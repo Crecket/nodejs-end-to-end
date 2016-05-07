@@ -1,5 +1,4 @@
 function ConnectionHelper(socket, CryptoHelper) {
-
     var fn = this;
 
     // current username
@@ -8,13 +7,16 @@ function ConnectionHelper(socket, CryptoHelper) {
     var verified = false;
 
     // ===========================================
+
     // Full key set, used for decryption/encryption
     var keySet = false;
     // This client's private key, only used for exporting
     var privateKey = false;
     // This client's public key, only used for exporting
     var publicKey = false;
+
     // ===========================================
+
     // Full key set, used for signing/verification
     var keySetSign = false;
     // This client's private key, only used for exporting Sign key
@@ -23,12 +25,12 @@ function ConnectionHelper(socket, CryptoHelper) {
     var publicKeySign = false;
 
     // ===========================================
+
     // NodeJS public key
     var serverPublicKey = false;
 
     // List off all user's and their rsa public keys
     var userList = {};
-
     // stored aes keys for different users
     var storedKeys = {};
 
@@ -36,6 +38,9 @@ function ConnectionHelper(socket, CryptoHelper) {
     var targetName = false;
     // Public key of current target for chat messages
     var targetKey = false;
+
+    // list with files that are being transfered
+    var fileTransfers = {};
 
     // shitty fix to store passwords while waiting for the salt
     var tempPassword = "",
@@ -77,6 +82,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         }
     };
 
+
     // Decrypt a cypher by using the created aes key
     this.receiveMessage = function (receivedData, callback) {
         info('Received message');
@@ -116,10 +122,6 @@ function ConnectionHelper(socket, CryptoHelper) {
         return false;
     };
 
-    // return if this private verified variable is true/false
-    this.isVerified = function () {
-        return verified !== false;
-    };
 
     // if user is verified, send the server the current key
     this.updateKey = function () {
@@ -142,31 +144,11 @@ function ConnectionHelper(socket, CryptoHelper) {
         return true;
     };
 
-    // check if target is set
-    this.hasTarget = function () {
-        return targetName !== false;
+    // set the server's public key
+    this.setServerPublicKey = function (key) {
+        serverPublicKey = key;
     };
 
-    // set the new target name and public key
-    this.setTarget = function (newTarget) {
-        // check if user is verified, exists and target is not self
-        if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
-
-            // check if we already have a aes key
-            if (storedKeys[newTarget]) {
-                
-                // we have a stored key, set the iv/key
-                targetKey = storedKeys[newTarget]['key'];
-                targetName = newTarget;
-                debug('Setting target to: ' + newTarget);
-                return true;
-            } else {
-                // we dont have a stored key, request a new one from target
-                fn.requestAesKey(newTarget);
-            }
-        }
-        return false;
-    };
 
     // request a new aes key from a target
     this.requestAesKey = function (target) {
@@ -268,18 +250,6 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     }
 
-    // check if we have a stored aes key for a given username
-    this.hasAesKey = function (target) {
-        if (storedKeys[target]) {
-            return true;
-        }
-        return false;
-    }
-
-    // set the server's public key
-    this.setServerPublicKey = function (key) {
-        serverPublicKey = key;
-    };
 
     // create a new key set for this client
     this.newKeySet = function (callback) {
@@ -307,6 +277,89 @@ function ConnectionHelper(socket, CryptoHelper) {
             callback({'privateKeySign': privateKeySign, 'publicKeySign': publicKeySign});
         }
         this.updateKey();
+    };
+
+    // send a file in chunks to a target
+    this.sendFile = function (data_package, callback) {
+        var index = 0;
+        var maxIndex = data_package.length;
+        var package = {'target': targetName, 'data': '', 'index': 0, 'maxIndex': maxIndex};
+
+        // use a delayed timer instead of for loop to throttle data
+        var timer = setInterval(function () {
+            // socket.emit()
+            if (index <= maxIndex) {
+                package.data = data_package.index;
+                package.key = index;
+
+                // random iv for this package
+                var iv = CryptoHelper.newAesIv();
+
+                // Encryp with a stored aes key
+                var messageCypher = CryptoHelper.aesEncrypt(serializeArray(package), targetKey, iv);
+
+                // send the cypher and iv to target
+                var transferPackage = {
+                    'cypher': messageCypher,
+                    'iv': iv,
+                    'target': targetName,
+                    'from': username
+                };
+                socket.emit('file_package_transfer', transferPackage);
+                debug('Sending package to ' + targetName, transferPackage);
+
+                // Callback the current transfer percentage
+                callback(100 / maxIndex * index);
+            } else {
+                info('Sent all packages to ' + targetName);
+                clearInterval(timer);
+                callback(true);
+            }
+            index++;
+        }, 100);
+    };
+
+    this.receiveFile = function () {
+
+    };
+
+    // return if this private verified variable is true/false
+    this.isVerified = function () {
+        return verified !== false;
+    };
+
+    // check if target is set
+    this.hasTarget = function () {
+        return targetName !== false;
+    };
+
+    // check if we have a stored aes key for a given username
+    this.hasAesKey = function (target) {
+        if (storedKeys[target]) {
+            return true;
+        }
+        return false;
+    }
+
+    // set the new target name and public key
+    this.setTarget = function (newTarget) {
+        // check if user is verified, exists and target is not self
+        if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
+
+            // check if we already have a aes key
+            if (storedKeys[newTarget]) {
+
+                // we have a stored key, set the iv/key
+                targetKey = storedKeys[newTarget]['key'];
+                targetName = newTarget;
+                debug('Setting target to: ' + newTarget);
+                return true;
+            } else {
+                // we dont have a stored key, request a new one from target
+                fn.requestAesKey(newTarget);
+            }
+        }
+        return false;
     };
 
     // return current username

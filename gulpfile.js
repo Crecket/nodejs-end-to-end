@@ -20,12 +20,13 @@ var package_sources = [
     'bower_components/cryptojslib/rollups/sha512.js',
     'bower_components/cryptojslib/components/enc-base64.js',
     'bower_components/cryptojslib/components/enc-base64.js',
+    'js/node-bundle.js',
 ];
 var sources = [
-    'js/node-bundle.js',
     'js/utils.js',
     'js/crypto_helpers.js',
     'js/session_helper.js',
+    'js/file_upload_test.js',
     'js/client.js'
 ];
 var cssFiles = [
