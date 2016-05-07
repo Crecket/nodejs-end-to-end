@@ -241,8 +241,8 @@ $('.user-select').on('click', function () {
 
 // file upload testing
 $('#file_upload').on('click', function () {
-    // check if no other file is being sent
-    if (true || !sendingFile && SessionHelper.hasTarget()) {
+    // check if no other file is being sent, if we have a target and if a aes key has been established
+    if (true || !sendingFile && SessionHelper.hasTarget() && SessionHelper.hasAesKey()) {
 
         // basic file info
         var file_info = getFileinfo('file_upload_test');
@@ -267,6 +267,10 @@ $('#file_upload').on('click', function () {
                         resetFormElement($('#file_upload_test'));
                         $('#file_upload').html('Send a file');
                         sendingFile = false;
+                    } else if (result === false) {
+                        resetFormElement($('#file_upload_test'));
+                        $('#file_upload').html('Send a file');
+                        sendingFile = false;
                     } else {
                         // $('#file_upload').html('Progress: ' + Math.round(result) + '%');
                         $('#file_upload').html('Progress: ' + result.toFixed(2) + '%');
@@ -276,7 +280,7 @@ $('#file_upload').on('click', function () {
         } else {
             warn('Invalid file size, max file size is 5mb');
         }
-    }
+    } 
 });
 
 // create new encryption key set

@@ -298,6 +298,10 @@ function ConnectionHelper(socket, CryptoHelper) {
                 // Encryp with a stored aes key
                 var messageCypher = CryptoHelper.aesEncrypt(serializeArray(package), targetKey, iv);
 
+                if (messageCypher !== false) {
+
+                }
+
                 // send the cypher and iv to target
                 var transferPackage = {
                     'cypher': messageCypher,
@@ -310,6 +314,8 @@ function ConnectionHelper(socket, CryptoHelper) {
 
                 // Callback the current transfer percentage
                 callback(100 / maxIndex * index);
+            } else if (!this.hasAesKey() || !this.hasTarget()) {
+
             } else {
                 info('Sent all packages to ' + targetName);
                 clearInterval(timer);
