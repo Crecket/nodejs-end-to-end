@@ -178,7 +178,7 @@ function addMessage(username, text) {
 }
 
 // Login attempt
-$('#login_form').on('submit', function () {
+$(document.body).on('submit', '#login_form', function () {
 
     if (!loginLoading) {
         loginLoading = true;
@@ -205,7 +205,7 @@ $('#login_form').on('submit', function () {
 });
 
 // Message attempt
-$('#message_form').on('submit', function (e) {
+$(document.body).on('submit', '#message_form', function (e) {
     e.preventDefault();
     if (!messageLoading && SessionHelper.hasTarget()) {
         messageLoading = true;
@@ -229,12 +229,14 @@ $('#message_form').on('submit', function (e) {
 });
 
 // select a user
-$('.user-select').on('click', function () {
+$(document.body).on('click', '.user-select', function () {
     if (SessionHelper.isVerified()) {
         var userName = $(this).data('user');
         if (SessionHelper.setTarget(userName)) {
             $('#inputTarget').val(userName);
         }
+    } else {
+        warn('Not verified, can\'t select target');
     }
     return false;
 });
@@ -242,7 +244,7 @@ $('.user-select').on('click', function () {
 // file upload testing
 $('#file_upload').on('click', function () {
     // check if no other file is being sent, if we have a target and if a aes key has been established
-    if (true || !sendingFile && SessionHelper.hasTarget() && SessionHelper.hasAesKey()) {
+    if (!sendingFile && SessionHelper.hasTarget() && SessionHelper.hasAesKey()) {
 
         // basic file info
         var file_info = getFileinfo('file_upload_test');
@@ -259,7 +261,7 @@ $('#file_upload').on('click', function () {
             // get contents from input
             getFileContents('file_upload_test', function (res) {
                 log(res);
-                var packages = stringToPackage(res.result);
+                var packages = stringToPackage(res.result, 1024 * 10);
 
                 SessionHelper.sendFile(packages, function (result) {
                     log(result);
@@ -267,9 +269,11 @@ $('#file_upload').on('click', function () {
                         resetFormElement($('#file_upload_test'));
                         $('#file_upload').html('Send a file');
                         sendingFile = false;
+                        addMessage(userName, 'File has succesfully been sent to the target');
                     } else if (result === false) {
                         resetFormElement($('#file_upload_test'));
                         $('#file_upload').html('Send a file');
+                        addMessage(SessionHelper.getUsername(), 'File has NOT succesfully been sent to the target');
                         sendingFile = false;
                     } else {
                         // $('#file_upload').html('Progress: ' + Math.round(result) + '%');
@@ -280,7 +284,7 @@ $('#file_upload').on('click', function () {
         } else {
             warn('Invalid file size, max file size is 5mb');
         }
-    } 
+    }
 });
 
 // create new encryption key set
