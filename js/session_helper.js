@@ -346,6 +346,10 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // check if we have a stored aes key for a given username
     this.hasAesKey = function (target) {
+        if (!target) {
+            // no custom target, use default target
+            target = targetName;
+        }
         if (storedKeys[target]) {
             return true;
         }

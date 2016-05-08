@@ -152,6 +152,7 @@ socket.on('message', function (res) {
     });
 });
 
+// TODO allow user to verify and accept request manually first
 // someone wants to chat and is requesting that we create a new aes key to use
 socket.on('aesKeyRequest', function (request) {
     info('Received AES request');
@@ -241,6 +242,7 @@ $(document.body).on('click', '.user-select', function () {
     return false;
 });
 
+// TODO consent before file sharing
 // file upload testing
 $('#file_upload').on('click', function () {
     // check if no other file is being sent, if we have a target and if a aes key has been established
@@ -284,6 +286,9 @@ $('#file_upload').on('click', function () {
         } else {
             warn('Invalid file size, max file size is 5mb');
         }
+    } else {
+        debug(sendingFile, SessionHelper.hasTarget(), SessionHelper.hasAesKey());
+        warn('Already sending file or no target/key');
     }
 });
 

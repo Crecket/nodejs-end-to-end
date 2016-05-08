@@ -28,17 +28,30 @@
                 </div>
                 <div class="panel-body" id="new_message_body">
 
-                    <label for="inputMessage" class="sr-only">Message</label>
-                    <input type="text" id="inputMessage" name="inputMessage" class="form-control input-lg"
-                           placeholder="Message" required autocomplete="off">
+                    <div class="form-group">
+                        <label for="inputTarget">Target</label>
+                        <input type="text" id="inputTarget" name="inputTarget" class="form-control input-lg"
+                               placeholder="No user selected" readonly required>
+                    </div>
 
-                    <label for="inputTarget">Target</label>
-                    <input type="text" id="inputTarget" name="inputTarget" class="form-control input-lg"
-                           placeholder="No user selected" readonly required>
+                    <div class="form-group">
+                        <label for="inputMessage">Message</label>
+                        <input type="text" id="inputMessage" name="inputMessage" class="form-control input-lg"
+                               placeholder="Message" required autocomplete="off">
+                        <button class="btn btn-lg btn-primary btn-block" type="submit">
+                            Send Message
+                        </button>
+                    </div>
 
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">
-                        Send
-                    </button>
+                    <div class="form-group">
+                        <label for="inputMessage">File</label>
+                        <input type="file" id="file_upload_test">
+                        <a class="btn btn-lg btn-primary btn-block" id="file_upload">Send File</a>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="checkbox"> Allow people to send me files.
+                    </div>
                 </div>
             </div>
         </form>
