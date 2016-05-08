@@ -35,7 +35,7 @@ textarea.key-text {
 }
 
 #messages {
-    height: 300px;
+    height: 460px;
     overflow-y: scroll;
 }
 
