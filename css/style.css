@@ -14,7 +14,7 @@ textarea.key-text {
     font-family: monospace;
 }
 
-.scroll-div{
+.scroll-div {
     overflow-y: scroll;
 }
 
@@ -25,10 +25,37 @@ textarea.key-text {
 }
 
 #messages {
-    height: 460px;
+    max-height: 460px;
+    height: 100%;
     overflow-y: scroll;
 }
 
-.color-white{
+.color-white {
     color: #ffffff;
 }
+
+.checksum-text {
+    word-break: break-all;
+    font-family: monospace;
+}
+
+/*.btn-file {*/
+    /*position: relative;*/
+    /*overflow: hidden;*/
+/*}*/
+
+/*.btn-file input[type=file] {*/
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*right: 0;*/
+    /*min-width: 100%;*/
+    /*min-height: 100%;*/
+    /*font-size: 100px;*/
+    /*text-align: right;*/
+    /*filter: alpha(opacity=0);*/
+    /*opacity: 0;*/
+    /*outline: none;*/
+    /*background: white;*/
+    /*cursor: inherit;*/
+    /*display: block;*/
+/*}*/

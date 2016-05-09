@@ -153,6 +153,8 @@ io.on('connection', function (socket) {
     // disconnected user
     socket.on('disconnect', function () {
         removeUser(username);
+        // send to all clients
+        socket.broadcast.emit('user_disconnect', username, userList);
     });
 
     // incoming message request
@@ -193,13 +195,10 @@ io.on('connection', function (socket) {
 
     // client wants to create a new aes key with another client
     socket.on('request_aes', function (request) {
-
         var messageCallback = {'success': false, "message": ""};
-
         if (verified) {
             if (userList[request.target]) {
                 var targetData = userList[request.target];
-
                 io.sockets.connected[targetData.socketId].emit('aesKeyRequest', request);
             } else {
                 messageCallback.message = "User not found.";
@@ -215,6 +214,16 @@ io.on('connection', function (socket) {
                 var targetData = userList[response.target];
 
                 io.sockets.connected[targetData.socketId].emit('aesKeyResponse', response);
+            }
+        }
+    });
+    
+    // confirm a aes request to ensure both clients know which keys to use
+    socket.on('confirm_aes', function (request) {
+        if (verified) {
+            if (userList[request.target]) {
+                var targetData = userList[request.target];
+                io.sockets.connected[targetData.socketId].emit('confirm_aes', request);
             }
         }
     });
@@ -323,6 +332,7 @@ io.on('connection', function (socket) {
         }
     });
 
+    // refresh user timestamps
     socket.on('heart_beat', function () {
         if (verified) {
             refreshUser(username);

@@ -64,6 +64,7 @@ socket.on('disconnect', function () {
     $('#main').fadeOut();
 
     SessionHelper.resetUserList();
+    loadKeyListDiv();
 });
 
 // Receive server info, userlist
@@ -85,6 +86,7 @@ socket.on('server_info', function (server_info) {
         if (SessionHelper.hasAesKey(user_list[key].username)) {
             UserIcon = "<i class='fa fa-lock'></i> ";
         }
+        // self
         if (SessionHelper.getUsername() === user_list[key].username) {
             UserIcon = "<i class='fa fa-user'></i> ";
         }
@@ -92,7 +94,16 @@ socket.on('server_info', function (server_info) {
         $('#user_list').append('<li><a href="#" class="user-select" data-user="' +
             user_list[key].username + '">' + UserIcon + user_list[key].username + '</a></li>');
     }
+});
 
+// a user has disconnected
+socket.on('user_disconnect', function (username, user_list) {
+    debug('User disconnected: ' + username);
+    // first update the userlist
+    if (!SessionHelper.updateUserList(user_list)) {
+        // current target is gone so reset the target input box
+        $('#inputTarget').val('');
+    }
     loadKeyListDiv();
 });
 
@@ -161,19 +172,29 @@ socket.on('aesKeyRequest', function (request) {
 
 // the client a aes key was requested from has sent a response
 socket.on('aesKeyResponse', function (response) {
-    SessionHelper.setAesKey(response);
-    setTimeout(function () {
-        info('Received AES response', response);
-    }, 200);
+    SessionHelper.setAesKey(response, function (success) {
+        if (success) {
+            loadKeyListDiv();
+        }
+    });
+    info('Received AES response', response);
 });
 
-function addMessage(username, text) {
+// the client a aes key was requested from has sent a response
+socket.on('confirm_aes', function (response) {
+    info('Received AES confirmation', response);
+    SessionHelper.aesConfirmationCheck(response, function (success) {
+        loadKeyListDiv();
+    });
+});
+
+function addMessage(username, text, customid) {
     debug(username + ' Message: ' + text);
     if (text) {
         if (SessionHelper.getUsername() === username) {
-            $('#messages').prepend('<p><strong>' + curDate() + " - " + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</p>');
+            $('#messages').prepend('<p id="' + customid + '"><strong>' + curDate() + " - " + escapeHtml(username) + "</strong>: " + escapeHtml(text) + '</p>');
         } else {
-            $('#messages').prepend('<p>' + curDate() + " - " + escapeHtml(username) + ": " + escapeHtml(text) + '</p>');
+            $('#messages').prepend('<p id="' + customid + '">' + curDate() + " - " + escapeHtml(username) + ": " + escapeHtml(text) + '</p>');
         }
     }
 }
@@ -262,7 +283,6 @@ $('#file_upload').on('click', function () {
 
             // get contents from input
             getFileContents('file_upload_test', function (res) {
-                log(res);
                 var packages = stringToPackage(res.result, 1024 * 10);
 
                 SessionHelper.sendFile(packages, function (result) {
@@ -270,13 +290,15 @@ $('#file_upload').on('click', function () {
                     if (result === true) {
                         resetFormElement($('#file_upload_test'));
                         $('#file_upload').html('Send a file');
+                        addMessage(SessionHelper.getUsername(), 'File has succesfully been sent a to ' + SessionHelper.getTarget());
                         sendingFile = false;
-                        addMessage(userName, 'File has succesfully been sent to the target');
+
                     } else if (result === false) {
                         resetFormElement($('#file_upload_test'));
                         $('#file_upload').html('Send a file');
-                        addMessage(SessionHelper.getUsername(), 'File has NOT succesfully been sent to the target');
+                        addMessage(SessionHelper.getUsername(), 'File has NOT succesfully been sent a to ' + SessionHelper.getTarget());
                         sendingFile = false;
+
                     } else {
                         // $('#file_upload').html('Progress: ' + Math.round(result) + '%');
                         $('#file_upload').html('Progress: ' + result.toFixed(2) + '%');
@@ -333,6 +355,23 @@ function updateChecksums() {
     $('#private_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#private_key_sign_input').val()));
     $('#public_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#public_key_sign_input').val()));
 }
+
+// remove all messages
+$('#clear_messages').on('click', function () {
+    $('#messages').html('');
+});
+
+// handle file input custom styles
+$(document).on('change', '.btn-file :file', function () {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [numFiles, label]);
+});
+// display file input result
+$('.btn-file :file').on('fileselect', function (event, numFiles, label) {
+    $('#file_upload_result').val(label);
+});
 
 // local storage buttons
 $('.save_set_data').on('click', function () {
@@ -399,14 +438,14 @@ function loadKeyListDiv() {
             '<div class="row">' +
             '<label for="inputTarget">Encryption key</label>' +
             '<textarea class="form-control key-text">' + keyList[key]['rsa_keys']['public_key'] + '</textarea>' +
-            '<p>Checksum: ' + CryptoJS.SHA256(keyList[key]['rsa_keys']['public_key']).toString() + '</p>' +
+            '<p class="checksum-text">Checksum: ' + CryptoJS.SHA256(keyList[key]['rsa_keys']['public_key']).toString() + '</p>' +
             '</div>' +
             '</div>' +
             '<div class="col-xs-12 col-sm-6">' +
             '<div class="row">' +
             '<label for="inputTarget">Verification key</label>' +
             '<textarea class="form-control key-text">' + keyList[key]['rsa_keys']['public_key_sign'] + '</textarea>' +
-            '<p>Checksum: ' + CryptoJS.SHA256(keyList[key]['rsa_keys']['public_key_sign']).toString() + '</p>' +
+            '<p class="checksum-text">Checksum: ' + CryptoJS.SHA256(keyList[key]['rsa_keys']['public_key_sign']).toString() + '</p>' +
             '</div>' +
             '</div>' +
             '</div>' +

@@ -7,6 +7,9 @@
             </div>
             <div class="panel-body" id="messages_body">
                 <ul id="messages"></ul>
+                <a id="clear_messages" class="btn btn-danger btn-sm pull-right">
+                    Clear
+                </a>
             </div>
         </div>
     </div>
@@ -44,14 +47,34 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="inputMessage">File</label>
-                        <input type="file" id="file_upload_test">
-                        <a class="btn btn-lg btn-primary btn-block" id="file_upload">Send File</a>
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="row">
+                                <!--<span class="btn btn-success btn-lg btn-block btn-file">-->
+                                <label class="">
+                                    Choose a file <input type="file" id="file_upload_test">
+                                </label>
+                            </div>
+                        </div>
+                        <!--<div class="col-xs-12 col-sm-6">-->
+                        <!--<div class="row">-->
+                        <!--<input type="text" class="form-control input-lg" id="file_upload_result" readonly>-->
+                        <!--</div>-->
+                        <!--</div>-->
+                        <div class="col-xs-12 col-sm-6">
+                            <div class="row">
+                                <a class="btn btn-lg btn-primary btn-block" id="file_upload">Send File</a>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox"> Allow people to send me files.
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <label><input type="checkbox"> Allow people to send me files.</label>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </form>

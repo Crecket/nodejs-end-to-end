@@ -161,7 +161,8 @@ function ConnectionHelper(socket, CryptoHelper) {
     };
 
     // store a aes key and iv after other client sends it
-    this.setAesKey = function (response) {
+    this.setAesKey = function (response, callback) {
+        var result = false;
         if (response.success) {
 
             // get the sender's data
@@ -185,62 +186,91 @@ function ConnectionHelper(socket, CryptoHelper) {
                         // store the key
                         storedKeys[response.from] = {'key': normalData.key, 'rsa_keys': userList[response.from]};
                         targetName = response.from;
+                        result = true;
+                        info('AES request is valid, key has been stored');
+
+                        // send a confirmation message to the other client
+                        var confirmIv = CryptoHelper.newAesIv();
+                        // message to encrypt and sign
+                        var confirmMessage = SessionHelper.getUsername() + ' confirms this key';
+                        // sign and encrypt the message
+                        var payload = {
+                            'cypher': CryptoHelper.aesEncrypt(confirmMessage, normalData.key, confirmIv),
+                            'iv': confirmIv,
+                            'signature': CryptoHelper.rsaSign(keySetSign, confirmMessage),
+                            'success': true,
+                            'from': username,
+                            'target': response.from
+                        };
+                        socket.emit('confirm_aes', payload);
+                    } else {
+                        warn('AES key is invalid length');
                     }
+                } else {
+                    warn('AES response signature is invalid.');
                 }
+            } else {
+                warn('We have no RSA key to verify this response');
             }
         }
+        callback(result);
     };
 
     // create a new aes key and iv to use after other client requests it
     this.createNewAes = function (request) {
 
-        // get the sender's public key from the stored user list
-        var senderPublickey = userList[request.from]['public_key'];
-        var senderPublickeySign = userList[request.from]['public_key_sign'];
+        if (userList[request.from] && userList[request.from]['public_key']) {
+            // get the sender's public key from the stored user list
+            var senderPublickey = userList[request.from]['public_key'];
+            var senderPublickeySign = userList[request.from]['public_key_sign'];
 
-        var payLoad = "Aes request from: " + request.from;
+            // This is the expected message if it was sent from this user.
+            var payLoad = "Aes request from: " + request.from;
 
-        // first verify that the request was actually sent by the 'from' user
-        if (CryptoHelper.rsaVerify(senderPublickeySign, payLoad, request.signature)) {
+            // first verify that the request was actually sent by the 'from' user
+            if (CryptoHelper.rsaVerify(senderPublickeySign, payLoad, request.signature)) {
 
-            // generate new random iv and key
-            var key = CryptoHelper.newAesKey();
+                // generate new random iv and key
+                var key = CryptoHelper.newAesKey();
 
-            // store the key and iv
-            storedKeys[request.from] = {'key': key, 'rsa_keys': userList[request.from]};
+                // store the key and iv
+                storedKeys[request.from] = {'key': key, 'rsa_keys': userList[request.from]};
 
-            // serialize the data we want to send
-            var responseSerialized = serializeArray({'key': key});
+                // serialize the data we want to send
+                var responseSerialized = serializeArray({'key': key});
 
-            // create a signature for our payload
-            var signature = CryptoHelper.rsaSign(keySetSign, responseSerialized);
+                // create a signature for our payload
+                var signature = CryptoHelper.rsaSign(keySetSign, responseSerialized);
 
-            // encryp with sender's public key
-            var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, responseSerialized);
+                // encryp with sender's public key
+                var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, responseSerialized);
 
-            // send to the server
-            var payload = {
-                'cypher': cypherResult,
-                'signature': signature,
-                'success': true,
-                'from': username,
-                'target': request.from
-            };
-            socket.emit('response_aes_request', payload);
-            info('AES request is valid');
-            debug("Request", request);
-            debug("Response", payload);
+                // send to the server
+                var payload = {
+                    'cypher': cypherResult,
+                    'signature': signature,
+                    'success': true,
+                    'from': username,
+                    'target': request.from
+                };
+                socket.emit('response_aes_request', payload);
+                info('AES request request is valid');
+                debug("Request", request);
+                debug("Response", payload);
+            } else {
+                warn(request.from + "'s aes request contained a invalid signature");
+                var payload = {
+                    'success': false,
+                    'message': "The signature does not seem to be from the right person",
+                    'from': username,
+                    'target': request.from
+                };
+                socket.emit('response_aes_request', payload);
+                debug("Request", request);
+                debug("Response", payload);
+            }
         } else {
-            warn(request.from + "'s aes request contained a invalid signature");
-            var payload = {
-                'success': false,
-                'message': "The signature does not seem to be from the right person",
-                'from': username,
-                'target': request.from
-            };
-            socket.emit('response_aes_request', payload);
-            debug("Request", request);
-            debug("Response", payload);
+            warn('We have no RSA keys for this target');
         }
     };
 
@@ -279,6 +309,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         this.updateKey();
     };
 
+    // TODO fix the new custom file input
     // send a file in chunks to a target
     this.sendFile = function (data_package, callback) {
         var index = 0;
@@ -334,6 +365,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     };
 
+
     // return if this private verified variable is true/false
     this.isVerified = function () {
         return verified !== false;
@@ -341,7 +373,12 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // check if target is set
     this.hasTarget = function () {
-        return targetName !== false;
+        return fn.getTarget() !== false;
+    };
+
+    // get current target name
+    this.getTarget = function(){
+        return targetName;
     };
 
     // check if we have a stored aes key for a given username
