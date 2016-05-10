@@ -21,6 +21,7 @@ var package_sources = [
     'bower_components/cryptojslib/components/enc-base64.js',
     'bower_components/cryptojslib/components/enc-base64.js',
     'js/node-bundle.js',
+    'js/forge.min.js',
 ];
 var sources = [
     'js/utils.js',

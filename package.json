@@ -26,6 +26,7 @@
     "mysql": "felixge/node-mysql",
     "node-forge": "^0.6.39",
     "node-rsa": "^0.3.2",
+    "requirejs": "^2.2.0",
     "session-file-store": "^0.2.0",
     "sjcl": "^1.0.3",
     "socket.io": "^1.4.5"
@@ -33,7 +34,7 @@
   "scripts": {
     "setup": "npm run refresh && npm run cert",
     "refresh": "npm install && bower install && npm run browser && gulp",
-    "browser": "browserify -r node-rsa > ./js/node-bundle.js",
+    "browser": "r.js -o node_modules/node-forge/minify.js",
     "cert": "node generate.js domain rsa certs/"
   },
   "devDependencies": {},

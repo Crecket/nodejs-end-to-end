@@ -10,11 +10,9 @@ function CryptoHelper() {
         if (!keySize) {
             keySize = 1024;
         }
-
         var NodeRSAKey = new NodeRSA({b: keySize});
         var tempPriv = NodeRSAKey.exportKey('private');
         var tempPub = NodeRSAKey.exportKey('public');
-
         return {
             'keySize': keySize,
             'privateKey': tempPriv,

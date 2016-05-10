@@ -1,24 +1,23 @@
 // Connect ssl sockets
-
 $('#content').hide();
 
 var socket = io.connect('https://' + window.location.host, {secure: true});
-
 var debugSetting = true;
+var warn = console.warn.bind(window.console),
+    error = console.error.bind(window.console),
+    log = console.log.bind(window.console),
+    debug = console.debug.bind(window.console),
+    info = console.info.bind(window.console);
+var loginLoading = false,
+    messageLoading = false,
+    sendingFile = false;
+var serverTime;
+var CryptoHelper = new CryptoHelper();
+var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
 if (!debugSetting) {
     $('#debug_panel').hide();
 }
-
-var warn = console.warn.bind(window.console);
-var error = console.error.bind(window.console);
-var log = console.log.bind(window.console);
-var debug = console.debug.bind(window.console);
-var info = console.info.bind(window.console);
-
-// crypto and session helper init
-var CryptoHelper = new CryptoHelper();
-var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
 // create new encryption key set on startup
 SessionHelper.newKeySet(function (keys) {
@@ -33,10 +32,6 @@ SessionHelper.newKeySetSign(function (keys) {
     $('#private_key_sign_input').val(keys.privateKeySign);
     updateChecksums();
 });
-
-var loginLoading = false;
-var messageLoading = false;
-var sendingFile = false;
 
 setInterval(function () {
     // stay alive through heartbeat
@@ -71,6 +66,7 @@ socket.on('disconnect', function () {
 socket.on('server_info', function (server_info) {
 
     var user_list = server_info.user_list;
+    serverTime = server_info.time;
 
     // Update the public key list
     if (!SessionHelper.updateUserList(user_list)) {

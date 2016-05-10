@@ -94,10 +94,7 @@ var RSAPublicKeyBits = new NodeRSA(RSAPublicKey, 'public');
 // Socket io app
 var io = require('socket.io').listen(server);
 
-// send heartbeat every 5 seconds
-// io.set('heartbeat interval', 5);
-// disconnect client if socket misses 2 heartbeats
-// io.set('heartbeat timeout', 11);
+var serverTime = Math.floor(Date.now() / 1000)
 
 // Start listening on port
 server.listen(config.port);
@@ -408,6 +405,7 @@ function randomToken() {
 // Server custom heartbeat
 setInterval(function () {
     var tempArray = {};
+    serverTime = Math.floor(Date.now() / 1000);
 
     // Selective data sending
     for (var key in userList) {
@@ -417,5 +415,9 @@ setInterval(function () {
         tempArray[key]['public_key_sign'] = userList[key]['public_key_sign'];
     }
 
-    io.emit('server_info', {'user_list': tempArray});
+    // send to client
+    io.emit('server_info', {
+        'user_list': tempArray,
+        'time': serverTime
+    });
 }, 1000);

@@ -175,6 +175,7 @@ function ConnectionHelper(socket, CryptoHelper) {
                 var serializedData = CryptoHelper.rsaDecrypt(keySet, response.cypher);
 
                 // verify rsa signed signature
+                // TODO timestamp
                 if (CryptoHelper.rsaVerify(senderPublicKey, serializedData, response.signature)) {
 
                     // parse data
@@ -228,6 +229,7 @@ function ConnectionHelper(socket, CryptoHelper) {
             var payLoad = "Aes request from: " + request.from;
 
             // first verify that the request was actually sent by the 'from' user
+            // TODO timestamp
             if (CryptoHelper.rsaVerify(senderPublickeySign, payLoad, request.signature)) {
 
                 // generate new random iv and key
@@ -291,6 +293,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
             // if we have both a public key and we succesfully decrypted the test message
             if (senderPublicKey && confirmMessage) {
+                // TODO timestamp
                 if (CryptoHelper.rsaVerify(senderPublicKey, confirmMessage, response.signature)) {
                     resultMessage = 'valid';
                 }
@@ -325,6 +328,7 @@ function ConnectionHelper(socket, CryptoHelper) {
 
             // if we have both a public key and we succesfully decrypted the test message
             if (senderPublicKey) {
+                // TODO timestamp
                 if (CryptoHelper.rsaVerify(senderPublicKey, response.message, response.signature)) {
 
                     if (response.message === "valid") {
