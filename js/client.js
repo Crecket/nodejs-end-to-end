@@ -180,14 +180,23 @@ socket.on('aesKeyResponse', function (response) {
     info('Received AES response', response);
 });
 
-// the client a aes key was requested from has sent a response
+// other client wants a confirmation for this request
 socket.on('confirm_aes', function (response) {
     info('Received AES confirmation', response);
-    SessionHelper.aesConfirmationCheck(response, function (success) {
+    SessionHelper.aesConfirmation(response, function (success) {
         loadKeyListDiv();
     });
 });
 
+// the client has sent a response to our confirmation request
+socket.on('confirm_aes_response', function (response) {
+    info('Received AES confirmation response', response);
+    SessionHelper.aesConfirmationResponse(response, function (success) {
+        loadKeyListDiv();
+    });
+});
+
+// add a message to the list
 function addMessage(username, text, customid) {
     debug(username + ' Message: ' + text);
     if (text) {

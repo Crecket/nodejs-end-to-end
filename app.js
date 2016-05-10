@@ -217,13 +217,23 @@ io.on('connection', function (socket) {
             }
         }
     });
-    
+
     // confirm a aes request to ensure both clients know which keys to use
     socket.on('confirm_aes', function (request) {
         if (verified) {
             if (userList[request.target]) {
                 var targetData = userList[request.target];
                 io.sockets.connected[targetData.socketId].emit('confirm_aes', request);
+            }
+        }
+    });
+
+    // confirm a aes request response
+    socket.on('confirm_aes_response', function (request) {
+        if (verified) {
+            if (userList[request.target]) {
+                var targetData = userList[request.target];
+                io.sockets.connected[targetData.socketId].emit('confirm_aes_response', request);
             }
         }
     });
@@ -307,7 +317,6 @@ io.on('connection', function (socket) {
                             // Add user to userlist
                             addUser(result[0].username, socketid, ip);
                             username = result[0].username;
-
                         } else {
                             callbackResult.message = "Invalid login attempt";
                             console.log('Return result', callbackResult);

@@ -1,7 +1,6 @@
 var NodeRSA = require('node-rsa');
 
 function CryptoHelper() {
-
     var fn = this;
 
     // ======================== RSA ==========================

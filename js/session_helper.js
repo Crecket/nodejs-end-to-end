@@ -276,10 +276,69 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // TODO verification that both users have same key
     // check if key and iv are setup propperly after setting them up
-    this.aesConfirmationCheck = function (cypher, from) {
+    this.aesConfirmation = function (response, callback) {
 
+        var resultMessage = "invalid";
+
+        // check if we have a stored key
+        if (storedKeys[response.from]) {
+
+            // Decrypt with the sender's aes key
+            var confirmMessage = CryptoHelper.aesDecrypt(response.cypher, storedKeys[response.from]['key'], response.iv);
+
+            // get the sender's public key from the stored user list
+            var senderPublicKey = userList[response.from]['public_key_sign'];
+
+            // if we have both a public key and we succesfully decrypted the test message
+            if (senderPublicKey && confirmMessage) {
+                if (CryptoHelper.rsaVerify(senderPublicKey, confirmMessage, response.signature)) {
+                    resultMessage = 'valid';
+                }
+            }
+        }
+
+        var package = {
+            'from': username,
+            'target': response.from,
+            'message': resultMessage,
+            'signature': CryptoHelper.rsaSign(keySetSign, resultMessage)
+        };
+        socket.emit('confirm_aes_response', package);
+
+        if (resultMessage === "valid") {
+            info('AES confirmation was succesful');
+            callback(true);
+        } else {
+            warn('AES confirmation failed, removing key');
+            delete storedKeys[response.from];
+            callback(false);
+        }
     }
+    // a response after the other client has confirmed the aes confirmation request
+    this.aesConfirmationResponse = function (response, callback) {
 
+        // check if we have a stored key
+        if (storedKeys[response.from]) {
+
+            // get the sender's public key from the stored user list
+            var senderPublicKey = userList[response.from]['public_key_sign'];
+
+            // if we have both a public key and we succesfully decrypted the test message
+            if (senderPublicKey) {
+                if (CryptoHelper.rsaVerify(senderPublicKey, response.message, response.signature)) {
+
+                    if (response.message === "valid") {
+                        info('AES confirmation response was succesful and valid');
+                        return callback(true);
+                    } else {
+                        warn('AES confirmation response was succesful but invalid');
+                        delete storedKeys[response.from];
+                        return callback(false);
+                    }
+                }
+            }
+        }
+    }
 
     // create a new key set for this client
     this.newKeySet = function (callback) {
@@ -360,7 +419,6 @@ function ConnectionHelper(socket, CryptoHelper) {
             index++;
         }, 10);
     };
-
     this.receiveFile = function () {
 
     };
@@ -377,7 +435,7 @@ function ConnectionHelper(socket, CryptoHelper) {
     };
 
     // get current target name
-    this.getTarget = function(){
+    this.getTarget = function () {
         return targetName;
     };
 
