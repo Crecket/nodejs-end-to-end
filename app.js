@@ -262,6 +262,11 @@ io.on('connection', function (socket) {
         }
     });
 
+    // change upload file setting
+    socket.on('upload_setting', function (bool) {
+        userList[username]['allow_files'] = bool;
+    });
+
     // TODO track failed attempts and other login essentials
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (usernameInput, password_cipher) {
@@ -364,6 +369,7 @@ function addUser(userName, socketId, ip) {
         'username': userName,
         'public_key': false,
         'socketId': socketId,
+        'allow_files': false,
         'ip': ip,
         'last_activity': new Date()
     };

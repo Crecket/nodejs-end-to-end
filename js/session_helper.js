@@ -42,6 +42,9 @@ function ConnectionHelper(socket, CryptoHelper) {
     // list with files that are being transfered
     var fileTransfers = {};
 
+    // default setting whether this client wishes to receive files or not
+    var allowFiles = false;
+
     // shitty fix to store passwords while waiting for the salt
     var tempPassword = "",
         tempUsername = "";
@@ -219,7 +222,6 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // create a new aes key and iv to use after other client requests it
     this.createNewAes = function (request) {
-
         if (userList[request.from] && userList[request.from]['public_key']) {
             // get the sender's public key from the stored user list
             var senderPublickey = userList[request.from]['public_key'];
@@ -260,7 +262,6 @@ function ConnectionHelper(socket, CryptoHelper) {
                 debug("Request", request);
                 debug("Response", payload);
             } else {
-                warn(request.from + "'s aes request contained a invalid signature");
                 var payload = {
                     'success': false,
                     'message': "The signature does not seem to be from the right person",
@@ -268,6 +269,7 @@ function ConnectionHelper(socket, CryptoHelper) {
                     'target': request.from
                 };
                 socket.emit('response_aes_request', payload);
+                warn(request.from + "'s aes request contained a invalid signature");
                 debug("Request", request);
                 debug("Response", payload);
             }
@@ -279,7 +281,6 @@ function ConnectionHelper(socket, CryptoHelper) {
     // TODO verification that both users have same key
     // check if key and iv are setup propperly after setting them up
     this.aesConfirmation = function (response, callback) {
-
         var resultMessage = "invalid";
 
         // check if we have a stored key
@@ -317,6 +318,7 @@ function ConnectionHelper(socket, CryptoHelper) {
             callback(false);
         }
     }
+
     // a response after the other client has confirmed the aes confirmation request
     this.aesConfirmationResponse = function (response, callback) {
 
@@ -375,53 +377,57 @@ function ConnectionHelper(socket, CryptoHelper) {
     // TODO fix the new custom file input
     // send a file in chunks to a target
     this.sendFile = function (data_package, callback) {
-        var index = 0;
-        var maxIndex = data_package.length;
-        var package = {'target': targetName, 'data': '', 'index': 0, 'maxIndex': maxIndex};
+        if (allowFiles) {
+            var index = 0;
+            var maxIndex = data_package.length;
+            var package = {'target': targetName, 'data': '', 'index': 0, 'maxIndex': maxIndex};
 
-        // use a delayed timer instead of for loop to throttle data
-        var timer = setInterval(function () {
-
-            if (!fn.hasAesKey() || !fn.hasTarget()) {
-                warn('We no longer have a target/aes key to send the file securely.');
-                clearInterval(timer);
-                callback(false);
-            } else if (index <= maxIndex) {
-                // not the last package, update package and key
-                package.data = data_package.index;
-                package.key = index;
-
-                // random iv for this package
-                var iv = CryptoHelper.newAesIv();
-
-                // Encryp with a stored aes key
-                var messageCypher = CryptoHelper.aesEncrypt(serializeArray(package), targetKey, iv);
-
-                if (messageCypher !== false) {
-                    // send the cypher and iv to target
-                    var transferPackage = {
-                        'cypher': messageCypher,
-                        'iv': iv,
-                        'target': targetName,
-                        'from': username
-                    };
-                    socket.emit('file_package_transfer', transferPackage);
-                    debug('Sending package to ' + targetName, transferPackage);
-
-                    // Callback the current transfer percentage
-                    callback(100 / maxIndex * index);
-                } else {
-                    warn('Package ' + index + ' could not be encrypted securely');
+            // use a delayed timer instead of for loop to throttle data
+            var timer = setInterval(function () {
+                if (!fn.hasAesKey() || !fn.hasTarget() || !fn.getFileSetting()) {
+                    warn('We no longer have a target/aes key to send the file securely or file transfers have been disabled.');
                     clearInterval(timer);
                     callback(false);
+
+                } else if (index <= maxIndex) {
+                    // not the last package, update package and key
+                    package.data = data_package.index;
+                    package.key = index;
+
+                    // random iv for this package
+                    var iv = CryptoHelper.newAesIv();
+
+                    // Encryp with a stored aes key
+                    var messageCypher = CryptoHelper.aesEncrypt(serializeArray(package), targetKey, iv);
+
+                    if (messageCypher !== false) {
+                        // send the cypher and iv to target
+                        var transferPackage = {
+                            'cypher': messageCypher,
+                            'iv': iv,
+                            'target': targetName,
+                            'from': username
+                        };
+                        socket.emit('file_package_transfer', transferPackage);
+                        debug('Sending package to ' + targetName, transferPackage);
+
+                        // Callback the current transfer percentage
+                        callback(100 / maxIndex * index);
+                    } else {
+                        warn('Package ' + index + ' could not be encrypted securely');
+                        clearInterval(timer);
+                        callback(false);
+                    }
+                } else {
+                    info('Sent all packages to ' + targetName);
+                    clearInterval(timer);
+                    callback(true);
                 }
-            } else {
-                info('Sent all packages to ' + targetName);
-                clearInterval(timer);
-                callback(true);
-            }
-            index++;
-        }, 10);
+                index++;
+            }, 10);
+        } else {
+            warn('You can only send files if you allow file transfers');
+        }
     };
     this.receiveFile = function () {
 
@@ -431,16 +437,6 @@ function ConnectionHelper(socket, CryptoHelper) {
     // return if this private verified variable is true/false
     this.isVerified = function () {
         return verified !== false;
-    };
-
-    // check if target is set
-    this.hasTarget = function () {
-        return fn.getTarget() !== false;
-    };
-
-    // get current target name
-    this.getTarget = function () {
-        return targetName;
     };
 
     // check if we have a stored aes key for a given username
@@ -455,6 +451,24 @@ function ConnectionHelper(socket, CryptoHelper) {
         return false;
     }
 
+    // return current username
+    this.getUsername = function () {
+        return username;
+    };
+
+    // remove all aes keys
+    this.resetUserList = function () {
+        storedKeys = {};
+    };
+    // return the key list
+    this.getKeyList = function () {
+        return storedKeys;
+    }
+
+    // check if target is set
+    this.hasTarget = function () {
+        return fn.getTarget() !== false;
+    };
     // set the new target name and public key
     this.setTarget = function (newTarget) {
         // check if user is verified, exists and target is not self
@@ -473,19 +487,17 @@ function ConnectionHelper(socket, CryptoHelper) {
         }
         return false;
     };
-
-    // return current username
-    this.getUsername = function () {
-        return username;
+    // get current target name
+    this.getTarget = function () {
+        return targetName;
     };
 
-    // return the key list
-    this.getKeyList = function () {
-        return storedKeys;
-    }
-
-    // remove all aes keys
-    this.resetUserList = function () {
-        storedKeys = {};
+    // get allow file transfer setting
+    this.getFileSetting = function () {
+        return allowFiles;
+    };
+    // set allow file transfer setting
+    this.setFileSetting = function (boolean) {
+        allowFiles = boolean;
     };
 }

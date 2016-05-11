@@ -76,19 +76,30 @@ socket.on('server_info', function (server_info) {
 
     $('#user_list').html('');
     for (var key in user_list) {
-
         var UserIcon = "<i class='fa fa-unlock'></i>";
-        // check if we have a stored aes key for this user, if yes add it
-        if (SessionHelper.hasAesKey(user_list[key].username)) {
-            UserIcon = "<i class='fa fa-lock'></i> ";
-        }
+
         // self
         if (SessionHelper.getUsername() === user_list[key].username) {
             UserIcon = "<i class='fa fa-user'></i> ";
+        } else {
+            // check if we have a stored aes key for this user, if yes add it
+            if (SessionHelper.hasAesKey(user_list[key].username)) {
+                UserIcon = "<i class='fa fa-key'></i> ";
+            }
+            // check if this user is our target
+            if (SessionHelper.getTarget() === user_list[key].username) {
+                UserIcon = "<i class='fa fa-dot-circle-o'></i> ";
+            }
         }
 
-        $('#user_list').append('<li><a href="#" class="user-select" data-user="' +
-            user_list[key].username + '">' + UserIcon + user_list[key].username + '</a></li>');
+        $('#user_list').append('<li>' +
+            '<a href="#" class="user-select btn btn-sm btn-primary" data-user="' +
+            user_list[key].username + '">' + UserIcon + '</a> ' +
+            user_list[key].username + '</li>');
+    }
+
+    if (SessionHelper.getTarget() !== false) {
+        $('#inputTarget').val(SessionHelper.getTarget());
     }
 });
 
@@ -173,12 +184,14 @@ socket.on('aesKeyResponse', function (response) {
             loadKeyListDiv();
         }
     });
-    info('Received AES response', response);
+    info('Received AES response');
+    debug(response);
 });
 
 // other client wants a confirmation for this request
 socket.on('confirm_aes', function (response) {
-    info('Received AES confirmation', response);
+    info('Received AES confirmation');
+    debug(response);
     SessionHelper.aesConfirmation(response, function (success) {
         loadKeyListDiv();
     });
@@ -186,7 +199,8 @@ socket.on('confirm_aes', function (response) {
 
 // the client has sent a response to our confirmation request
 socket.on('confirm_aes_response', function (response) {
-    info('Received AES confirmation response', response);
+    info('Received AES confirmation response');
+    debug(response);
     SessionHelper.aesConfirmationResponse(response, function (success) {
         loadKeyListDiv();
     });
@@ -268,11 +282,19 @@ $(document.body).on('click', '.user-select', function () {
     return false;
 });
 
+// file transfer setting checkbox
+$('#file_upload_setting').on('click', function () {
+    SessionHelper.setFileSetting(this.checked);
+    $("#messages_file_transfer_div").toggle(this.checked);
+    socket.emit('')
+});
+
 // TODO consent before file sharing
 // file upload testing
 $('#file_upload').on('click', function () {
-    // check if no other file is being sent, if we have a target and if a aes key has been established
-    if (!sendingFile && SessionHelper.hasTarget() && SessionHelper.hasAesKey()) {
+    // check if no other file is being sent, if we have a target and
+    // if a aes key has been established and if we allow file transfers
+    if (!sendingFile && SessionHelper.hasTarget() && SessionHelper.hasAesKey() && SessionHelper.getFileSetting()) {
 
         // basic file info
         var file_info = getFileinfo('file_upload_test');
@@ -352,31 +374,22 @@ $('#update_md5_hashes').on('click', function () {
     updateChecksums();
 });
 
-// update the md5 fingerprints for rsa keys
-function updateChecksums() {
-    debug('Updating checksums');
-    $('#private_key_md5hash').text("Checksum: " + CryptoJS.SHA256($('#private_key_input').val()));
-    $('#public_key_md5hash').text("Checksum: " + CryptoJS.SHA256($('#public_key_input').val()));
-    $('#private_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#private_key_sign_input').val()));
-    $('#public_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#public_key_sign_input').val()));
-}
-
 // remove all messages
 $('#clear_messages').on('click', function () {
     $('#messages').html('');
 });
 
-// handle file input custom styles
-$(document).on('change', '.btn-file :file', function () {
-    var input = $(this),
-        numFiles = input.get(0).files ? input.get(0).files.length : 1,
-        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-    input.trigger('fileselect', [numFiles, label]);
-});
-// display file input result
-$('.btn-file :file').on('fileselect', function (event, numFiles, label) {
-    $('#file_upload_result').val(label);
-});
+// // handle file input custom styles
+// $(document).on('change', '.btn-file :file', function () {
+//     var input = $(this),
+//         numFiles = input.get(0).files ? input.get(0).files.length : 1,
+//         label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+//     input.trigger('fileselect', [numFiles, label]);
+// });
+// // display file input result
+// $('.btn-file :file').on('fileselect', function (event, numFiles, label) {
+//     $('#file_upload_result').val(label);
+// });
 
 // local storage buttons
 $('.save_set_data').on('click', function () {
@@ -457,4 +470,13 @@ function loadKeyListDiv() {
             '</div>';
     }
     $('#stored_key_div').html(resultDiv);
+}
+
+// update the md5 fingerprints for rsa keys
+function updateChecksums() {
+    debug('Updating checksums');
+    $('#private_key_md5hash').text("Checksum: " + CryptoJS.SHA256($('#private_key_input').val()));
+    $('#public_key_md5hash').text("Checksum: " + CryptoJS.SHA256($('#public_key_input').val()));
+    $('#private_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#private_key_sign_input').val()));
+    $('#public_key_sign_md5hash').text("Checksum: " + CryptoJS.SHA256($('#public_key_sign_input').val()));
 }
