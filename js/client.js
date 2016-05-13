@@ -38,71 +38,6 @@ setInterval(function () {
     socket.emit('heart_beat', 'oi');
 }, 5000);
 
-// Socket event listeners
-socket.on('connect', function () {
-    info('Connected to server');
-    $('#server_status').text('Connected');
-    $('#server_status_icon').removeClass('fa-spin fa-refresh fa-warning').addClass('fa-check');
-    $('#loader').fadeOut();
-    $('#main').fadeIn();
-});
-
-// Disconnected from server
-socket.on('disconnect', function () {
-    error('Lost contact with server');
-
-    $('#server_status').text('Disconnected');
-    $('#server_status_icon').removeClass('fa-spin fa-refresh fa-check').addClass('fa-warning');
-    $('#login_screen').show();
-    $('#content').hide();
-    $('#loader').fadeIn();
-    $('#main').fadeOut();
-
-    SessionHelper.resetUserList();
-    loadKeyListDiv();
-});
-
-// Receive server info, userlist
-socket.on('server_info', function (server_info) {
-
-    var user_list = server_info.user_list;
-    serverTime = server_info.time;
-
-    // Update the public key list
-    if (!SessionHelper.updateUserList(user_list)) {
-        // current target is gone so reset the target input box
-        $('#inputTarget').val('');
-    }
-
-    $('#user_list').html('');
-    for (var key in user_list) {
-        var UserIcon = "<i class='fa fa-unlock'></i>";
-
-        // self
-        if (SessionHelper.getUsername() === user_list[key].username) {
-            UserIcon = "<i class='fa fa-user'></i> ";
-        } else {
-            // check if we have a stored aes key for this user, if yes add it
-            if (SessionHelper.hasAesKey(user_list[key].username)) {
-                UserIcon = "<i class='fa fa-key'></i> ";
-            }
-            // check if this user is our target
-            if (SessionHelper.getTarget() === user_list[key].username) {
-                UserIcon = "<i class='fa fa-dot-circle-o'></i> ";
-            }
-        }
-
-        $('#user_list').append('<li>' +
-            '<a href="#" class="user-select btn btn-sm btn-primary" data-user="' +
-            user_list[key].username + '">' + UserIcon + '</a> ' +
-            user_list[key].username + '</li>');
-    }
-
-    if (SessionHelper.getTarget() !== false) {
-        $('#inputTarget').val(SessionHelper.getTarget());
-    }
-});
-
 // a user has disconnected
 socket.on('user_disconnect', function (username, user_list) {
     debug('User disconnected: ' + username);
@@ -117,35 +52,6 @@ socket.on('user_disconnect', function (username, user_list) {
 // Receive public key from server
 socket.on('public_key', function (response) {
     SessionHelper.setServerPublicKey(response);
-});
-
-// Server requests verification
-socket.on('request verify', function () {
-    $('#login_screen').show();
-    $('#content').hide();
-});
-
-// Login result callback
-socket.on('login_attempt_callback', function (res) {
-    loginLoading = false;
-    SessionHelper.loginAttemptCallback(res);
-    if (res.success === false) {
-        warn('Unsuccesful login attempt');
-        // Invalid login attempt
-        $('#login_section').show();
-        $('#content').hide();
-        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
-        $('#login_form_messages_div').text(res.message);
-        $('#login_form_messages').fadeIn();
-    } else {
-        info('Succesful login attempt');
-        $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-check');
-        $('#login_form_messages').hide();
-        $('#login_screen').fadeOut("slow", function () {
-            $('#content').fadeIn();
-        });
-    }
-    debug(res);
 });
 
 // Server returns the user's salt
@@ -217,33 +123,6 @@ function addMessage(username, text, customid) {
         }
     }
 }
-
-// Login attempt
-$(document.body).on('submit', '#login_form', function () {
-
-    if (!loginLoading) {
-        loginLoading = true;
-
-        var username = $('#inputName').val();
-        var password = $('#inputPassword').val();
-
-        $('#login_button').addClass('fa-spin fa-refresh').removeClass('fa-sign-in');
-
-        if (username.length > 3 && username.length < 16 && CryptoHelper.validPasswordType(password)) {
-            setTimeout(function () {
-                debug('Login attempt');
-                $('#login_form_messages').fadeOut();
-                SessionHelper.loginAttempt(username, password);
-            }, 100);
-        } else {
-            $('#login_button').removeClass('fa-spin fa-refresh').addClass('fa-sign-in');
-            warn('Username length: ' + username.length + " password length: " + password.length);
-            loginLoading = false;
-        }
-    }
-
-    return false;
-});
 
 // Message attempt
 $(document.body).on('submit', '#message_form', function (e) {
