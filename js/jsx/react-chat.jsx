@@ -37,7 +37,7 @@ var ReactUserList = React.createClass({
 var ReactMessageList = React.createClass({
     getInitialState: function () {
         return {
-            messageList: [{when: curDate(), from: 'user', message: 'message'}]
+            messageList: []
         };
     },
     render: function () {
@@ -56,14 +56,20 @@ var ReactMessageList = React.createClass({
     },
     addMessage: function (from, message) {
         // get current list
-        var currentMessages = this.state.messages;
+        var currentMessages = this.state.messageList;
+
         // push new message to list
         currentMessages.push({when: curDate(), from: from, message: message});
+
         // update the message list state
         this.setState({messageList: currentMessages});
     },
     componentDidMount: function () {
         var fn = this;
+        
+        // test message
+        this.addMessage('crecket', 'some text');
+
         // Received a message from server
         socket.on('message', function (res) {
             // send to session handler
@@ -113,26 +119,22 @@ var ReactChat = React.createClass({
         return (
             <div>
                 <div className="col-xs-12 col-sm-6 col-md-4">
-                    <div className="row">
-                        <div className="panel panel-info">
-                            <div className="panel-heading">
-                                Users
-                            </div>
-                            <div className="panel-body">
-                                <ReactUserList users={this.state.users}/>
-                            </div>
+                    <div className="panel panel-info">
+                        <div className="panel-heading">
+                            Users
+                        </div>
+                        <div className="panel-body">
+                            <ReactUserList users={this.state.users}/>
                         </div>
                     </div>
                 </div>
                 <div className="col-xs-12 col-sm-6 col-md-8">
-                    <div className="row">
-                        <div className="panel panel-info">
-                            <div className="panel-heading">
-                                Messages
-                            </div>
-                            <div className="panel-body">
-                                <ReactMessageList/>
-                            </div>
+                    <div className="panel panel-success">
+                        <div className="panel-heading">
+                            Messages
+                        </div>
+                        <div className="panel-body">
+                            <ReactMessageList/>
                         </div>
                     </div>
                 </div>
