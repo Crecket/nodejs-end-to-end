@@ -5,6 +5,7 @@ var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var minifyCSS = require('gulp-minify-css');
 var autoprefixer = require('gulp-autoprefixer');
+var jsx = require('gulp-jsx');
 
 var package_sources = [
     'bower_components/jquery/dist/jquery.min.js',
@@ -20,8 +21,12 @@ var package_sources = [
     'bower_components/cryptojslib/rollups/sha512.js',
     'bower_components/cryptojslib/components/enc-base64.js',
     'bower_components/cryptojslib/components/enc-base64.js',
-    'js/node-bundle.js',
-    'js/forge.min.js',
+    'js/libs/babel-core-browser.js',
+    'bower_components/react/react-with-addons.js',
+    'bower_components/react/react-dom.js',
+    'bower_components/marked/marked.min.js',
+    'js/libs/node-bundle.js',
+    'js/libs/forge.min.js',
 ];
 var sources = [
     'js/utils.js',
@@ -38,18 +43,31 @@ var cssFiles = [
 
 // custom js files
 gulp.task('js', function () {
-    return gulp.src(sources)
+    gulp.src(sources)
         .pipe(sourcemaps.init())
+        .pipe(jsx({
+            factory: 'React.createClass'
+        }))
         .pipe(concat('main.js'))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('public/dist'));
 });
 gulp.task('js-min', function () {
-    return gulp.src(sources)
+    gulp.src(sources)
         .pipe(sourcemaps.init())
+        .pipe(jsx({
+            factory: 'React.createClass'
+        }))
         .pipe(concat('main.js'))
         .pipe(uglify())
         .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('public/dist'));
+});
+
+// custom js files
+gulp.task('react-js', function () {
+    return gulp.src('js/jsx/**/*.jsx')
+        .pipe(concat('react-main.jsx'))
         .pipe(gulp.dest('public/dist'));
 });
 
@@ -70,32 +88,38 @@ gulp.task('css-min', function () {
 
 // bower/npm package stuff
 gulp.task('jspackage', function () {
-    return gulp.src(package_sources)
+    gulp.src(package_sources)
         .pipe(sourcemaps.init())
         .pipe(concat('package.js'))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('public/dist'));
+    gulp.src(package_sources)
+        .pipe(gulp.dest('public/dist/lib'));
 });
 gulp.task('jspackage-min', function () {
-    return gulp.src(package_sources)
+    gulp.src(package_sources)
         .pipe(sourcemaps.init())
         .pipe(concat('package.js'))
         .pipe(uglify())
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('public/dist'));
+    gulp.src(package_sources)
+        .pipe(gulp.dest('public/dist/lib'));
 });
 
 
 gulp.task('watch', function () {
     gulp.watch(sources, ['js-min']);
+    gulp.watch('js/jsx/**/*.jsx', ['react-js']);
     gulp.watch(package_sources, ['jspackage-min']);
     gulp.watch(cssFiles, ['css-min']);
 });
 gulp.task('watch-dev', function () {
     gulp.watch(sources, ['js']);
+    gulp.watch('js/jsx/**/*.jsx', ['react-js']);
     gulp.watch(package_sources, ['jspackage']);
     gulp.watch(cssFiles, ['css']);
 });
 
-gulp.task('default', ['js', 'jspackage', 'css']);
-gulp.task('min', ['js-min', 'jspackage-min', 'css-min'])
+gulp.task('default', ['js', 'jspackage', 'css', 'react-js']);
+gulp.task('min', ['js-min', 'jspackage-min', 'css-min', 'react-js']);

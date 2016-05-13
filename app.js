@@ -118,7 +118,11 @@ app.get('/', function (req, res, next) {
         'chat_screen': ejs.render(getView('chat_screen')),
         'debug_screen': ejs.render(getView('debug_screen'))
     });
+});
 
+// react path
+app.get('/react', function (req, res, next) {
+    res.render('react');
 });
 
 // Static files

@@ -33,7 +33,7 @@
   "scripts": {
     "setup": "npm run refresh && npm run cert",
     "refresh": "npm install && bower install && npm run browser && gulp",
-    "browser": "browserify -r node-rsa > ./js/node-bundle.js",
+    "browser": "browserify -r node-rsa > ./js/libs/node-bundle.js",
     "browser2": "r.js -o node_modules/node-forge/minify.js",
     "cert": "node generate.js domain rsa certs/"
   },
