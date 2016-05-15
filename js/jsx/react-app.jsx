@@ -1,3 +1,7 @@
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+var ReactTransitionGroup = React.addons.TransitionGroup;
+
+
 var ReactApp = React.createClass({
     getInitialState: function () {
         return {
@@ -53,28 +57,40 @@ var ReactApp = React.createClass({
         }.bind(this));
     },
     render: function () {
+        var MainComponent = "";
         if (this.state.connected) {
-            if(this.state.loggedin){
-                return (
+            if (this.state.loggedin) {
+                MainComponent = (
                     <div key="connected_container" className="container-fluid">
                         <ReactChat/>
                     </div>
                 );
-            }else{
-                return (
+            } else {
+                MainComponent = (
                     <div key="login_container" className="container-fluid">
                         <ReactLogin/>
                     </div>
                 );
             }
         } else {
-            return (
+            MainComponent = (
                 <div key="loader_container" className="container-fluid">
                     <ReactLoadScreen message=""/>
                 </div>
             );
         }
 
+        return (
+            <ReactCSSTransitionGroup
+                transitionName="transition"
+                transitionAppear={true}
+                transitionAppearTimeout={500}
+                transitionEnterTimeout={500}
+                transitionLeaveTimeout={500}
+                component='div'>
+                {MainComponent}
+            </ReactCSSTransitionGroup>
+        )
     }
 });
 

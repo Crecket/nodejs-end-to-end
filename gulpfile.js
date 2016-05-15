@@ -5,7 +5,6 @@ var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var minifyCSS = require('gulp-minify-css');
 var autoprefixer = require('gulp-autoprefixer');
-var jsx = require('gulp-jsx');
 
 var package_sources = [
     'bower_components/jquery/dist/jquery.min.js',
@@ -45,9 +44,6 @@ var cssFiles = [
 gulp.task('js', function () {
     gulp.src(sources)
         .pipe(sourcemaps.init())
-        .pipe(jsx({
-            factory: 'React.createClass'
-        }))
         .pipe(concat('main.js'))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('public/dist'));
@@ -55,9 +51,6 @@ gulp.task('js', function () {
 gulp.task('js-min', function () {
     gulp.src(sources)
         .pipe(sourcemaps.init())
-        .pipe(jsx({
-            factory: 'React.createClass'
-        }))
         .pipe(concat('main.js'))
         .pipe(uglify())
         .pipe(sourcemaps.write('./'))

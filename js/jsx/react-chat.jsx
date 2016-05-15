@@ -9,7 +9,6 @@ var ReactChat = React.createClass({
     componentDidMount: function () {
         var fn = this;
         socket.on('server_info', function (server_info) {
-            // log(server_info);
             fn.setState({users: server_info.user_list, time: server_info.time});
         });
     },

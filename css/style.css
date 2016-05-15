@@ -43,23 +43,20 @@ textarea.key-text {
     list-style: none;
 }
 
-/*.btn-file {*/
-/*position: relative;*/
-/*overflow: hidden;*/
-/*}*/
+.transition-enter {
+    opacity: 0.01;
+}
 
-/*.btn-file input[type=file] {*/
-/*position: absolute;*/
-/*top: 0;*/
-/*right: 0;*/
-/*min-width: 100%;*/
-/*min-height: 100%;*/
-/*font-size: 100px;*/
-/*text-align: right;*/
-/*filter: alpha(opacity=0);*/
-/*opacity: 0;*/
-/*outline: none;*/
-/*background: white;*/
-/*cursor: inherit;*/
-/*display: block;*/
-/*}*/
+.transition-enter.transition-enter-active {
+    opacity: 1;
+    transition: opacity 500ms ease-in;
+}
+
+.transition-leave {
+    opacity: 1;
+}
+
+.transition-leave.transition-leave-active {
+    opacity: 0.01;
+    transition: opacity 300ms ease-in;
+}
