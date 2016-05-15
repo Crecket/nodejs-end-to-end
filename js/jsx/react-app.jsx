@@ -7,23 +7,29 @@ var ReactApp = React.createClass({
         return {
             connected: false,
             loggedin: false,
-            users: {},
-            time: 0
+            users: {}
         }
+    },
+    shouldComponentUpdate: function (nextProps, nextState) {
+        // check if state has changed
+        if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
+            return true;
+        }
+        return false;
     },
     componentDidMount: function () {
         // TODO fix unmount issue
         // listen for server info changes which affect the whole app
         socket.on('server_info', function (server_info) {
             if (this.isMounted()) {
-                this.setState({users: server_info.user_list, time: server_info.time, connected: true});
+                this.setState({users: server_info.user_list, connected: true});
             }
         }.bind(this));
 
         // Socket event listeners
         socket.on('connect', function () {
             info('Connected to server');
-            if (this.isMounted()) {
+            if (this.isMounted() && this.state.connected === false) {
                 this.setState({connected: true});
             }
         }.bind(this));
@@ -31,7 +37,7 @@ var ReactApp = React.createClass({
         // Disconnected from server
         socket.on('disconnect', function () {
             error('Lost contact with server');
-            if (this.isMounted()) {
+            if (this.isMounted() && this.state.connected === true) {
                 this.setState({connected: false});
             }
             SessionHelper.resetUserList();
@@ -39,7 +45,9 @@ var ReactApp = React.createClass({
 
         // Server requests verification
         socket.on('request verify', function () {
-            this.setState({loggedin: false});
+            if (this.isMounted() && this.state.connected === true) {
+                this.setState({loggedin: false});
+            }
         }.bind(this));
 
         // login attempt callback
@@ -62,7 +70,7 @@ var ReactApp = React.createClass({
             if (this.state.loggedin) {
                 MainComponent = (
                     <div key="connected_container" className="container-fluid">
-                        <ReactChat/>
+                        <ReactChat users={this.state.users}/>
                     </div>
                 );
             } else {

@@ -37,7 +37,6 @@
     "browser2": "r.js -o node_modules/node-forge/minify.js",
     "cert": "node generate.js domain rsa certs/"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Crecket/nodejs-end-to-end.git"
