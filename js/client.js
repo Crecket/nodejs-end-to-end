@@ -15,10 +15,6 @@ var serverTime;
 var CryptoHelper = new CryptoHelper();
 var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
-if (!debugSetting) {
-    $('#debug_panel').hide();
-}
-
 // create new encryption key set on startup
 SessionHelper.newKeySet(function (keys) {
     $('#public_key_input').val(keys.publicKey);
