@@ -7,6 +7,7 @@ var ReactApp = React.createClass({
         return {
             connected: false,
             loggedin: false,
+            loginLoading: false,
             users: {}
         }
     },
@@ -52,7 +53,7 @@ var ReactApp = React.createClass({
 
         // login attempt callback
         socket.on('login_attempt_callback', function (res) {
-            loginLoading = false;
+            this.setState({loginLoading: false});
             SessionHelper.loginAttemptCallback(res);
             if (res.success === false) {
                 warn('Unsuccesful login attempt');
@@ -63,6 +64,9 @@ var ReactApp = React.createClass({
             }
             debug(res);
         }.bind(this));
+    },
+    loginLoadingCallback: function () {
+        this.setState({loginLoading: true});
     },
     render: function () {
         var MainComponent = "";
@@ -76,7 +80,8 @@ var ReactApp = React.createClass({
             } else {
                 MainComponent = (
                     <div key="login_container" className="container-fluid">
-                        <ReactLogin/>
+                        <ReactLogin loginLoadingState={this.state.loginLoading}
+                                    loginLoadingCallback={this.loginLoadingCallback}/>
                     </div>
                 );
             }

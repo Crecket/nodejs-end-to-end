@@ -143,7 +143,7 @@ $(document.body).on('submit', '#message_form', function (e) {
     }
     return false;
 });
-$(document.body).on('submit', '#message_form', function (e) {});
+
 // select a user
 $(document.body).on('click', '.user-select', function () {
     if (SessionHelper.isVerified()) {

@@ -472,6 +472,7 @@ function ConnectionHelper(socket, CryptoHelper) {
     // set the new target name and public key
     this.setTarget = function (newTarget) {
         // check if user is verified, exists and target is not self
+        log(this.isVerified(), userList, newTarget !== username);
         if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
             // check if we already have a aes key
             if (storedKeys[newTarget]) {

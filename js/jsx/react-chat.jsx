@@ -1,5 +1,34 @@
 var ReactNewMessage = React.createClass({
+    getInitialState: function () {
+        return {checkboxToggle: false};
+    },
+    checkboxClick: function () {
+        this.setState({checkboxToggle: !this.state.checkboxToggle});
+    },
     render: function () {
+
+        var fileSendDiv;
+        if (this.state.checkboxToggle) {
+            fileSendDiv = (
+                <div className="form-group">
+                    <div className="col-xs-12 col-sm-6">
+                        <div className="row">
+                            <a className="btn btn-lg btn-primary btn-block" id="file_upload">Send
+                                File
+                            </a>
+                        </div>
+                    </div>
+                    <div className="col-xs-12 col-sm-6">
+                        <div className="row">
+                            <label className="">
+                                Choose a file <input type="file" id="file_upload_test"/>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="col-xs-12">
                 <div className="row">
@@ -13,8 +42,8 @@ var ReactNewMessage = React.createClass({
                                 <div className="form-group">
                                     <label for="inputTarget">Target</label>
                                     <input type="text" id="inputTarget" name="inputTarget"
-                                           className="form-control input-lg"
-                                           placeholder="No user selected" readonly required/>
+                                           className="form-control input-lg" value={this.props.target}
+                                           placeholder="No user selected" readOnly required/>
                                 </div>
 
                                 <div className="form-group">
@@ -27,27 +56,13 @@ var ReactNewMessage = React.createClass({
                                     </button>
                                 </div>
 
-                                <div className="form-group" id="messages_file_transfer_div" style={{display: 'none'}}>
-                                    <div className="col-xs-12 col-sm-6">
-                                        <div className="row">
-                                            <label className="">
-                                                Choose a file <input type="file" id="file_upload_test"/>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div className="col-xs-12 col-sm-6">
-                                        <div className="row">
-                                            <a className="btn btn-lg btn-primary btn-block" id="file_upload">Send
-                                                File</a>
-                                        </div>
-                                    </div>
-                                </div>
+                                {fileSendDiv}
 
                                 <div className="form-group">
                                     <div className="col-xs-12">
                                         <div className="row">
                                             <label>
-                                                <input type="checkbox" id="file_upload_setting"/>
+                                                <input type="checkbox" onClick={this.checkboxClick}/>
                                                 Allow people to send me files.
                                             </label>
                                         </div>
@@ -64,7 +79,11 @@ var ReactNewMessage = React.createClass({
 });
 
 var ReactUserList = React.createClass({
+    userClickCallback: function (userName) {
+        this.props.userClickCallback(userName);
+    },
     render: function () {
+        var fn = this;
         return (
             <div className="col-xs-12">
                 <div className="row">
@@ -75,7 +94,8 @@ var ReactUserList = React.createClass({
                         <div className="panel-body">
                             <ul className="userListReact">
                                 {Object.keys(this.props.users).map(function (key) {
-                                    return <ReactUser key={key} username={key}/>;
+                                    return <ReactUser userClickCallback={fn.userClickCallback} key={key}
+                                                      username={key}/>;
                                 })}
                             </ul>
                         </div>
@@ -180,7 +200,8 @@ var ReactMessage = React.createClass({
     },
     render: function () {
         return (
-            <p><strong>{this.props.when} {this.props.from}</strong>: {escapeHtml(this.props.message)}
+            <p>
+                <strong>{this.props.when} {this.props.from}</strong>: {escapeHtml(this.props.message)}
                 <button onClick={this.callback} className="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -193,35 +214,50 @@ var ReactUser = React.createClass({
     getIntialState: function () {
         return {};
     },
+    userClickCallback: function () {
+        this.props.userClickCallback(this.props.username);
+    },
     render: function () {
-        return (
-            <li key={this.props.username}>{this.props.username}</li>
-        );
+        if (SessionHelper.getUsername() === this.props.username) {
+            return (
+                <li key={this.props.username}>
+                    {this.props.username}
+                </li>
+            );
+        } else {
+            return (
+                <li key={this.props.username}>
+                    <a onClick={this.userClickCallback}>{this.props.username}</a>
+                </li>
+            );
+        }
     }
 });
 
 var ReactChat = React.createClass({
     getInitialState: function () {
         return {
-            connected: false,
-            users: [],
-            time: 0
+            targetUser: ''
         }
     },
-    componentDidMount: function () {
-        var fn = this;
-        socket.on('server_info', function (server_info) {
-            fn.setState({users: server_info.user_list, time: server_info.time});
-        });
+    userClickCallback: function (userName) {
+        if (SessionHelper.isVerified()) {
+            if (SessionHelper.setTarget(userName)) {
+                this.setState({targetName: userName});
+            }
+        } else {
+            warn('Not verified, can\'t select target');
+        }
+        return false;
     },
     render: function () {
         return (
             <div>
-                <div className="col-xs-12 col-sm-6 col-md-8">
-                    <ReactUserList users={this.state.users}/>
-                    <ReactNewMessage/>
+                <div className="col-xs-12 col-sm-6 col-md-5 col-lg-4">
+                    <ReactUserList users={this.props.users} userClickCallback={this.userClickCallback}/>
+                    <ReactNewMessage targetName={this.state.targetUser}/>
                 </div>
-                <div className="col-xs-12 col-sm-6 col-md-4">
+                <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
                     <ReactMessageList/>
                 </div>
             </div>

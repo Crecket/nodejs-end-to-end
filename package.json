@@ -4,6 +4,7 @@
   "description": "A simple (And probably insecure) attempt at end-to-end encryption using Javscript and NodeJS",
   "main": "app.js",
   "dependencies": {
+    "babel-preset-react": "^6.5.0",
     "bcrypt": "^0.8.5",
     "bower": "^1.7.7",
     "crypto-js": "^3.1.6",
@@ -12,6 +13,7 @@
     "express-session": "^1.13.0",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.0",
+    "gulp-babel": "^6.1.2",
     "gulp-concat": "^2.6.0",
     "gulp-ignore": "^1.2.1",
     "gulp-minify-css": "^1.2.4",

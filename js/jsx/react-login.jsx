@@ -2,8 +2,7 @@ var ReactLogin = React.createClass({
     getInitialState: function () {
         return {
             username: '',
-            password: '',
-            loginLoading: false
+            password: ''
         }
     },
     usernameUpdate: function (e) {
@@ -15,18 +14,18 @@ var ReactLogin = React.createClass({
     handleSubmit: function (e) {
         e.preventDefault();
         // check if we're already handeling a login request
-        if (!this.state.loginLoading) {
+        if (!this.props.loginLoadingState) {
             // validate input
             if (this.state.username.length > 2 && this.state.username.length < 25 && CryptoHelper.validPasswordType(this.state.password)) {
                 // update login loading state
-                this.setState({loginLoading: true});
+                this.props.loginLoadingCallback();
                 // start a new login attempt
                 SessionHelper.loginAttempt(this.state.username, this.state.password);
             }
         }
     },
     render: function () {
-        var button_login = {__html: (this.state.loginLoading) ? 'Login <span class="fa fa-refresh fa-spin"></span>' : 'Login'};
+        var button_login = {__html: (this.props.loginLoadingState) ? 'Login <span class="fa fa-refresh fa-spin"></span>' : 'Login'};
         return (
             <div className="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
                 <form method="post" onSubmit={this.handleSubmit}>
