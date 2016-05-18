@@ -1,9 +1,11 @@
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-var ReactTransitionGroup = React.addons.TransitionGroup;
+import Chat from './chat/Chat.jsx';
+import Login from './login/Login.jsx';
+import Settings from './Settings.jsx';
+import LoadScreen from './LoadScreen.jsx';
 
+class App extends React.component {
 
-var ReactApp = React.createClass({
-    getInitialState: function () {
+    getInitialState() {
         return {
             connected: false,
             loggedin: false,
@@ -11,15 +13,17 @@ var ReactApp = React.createClass({
             targetName: '',
             users: {}
         }
-    },
-    shouldComponentUpdate: function (nextProps, nextState) {
+    };
+
+    shouldComponentUpdate(nextProps, nextState) {
         // check if state has changed
         if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
             return true;
         }
         return false;
-    },
-    componentDidMount: function () {
+    };
+
+    componentDidMount() {
         // TODO fix unmount issue
         // listen for server info changes which affect the whole app
         socket.on('server_info', function (server_info) {
@@ -69,11 +73,13 @@ var ReactApp = React.createClass({
             }
             debug(res);
         }.bind(this));
-    },
-    loginLoadingCallback: function () {
+    };
+
+    loginLoadingCallback() {
         this.setState({loginLoading: true});
-    },
-    userClickCallback: function (userName) {
+    };
+
+    userClickCallback(userName) {
         if (SessionHelper.isVerified()) {
             if (SessionHelper.setTarget(userName)) {
                 this.setState({targetName: userName});
@@ -81,14 +87,15 @@ var ReactApp = React.createClass({
         } else {
             warn('Not verified, can\'t select target');
         }
-    },
-    render: function () {
+    };
+
+    render() {
         var MainComponent = "";
         if (this.state.connected) {
             if (this.state.loggedin) {
                 MainComponent = (
                     <div key="connected_container" className="container-fluid">
-                        <ReactChat users={this.state.users}
+                        <Chat users={this.state.users}
                                    targetName={this.state.targetName}
                                    userClickCallback={this.userClickCallback}/>
                     </div>
@@ -96,7 +103,7 @@ var ReactApp = React.createClass({
             } else {
                 MainComponent = (
                     <div key="login_container" className="container-fluid">
-                        <ReactLogin loginLoadingState={this.state.loginLoading}
+                        <Login loginLoadingState={this.state.loginLoading}
                                     loginLoadingCallback={this.loginLoadingCallback}/>
                     </div>
                 );
@@ -104,22 +111,18 @@ var ReactApp = React.createClass({
         } else {
             MainComponent = (
                 <div key="loader_container" className="container-fluid">
-                    <ReactLoadScreen message=""/>
+                    <LoadScreen message=""/>
                 </div>
             );
         }
 
         return (
-            <ReactCSSTransitionGroup
-                transitionName="transition"
-                transitionAppear={true}
-                transitionAppearTimeout={500}
-                transitionEnterTimeout={500}
-                transitionLeaveTimeout={500}
-                component='div'>
+            <div>
                 {MainComponent}
-            </ReactCSSTransitionGroup>
+            </div>
         )
-    }
-});
+    };
+}
 
+
+export default App;

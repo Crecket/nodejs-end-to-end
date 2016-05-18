@@ -1,5 +1,5 @@
-var ReactLogin = React.createClass({
-    handleSubmit: function (e) {
+class Login extends React.component {
+    handleSubmit(e) {
         e.preventDefault();
         var username = this.refs['inputUsername'].value;
         var password = this.refs['inputPassword'].value;
@@ -14,8 +14,9 @@ var ReactLogin = React.createClass({
                 SessionHelper.loginAttempt(username, password);
             }
         }
-    },
-    render: function () {
+    };
+
+    render() {
         var button_login = {__html: (this.props.loginLoadingState) ? 'Login <span class="fa fa-refresh fa-spin"></span>' : 'Login'};
         return (
             <div className="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
@@ -49,6 +50,6 @@ var ReactLogin = React.createClass({
                 </form>
             </div>
         );
-    }
-});
+    };
+}
 

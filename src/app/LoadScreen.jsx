@@ -1,5 +1,5 @@
-var ReactLoadScreen = React.createClass({
-    render: function () {
+class LoadScreen extends React.component {
+    render() {
         var inlineStyle = {
             color: 'white'
         };
@@ -9,5 +9,7 @@ var ReactLoadScreen = React.createClass({
                 <h1 id="server_status_icon" className="fa fa-refresh fa-spin fa-5x"></h1>
             </div>
         );
-    }
-});
+    };
+}
+
+export default LoadScreen;

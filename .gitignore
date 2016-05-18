@@ -1,8 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
 /node_modules
 /bower_components
-/public/dist
-/certs/*
-!certs/empty
-config.js
-/js/libs/node-bundle.js
+
+/app/dist/*
+/src/certs/*
+!/src/certs/empty
+/src/config.js

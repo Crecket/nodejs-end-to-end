@@ -301,13 +301,13 @@ function ConnectionHelper(socket, CryptoHelper) {
             }
         }
 
-        var package = {
+        var packageData = {
             'from': username,
             'target': response.from,
             'message': resultMessage,
             'signature': CryptoHelper.rsaSign(keySetSign, resultMessage)
         };
-        socket.emit('confirm_aes_response', package);
+        socket.emit('confirm_aes_response', packageData);
 
         if (resultMessage === "valid") {
             info('AES confirmation was succesful');
@@ -380,7 +380,7 @@ function ConnectionHelper(socket, CryptoHelper) {
         if (allowFiles) {
             var index = 0;
             var maxIndex = data_package.length;
-            var package = {'target': targetName, 'data': '', 'index': 0, 'maxIndex': maxIndex};
+            var packageData = {'target': targetName, 'data': '', 'index': 0, 'maxIndex': maxIndex};
 
             // use a delayed timer instead of for loop to throttle data
             var timer = setInterval(function () {
@@ -391,14 +391,14 @@ function ConnectionHelper(socket, CryptoHelper) {
 
                 } else if (index <= maxIndex) {
                     // not the last package, update package and key
-                    package.data = data_package.index;
-                    package.key = index;
+                    packageData.data = data_package.index;
+                    packageData.key = index;
 
                     // random iv for this package
                     var iv = CryptoHelper.newAesIv();
 
                     // Encryp with a stored aes key
-                    var messageCypher = CryptoHelper.aesEncrypt(serializeArray(package), targetKey, iv);
+                    var messageCypher = CryptoHelper.aesEncrypt(serializeArray(packageData), targetKey, iv);
 
                     if (messageCypher !== false) {
                         // send the cypher and iv to target
