@@ -115,16 +115,7 @@ app.set('views', __dirname + '/src/views');
 
 // home path
 app.get('/', function (req, res, next) {
-    res.render('index', {
-        'login_screen': ejs.render(getView('login_screen')),
-        'chat_screen': ejs.render(getView('chat_screen')),
-        'debug_screen': ejs.render(getView('debug_screen'))
-    });
-});
-
-// react path
-app.get('/react', function (req, res, next) {
-    res.render('react');
+    res.render('index');
 });
 
 // Static files

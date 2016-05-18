@@ -164,3 +164,5 @@ function CryptoHelper() {
         return CryptoJS.enc.Hex.stringify(bytes);
     };
 }
+
+export default CryptoHelper;
