@@ -24,13 +24,17 @@ var config = {
     module: {
         loaders: [
             {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: "babel",
-                query:
-                {
-                    presets:['react']
+                test: /\.jsx$/,
+                loader: 'babel',
+                include: SRC_DIR,
+                query: {
+                    presets: ['es2015', 'react']
                 }
+            },
+            {
+                test: /\.js$/,
+                loader: 'babel',
+                include: SRC_DIR
             },
             {
                 test: /\.css$/,
