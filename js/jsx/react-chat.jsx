@@ -19,7 +19,7 @@ var ReactChat = React.createClass({
                 </div>
                 <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
                     <ReactMessageList
-                        messages={this.state.messageList}
+                        messageList={this.state.messageList}
                         removeMessage={this.removeMessage}
                     />
                 </div>
@@ -221,14 +221,14 @@ var ReactMessageList = React.createClass({
                         </div>
                         <div className="panel-body">
                             <ul className="userListReact">
-                                {Object.keys(this.props.messages).map(function (key) {
+                                {Object.keys(this.props.messageList).map(function (key) {
                                     return <ReactMessage
                                         key={key}
                                         messageKey={key}
                                         deleteCallback={fn.deleteCallback}
-                                        from={fn.state.messageList[key]['from']}
-                                        when={fn.state.messageList[key]['when']}
-                                        message={fn.state.messageList[key]['message']}/>;
+                                        from={fn.props.messageList[key]['from']}
+                                        when={fn.props.messageList[key]['when']}
+                                        message={fn.props.messageList[key]['message']}/>;
                                 })}
                             </ul>
                             <a id="clear_messages" onClick={fn.deleteAllCallback}
