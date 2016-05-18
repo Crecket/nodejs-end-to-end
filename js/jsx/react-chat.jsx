@@ -1,26 +1,83 @@
 var ReactChat = React.createClass({
     getInitialState: function () {
-        return {};
+        return {
+            messageList: []
+        };
     },
     render: function () {
         return (
             <div>
                 <div className="col-xs-12 col-sm-6 col-md-5 col-lg-4">
-                    <ReactUserList users={this.props.users} userClickCallback={this.props.userClickCallback}/>
-                    <ReactNewMessage targetName={this.props.targetName}/>
+                    <ReactUserList
+                        users={this.props.users}
+                        userClickCallback={this.props.userClickCallback}
+                    />
+                    <ReactNewMessageForm
+                        targetName={this.props.targetName}
+                        newMessageCallback={this.addMessage}
+                    />
                 </div>
                 <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
-                    <ReactMessageList/>
+                    <ReactMessageList
+                        messages={this.state.messageList}
+                        removeMessage={this.removeMessage}
+                    />
                 </div>
             </div>
         );
+    },
+    componentDidMount: function () {
+        var fn = this;
+
+        // TODO test message
+        this.addMessage('crecket', 'some text');
+        this.addMessage('crecket2', 'some text2');
+        this.addMessage('crecket3', 'some text3');
+
+        // Received a message from server
+        socket.on('message', function (res) {
+            // send to session handler
+            SessionHelper.receiveMessage(res, function (callbackMessage) {
+                if (callbackMessage !== false) {
+                    fn.addMessage(res.from, callbackMessage);
+                }
+            });
+        });
+    },
+    addMessage: function (from, message) {
+        // get current list
+        var currentMessages = this.state.messageList;
+
+        // push new message to list
+        currentMessages.push({when: curDate(), from: from, message: message});
+
+        // update the message list state
+        this.setState({messageList: currentMessages});
+    },
+    removeMessage: function (key) {
+        // get current list
+        var currentMessages = this.state.messageList;
+
+        if (key) {
+            // delete message from list
+            delete currentMessages[key];
+        } else {
+            // delete all messages
+            currentMessages = [];
+        }
+
+        // update the message list state
+        this.setState({messageList: currentMessages});
     }
 });
 
 
-var ReactNewMessage = React.createClass({
+var ReactNewMessageForm = React.createClass({
     getInitialState: function () {
-        return {checkboxToggle: false};
+        return {
+            checkboxToggle: false,
+            messageLoading: false
+        };
     },
     checkboxClick: function () {
         this.setState({checkboxToggle: !this.state.checkboxToggle}, function () {
@@ -29,23 +86,17 @@ var ReactNewMessage = React.createClass({
     },
     handleSubmit: function (e) {
         e.preventDefault();
-        var message = this.refs['inputMessage'].value;
-
-        if (!messageLoading && SessionHelper.hasTarget()) {
-            messageLoading = true;
-
-            // this.refs['inputMessage'].value = "";
-
-            $('#message_button').addClass('fa-spin fa-refresh').removeClass('fa-mail-forward');
+        if (!this.state.messageLoading && SessionHelper.hasTarget()) {
+            var message = this.refs['inputMessage'].value;
 
             if (message.length > 0 && message.length < 255) {
+                this.setState({messageLoading: true});
                 if (SessionHelper.sendMessage(message)) {
-                    addMessage(SessionHelper.getUsername(), message);
+                    this.props.newMessageCallback(SessionHelper.getUsername(), message);
                 }
             } else {
-                $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
                 debug('Message length: ' + message.length);
-                messageLoading = false;
+                this.setState({messageLoading: false});
             }
         }
 
@@ -153,59 +204,11 @@ var ReactUserList = React.createClass({
 });
 
 var ReactMessageList = React.createClass({
-    getInitialState: function () {
-        return {
-            messageList: []
-        };
-    },
-    addMessage: function (from, message) {
-        // get current list
-        var currentMessages = this.state.messageList;
-
-        // push new message to list
-        currentMessages.push({when: curDate(), from: from, message: message});
-
-        // update the message list state
-        this.setState({messageList: currentMessages});
-    },
-    removeMessage: function (key) {
-        // get current list
-        var currentMessages = this.state.messageList;
-
-        if (key) {
-            // delete message from list
-            delete currentMessages[key];
-        } else {
-            // delete all messages
-            currentMessages = [];
-        }
-
-        // update the message list state
-        this.setState({messageList: currentMessages});
-    },
-    componentDidMount: function () {
-        var fn = this;
-
-        // TODO test message
-        this.addMessage('crecket', 'some text');
-        this.addMessage('crecket2', 'some text2');
-        this.addMessage('crecket3', 'some text3');
-
-        // Received a message from server
-        socket.on('message', function (res) {
-            // send to session handler
-            SessionHelper.receiveMessage(res, function (callbackMessage) {
-                if (callbackMessage !== false) {
-                    fn.addMessage(res.from, callbackMessage);
-                }
-            });
-        });
-    },
     deleteCallback: function (deleteKey) {
-        this.removeMessage(deleteKey);
+        this.props.removeMessage(deleteKey);
     },
     deleteAllCallback: function () {
-        this.removeMessage();
+        this.props.removeMessage();
     },
     render: function () {
         var fn = this;
@@ -218,7 +221,7 @@ var ReactMessageList = React.createClass({
                         </div>
                         <div className="panel-body">
                             <ul className="userListReact">
-                                {Object.keys(this.state.messageList).map(function (key) {
+                                {Object.keys(this.props.messages).map(function (key) {
                                     return <ReactMessage
                                         key={key}
                                         messageKey={key}
