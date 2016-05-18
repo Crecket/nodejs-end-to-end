@@ -8,6 +8,7 @@ var ReactApp = React.createClass({
             connected: false,
             loggedin: false,
             loginLoading: false,
+            targetName: '',
             users: {}
         }
     },
@@ -24,6 +25,10 @@ var ReactApp = React.createClass({
         socket.on('server_info', function (server_info) {
             if (this.isMounted()) {
                 this.setState({users: server_info.user_list, connected: true});
+            }
+            if (!SessionHelper.updateUserList(server_info.user_list)) {
+                // current target is gone so reset the target input box
+                $('#inputTarget').val('');
             }
         }.bind(this));
 
@@ -68,13 +73,24 @@ var ReactApp = React.createClass({
     loginLoadingCallback: function () {
         this.setState({loginLoading: true});
     },
+    userClickCallback: function (userName) {
+        if (SessionHelper.isVerified()) {
+            if (SessionHelper.setTarget(userName)) {
+                this.setState({targetName: userName});
+            }
+        } else {
+            warn('Not verified, can\'t select target');
+        }
+    },
     render: function () {
         var MainComponent = "";
         if (this.state.connected) {
             if (this.state.loggedin) {
                 MainComponent = (
                     <div key="connected_container" className="container-fluid">
-                        <ReactChat users={this.state.users}/>
+                        <ReactChat users={this.state.users}
+                                   targetName={this.state.targetName}
+                                   userClickCallback={this.userClickCallback}/>
                     </div>
                 );
             } else {

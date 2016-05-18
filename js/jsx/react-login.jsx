@@ -1,26 +1,17 @@
 var ReactLogin = React.createClass({
-    getInitialState: function () {
-        return {
-            username: '',
-            password: ''
-        }
-    },
-    usernameUpdate: function (e) {
-        this.setState({username: e.target.value});
-    },
-    passwordUpdate: function (e) {
-        this.setState({password: e.target.value});
-    },
     handleSubmit: function (e) {
         e.preventDefault();
+        var username = this.refs['inputUsername'].value;
+        var password = this.refs['inputPassword'].value;
+
         // check if we're already handeling a login request
         if (!this.props.loginLoadingState) {
             // validate input
-            if (this.state.username.length > 2 && this.state.username.length < 25 && CryptoHelper.validPasswordType(this.state.password)) {
+            if (username.length > 2 && username.length < 25 && CryptoHelper.validPasswordType(password)) {
                 // update login loading state
                 this.props.loginLoadingCallback();
                 // start a new login attempt
-                SessionHelper.loginAttempt(this.state.username, this.state.password);
+                SessionHelper.loginAttempt(username, password);
             }
         }
     },
@@ -37,14 +28,20 @@ var ReactLogin = React.createClass({
 
                         <div className="panel-body">
                             <label className="sr-only">Username</label>
-                            <input type="text" onChange={this.usernameUpdate} className="form-control input-lg"
-                                   placeholder="Username" required autofocus autocomplete="off"/>
+                            <input type="text"
+                                   className="form-control input-lg"
+                                   placeholder="Username"
+                                   ref="inputUsername"
+                                   required autofocus autocomplete="off"/>
 
                             <label className="sr-only">Password</label>
-                            <input type="password" onChange={this.passwordUpdate} className="form-control input-lg"
+                            <input type="password"
+                                   ref="inputPassword"
+                                   className="form-control input-lg"
                                    placeholder="Password"/>
 
-                            <button className="btn btn-lg btn-primary btn-block" type="submit"
+                            <button className="btn btn-lg btn-primary btn-block"
+                                    type="submit"
                                     dangerouslySetInnerHTML={button_login}/>
                         </div>
 

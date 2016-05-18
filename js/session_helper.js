@@ -472,7 +472,6 @@ function ConnectionHelper(socket, CryptoHelper) {
     // set the new target name and public key
     this.setTarget = function (newTarget) {
         // check if user is verified, exists and target is not self
-        log(this.isVerified(), userList, newTarget !== username);
         if (this.isVerified() && typeof userList[newTarget] !== "undefined" && newTarget !== username) {
             // check if we already have a aes key
             if (storedKeys[newTarget]) {
@@ -500,5 +499,10 @@ function ConnectionHelper(socket, CryptoHelper) {
     // set allow file transfer setting
     this.setFileSetting = function (boolean) {
         allowFiles = boolean;
+        if(boolean){
+            debug('You can now send and receive files');
+        }else{
+            debug('You can no longer send and receive files')
+        }
     };
 }

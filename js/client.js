@@ -145,17 +145,17 @@ $(document.body).on('submit', '#message_form', function (e) {
 });
 
 // select a user
-$(document.body).on('click', '.user-select', function () {
-    if (SessionHelper.isVerified()) {
-        var userName = $(this).data('user');
-        if (SessionHelper.setTarget(userName)) {
-            $('#inputTarget').val(userName);
-        }
-    } else {
-        warn('Not verified, can\'t select target');
-    }
-    return false;
-});
+// $(document.body).on('click', '.user-select', function () {
+//     if (SessionHelper.isVerified()) {
+//         var userName = $(this).data('user');
+//         if (SessionHelper.setTarget(userName)) {
+//             $('#inputTarget').val(userName);
+//         }
+//     } else {
+//         warn('Not verified, can\'t select target');
+//     }
+//     return false;
+// });
 
 // file transfer setting checkbox
 $('#file_upload_setting').on('click', function () {
@@ -248,23 +248,6 @@ $('.body_toggle').on('click', function () {
 $('#update_md5_hashes').on('click', function () {
     updateChecksums();
 });
-
-// remove all messages
-$('#clear_messages').on('click', function () {
-    $('#messages').html('');
-});
-
-// // handle file input custom styles
-// $(document).on('change', '.btn-file :file', function () {
-//     var input = $(this),
-//         numFiles = input.get(0).files ? input.get(0).files.length : 1,
-//         label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-//     input.trigger('fileselect', [numFiles, label]);
-// });
-// // display file input result
-// $('.btn-file :file').on('fileselect', function (event, numFiles, label) {
-//     $('#file_upload_result').val(label);
-// });
 
 // local storage buttons
 $('.save_set_data').on('click', function () {

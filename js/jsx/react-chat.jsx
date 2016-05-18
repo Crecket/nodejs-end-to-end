@@ -1,9 +1,54 @@
+var ReactChat = React.createClass({
+    getInitialState: function () {
+        return {};
+    },
+    render: function () {
+        return (
+            <div>
+                <div className="col-xs-12 col-sm-6 col-md-5 col-lg-4">
+                    <ReactUserList users={this.props.users} userClickCallback={this.props.userClickCallback}/>
+                    <ReactNewMessage targetName={this.props.targetName}/>
+                </div>
+                <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
+                    <ReactMessageList/>
+                </div>
+            </div>
+        );
+    }
+});
+
+
 var ReactNewMessage = React.createClass({
     getInitialState: function () {
         return {checkboxToggle: false};
     },
     checkboxClick: function () {
-        this.setState({checkboxToggle: !this.state.checkboxToggle});
+        this.setState({checkboxToggle: !this.state.checkboxToggle}, function () {
+            SessionHelper.setFileSetting(this.state.checkboxToggle);
+        });
+    },
+    handleSubmit: function (e) {
+        e.preventDefault();
+        var message = this.refs['inputMessage'].value;
+
+        if (!messageLoading && SessionHelper.hasTarget()) {
+            messageLoading = true;
+
+            // this.refs['inputMessage'].value = "";
+
+            $('#message_button').addClass('fa-spin fa-refresh').removeClass('fa-mail-forward');
+
+            if (message.length > 0 && message.length < 255) {
+                if (SessionHelper.sendMessage(message)) {
+                    addMessage(SessionHelper.getUsername(), message);
+                }
+            } else {
+                $('#message_button').removeClass('fa-spin fa-refresh').addClass('fa-mail-forward');
+                debug('Message length: ' + message.length);
+                messageLoading = false;
+            }
+        }
+
     },
     render: function () {
 
@@ -13,8 +58,8 @@ var ReactNewMessage = React.createClass({
                 <div className="form-group">
                     <div className="col-xs-12 col-sm-6">
                         <div className="row">
-                            <a className="btn btn-lg btn-primary btn-block" id="file_upload">Send
-                                File
+                            <a className="btn btn-lg btn-primary btn-block" id="file_upload">
+                                Send File
                             </a>
                         </div>
                     </div>
@@ -32,7 +77,7 @@ var ReactNewMessage = React.createClass({
         return (
             <div className="col-xs-12">
                 <div className="row">
-                    <form id="message_form" method="post">
+                    <form onSubmit={this.handleSubmit} method="post">
                         <div className="panel panel-info">
                             <div className="panel-heading body_toggle" data-toggle="new_message_body">
                                 New Message
@@ -41,22 +86,24 @@ var ReactNewMessage = React.createClass({
 
                                 <div className="form-group">
                                     <label for="inputTarget">Target</label>
-                                    <input type="text" id="inputTarget" name="inputTarget"
-                                           className="form-control input-lg" value={this.props.target}
-                                           placeholder="No user selected" readOnly required/>
+                                    <input type="text"
+                                           className="form-control input-lg"
+                                           value={this.props.targetName}
+                                           placeholder="No user selected"
+                                           readOnly required/>
                                 </div>
 
                                 <div className="form-group">
                                     <label for="inputMessage">Message</label>
-                                    <input type="text" id="inputMessage" name="inputMessage"
+                                    <input type="text"
+                                           ref="inputMessage"
                                            className="form-control input-lg"
-                                           placeholder="Message" required autocomplete="off"/>
+                                           placeholder="Message"
+                                           required autocomplete="off"/>
                                     <button className="btn btn-lg btn-primary btn-block" type="submit">
                                         Send Message
                                     </button>
                                 </div>
-
-                                {fileSendDiv}
 
                                 <div className="form-group">
                                     <div className="col-xs-12">
@@ -69,6 +116,8 @@ var ReactNewMessage = React.createClass({
                                     </div>
                                 </div>
 
+                                {fileSendDiv}
+
                             </div>
                         </div>
                     </form>
@@ -79,9 +128,6 @@ var ReactNewMessage = React.createClass({
 });
 
 var ReactUserList = React.createClass({
-    userClickCallback: function (userName) {
-        this.props.userClickCallback(userName);
-    },
     render: function () {
         var fn = this;
         return (
@@ -94,7 +140,7 @@ var ReactUserList = React.createClass({
                         <div className="panel-body">
                             <ul className="userListReact">
                                 {Object.keys(this.props.users).map(function (key) {
-                                    return <ReactUser userClickCallback={fn.userClickCallback} key={key}
+                                    return <ReactUser userClickCallback={fn.props.userClickCallback} key={key}
                                                       username={key}/>;
                                 })}
                             </ul>
@@ -215,6 +261,7 @@ var ReactUser = React.createClass({
         return {};
     },
     userClickCallback: function () {
+        // send click event to react app
         this.props.userClickCallback(this.props.username);
     },
     render: function () {
@@ -231,36 +278,5 @@ var ReactUser = React.createClass({
                 </li>
             );
         }
-    }
-});
-
-var ReactChat = React.createClass({
-    getInitialState: function () {
-        return {
-            targetUser: ''
-        }
-    },
-    userClickCallback: function (userName) {
-        if (SessionHelper.isVerified()) {
-            if (SessionHelper.setTarget(userName)) {
-                this.setState({targetName: userName});
-            }
-        } else {
-            warn('Not verified, can\'t select target');
-        }
-        return false;
-    },
-    render: function () {
-        return (
-            <div>
-                <div className="col-xs-12 col-sm-6 col-md-5 col-lg-4">
-                    <ReactUserList users={this.props.users} userClickCallback={this.userClickCallback}/>
-                    <ReactNewMessage targetName={this.state.targetUser}/>
-                </div>
-                <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
-                    <ReactMessageList/>
-                </div>
-            </div>
-        );
     }
 });
