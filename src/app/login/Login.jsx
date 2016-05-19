@@ -1,4 +1,13 @@
-class Login extends React.component {
+import React  from 'react';
+
+class Login extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+
+        this.handleSubmit = this.handleSubmit.bind(this);
+    };
+
     handleSubmit(e) {
         e.preventDefault();
         var username = this.refs['inputUsername'].value;
@@ -53,3 +62,4 @@ class Login extends React.component {
     };
 }
 
+export default Login;

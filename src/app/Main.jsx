@@ -1,18 +1,22 @@
+import React from 'react';
 import Chat from './chat/Chat.jsx';
 import Login from './login/Login.jsx';
-import Settings from './Settings.jsx';
 import LoadScreen from './LoadScreen.jsx';
 
-class App extends React.component {
+class Main extends React.Component {
 
-    getInitialState() {
-        return {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
             connected: false,
             loggedin: false,
             loginLoading: false,
             targetName: '',
             users: {}
-        }
+        };
+
+        this.loginLoadingCallback = this.loginLoadingCallback.bind(this);
+        this.userClickCallback = this.userClickCallback.bind(this);
     };
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -27,9 +31,8 @@ class App extends React.component {
         // TODO fix unmount issue
         // listen for server info changes which affect the whole app
         socket.on('server_info', function (server_info) {
-            if (this.isMounted()) {
-                this.setState({users: server_info.user_list, connected: true});
-            }
+            this.setState({users: server_info.user_list, connected: true});
+
             if (!SessionHelper.updateUserList(server_info.user_list)) {
                 // current target is gone so reset the target input box
                 $('#inputTarget').val('');
@@ -39,7 +42,7 @@ class App extends React.component {
         // Socket event listeners
         socket.on('connect', function () {
             info('Connected to server');
-            if (this.isMounted() && this.state.connected === false) {
+            if (this.state.connected === false) {
                 this.setState({connected: true});
             }
         }.bind(this));
@@ -47,7 +50,7 @@ class App extends React.component {
         // Disconnected from server
         socket.on('disconnect', function () {
             error('Lost contact with server');
-            if (this.isMounted() && this.state.connected === true) {
+            if (this.state.connected === true) {
                 this.setState({connected: false});
             }
             SessionHelper.resetUserList();
@@ -55,7 +58,7 @@ class App extends React.component {
 
         // Server requests verification
         socket.on('request verify', function () {
-            if (this.isMounted() && this.state.connected === true) {
+            if (this.state.connected === true) {
                 this.setState({loggedin: false});
             }
         }.bind(this));
@@ -124,5 +127,4 @@ class App extends React.component {
     };
 }
 
-
-export default App;
+export default Main;

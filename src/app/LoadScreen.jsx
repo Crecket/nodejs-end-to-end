@@ -1,4 +1,6 @@
-class LoadScreen extends React.component {
+import React  from 'react';
+
+class LoadScreen extends React.Component {
     render() {
         var inlineStyle = {
             color: 'white'

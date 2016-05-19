@@ -20,13 +20,14 @@ var jsFiles = [
     'bower_components/cryptojslib/rollups/sha512.js',
     'bower_components/cryptojslib/components/enc-base64.js',
     'bower_components/cryptojslib/components/enc-base64.js',
-    // 'bower_components/react/react-with-addons.js',
-    // 'bower_components/react/react-dom.js',
+    'bower_components/react/react-with-addons.js',
+    'bower_components/react/react-dom.js',
     'bower_components/marked/marked.min.js',
-    'src/app/Utils.js',
-    'src/app/ConnectionHelper.js',
-    'src/app/CryptoHelper.js',
-    'src/app/Client.js'
+    'src/js/node-bundle.js',
+    'src/js/Utils.js',
+    'src/js/ConnectionHelper.js',
+    'src/js/CryptoHelper.js',
+    'src/js/Client.js'
 ];
 
 var cssFiles = [
@@ -63,7 +64,7 @@ gulp.task('watch', function () {
 
 gulp.task('default', ['js', 'css']);
 
-function swallowError (error) {
+function swallowError(error) {
     console.log(error.toString());
     this.emit('end');
 }

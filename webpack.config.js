@@ -7,15 +7,22 @@ var SRC_DIR = path.resolve(__dirname, 'src');
 
 var config = {
     entry: [
-        SRC_DIR + '/chat-app-css.js',
-        SRC_DIR + '/chat-app.jsx'
+        SRC_DIR + '/react-app.jsx'
     ],
     output: {
         path: BUILD_DIR,
-        filename: '[name]bundle.js'
+        filename: 'react-app.js'
     },
     plugins: [
-        new ExtractTextPlugin("[name].css")
+        new ExtractTextPlugin("[name].css"),
+        new webpack.ProvidePlugin({
+            $: "jquery",
+            jQuery: "jquery",
+            "window.jQuery": "jquery",
+            NodeRSA: "node-rsa"
+        }),
+        //Allows error warnings but does not stop compiling. Will remove when eslint is added
+        new webpack.NoErrorsPlugin()
     ],
     module: {
         loaders: [
@@ -30,13 +37,6 @@ var config = {
             }, {
                 test: /\.json$/,
                 loader: 'json-loader'
-            }, {
-                test: /\.css$/,
-                include: SRC_DIR,
-                loader: ExtractTextPlugin.extract('style-loader', 'css-loader!autoprefixer-loader?{browsers:["Android 2.3", "Android >= 4", "Chrome >= 20", "Firefox >= 24", "Explorer >= 8", "iOS >= 6", "Opera >= 12", "Safari >= 6"]}')
-            }, {
-                test: /\.(woff|woff2|eot|ttf|svg)$/,
-                loader: 'url'
             }
         ]
     }

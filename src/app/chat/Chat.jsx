@@ -1,35 +1,17 @@
+import React  from 'react';
 import UserList from './UserList.jsx';
 import NewMessageForm from './NewMessageForm.jsx';
 import MessageList from './MessageList.jsx';
 
-class Chat extends React.component {
-    getInitialState() {
-        return {
+class Chat extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
             messageList: []
         };
-    };
 
-    render() {
-        return (
-            <div>
-                <div className="col-xs-12 col-sm-6 col-md-5 col-lg-4">
-                    <UserList
-                        users={this.props.users}
-                        userClickCallback={this.props.userClickCallback}
-                    />
-                    <NewMessageForm
-                        targetName={this.props.targetName}
-                        newMessageCallback={this.addMessage}
-                    />
-                </div>
-                <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
-                    <MessageList
-                        messages={this.state.messageList}
-                        removeMessage={this.removeMessage}
-                    />
-                </div>
-            </div>
-        );
+        this.addMessage = this.addMessage.bind(this);
+        this.removeMessage = this.removeMessage.bind(this);
     };
 
     componentDidMount() {
@@ -76,6 +58,29 @@ class Chat extends React.component {
 
         // update the message list state
         this.setState({messageList: currentMessages});
+    }
+
+    render() {
+        return (
+            <div>
+                <div className="col-xs-12 col-sm-6 col-md-5 col-lg-4">
+                    <UserList
+                        users={this.props.users}
+                        userClickCallback={this.props.userClickCallback}
+                    />
+                    <NewMessageForm
+                        targetName={this.props.targetName}
+                        newMessageCallback={this.addMessage.bind(this)}
+                    />
+                </div>
+                <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
+                    <MessageList
+                        messageList={this.state.messageList}
+                        removeMessage={this.removeMessage.bind(this)}
+                    />
+                </div>
+            </div>
+        );
     }
 }
 

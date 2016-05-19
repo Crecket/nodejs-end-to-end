@@ -1,4 +1,6 @@
-class Settings extends React.component {
+import React from 'react';
+
+class Settings extends React.Component {
     render() {
         return (
             ''

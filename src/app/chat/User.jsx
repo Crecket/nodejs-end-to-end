@@ -1,6 +1,11 @@
-class User extends React.component {
-    getIntialState() {
-        return {};
+import React  from 'react';
+
+class User extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {};
+
+        this.userClickCallback = this.userClickCallback.bind(this);
     };
 
     userClickCallback() {
@@ -18,7 +23,7 @@ class User extends React.component {
         } else {
             return (
                 <li key={this.props.username}>
-                    <a onClick={this.userClickCallback}>{this.props.username}</a>
+                    <a onClick={this.userClickCallback.bind(this)}>{this.props.username}</a>
                 </li>
             );
         }

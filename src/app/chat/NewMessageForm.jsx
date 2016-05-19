@@ -1,9 +1,15 @@
-class NewMessageForm extends React.component {
-    getInitialState() {
-        return {
+import React  from 'react';
+
+class NewMessageForm extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
             checkboxToggle: false,
             messageLoading: false
         };
+        
+        this.checkboxClick = this.checkboxClick.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     };
 
     checkboxClick() {
