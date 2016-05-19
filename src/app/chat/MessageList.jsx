@@ -1,21 +1,18 @@
 import React  from 'react';
 import Message from './Message.jsx';
 
+import RaisedButton from 'material-ui/RaisedButton';
+import {List} from 'material-ui/List';
+import Subheader from 'material-ui/Subheader';
+import Divider from 'material-ui/Divider';
+import Checkbox from 'material-ui/Checkbox';
+import Toggle from 'material-ui/Toggle';
+
 class MessageList extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
 
-        this.deleteCallback = this.deleteCallback.bind(this);
-        this.deleteAllCallback = this.deleteAllCallback.bind(this);
-    };
-
-    deleteCallback(deleteKey) {
-        this.props.removeMessage(deleteKey);
-    };
-
-    deleteAllCallback() {
-        this.props.removeMessage();
     };
 
     render() {
@@ -28,21 +25,16 @@ class MessageList extends React.Component {
                             Messages
                         </div>
                         <div className="panel-body">
-                            <ul className="userListReact">
+                            <List className="userListReact">
                                 {Object.keys(this.props.messageList).map(function (key) {
                                     return <Message
                                         key={key}
                                         messageKey={key}
-                                        deleteCallback={fn.deleteCallback}
                                         from={fn.props.messageList[key]['from']}
                                         when={fn.props.messageList[key]['when']}
                                         message={fn.props.messageList[key]['message']}/>;
                                 })}
-                            </ul>
-                            <a id="clear_messages" onClick={this.deleteAllCallback.bind(this)}
-                               className="btn btn-danger btn-sm pull-right">
-                                Clear All
-                            </a>
+                            </List>
                         </div>
                     </div>
                 </div>

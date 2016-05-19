@@ -1,7 +1,23 @@
 import React from 'react';
 import Chat from './chat/Chat.jsx';
-import Login from './login/Login.jsx';
+import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
+
+import AppBar from 'material-ui/AppBar';
+import IconButton from 'material-ui/IconButton';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
+import MessageIcon from 'material-ui/svg-icons/communication/message';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+
+const styles = {
+    container: {
+        textAlign: 'center',
+        paddingTop: 150,
+    },
+};
 
 class Main extends React.Component {
 
@@ -12,10 +28,15 @@ class Main extends React.Component {
             loggedin: false,
             loginLoading: false,
             targetName: '',
-            users: {}
+            users: {},
+            modalOpen: false,
+            modalMessage: "",
+            modalTitle: ""
         };
 
         this.loginLoadingCallback = this.loginLoadingCallback.bind(this);
+        this.openModal = this.openModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
         this.userClickCallback = this.userClickCallback.bind(this);
     };
 
@@ -25,6 +46,14 @@ class Main extends React.Component {
             return true;
         }
         return false;
+    };
+
+    openModal(message, title) {
+        this.setState({modalOpen: true, modalMessage: message, modalTitle: title});
+    };
+
+    closeModal() {
+        this.setState({modalOpen: false});
     };
 
     componentDidMount() {
@@ -70,6 +99,7 @@ class Main extends React.Component {
             if (res.success === false) {
                 warn('Unsuccesful login attempt');
                 this.setState({loggedin: false});
+                this.openModal('Login attempt failed. Invalid password', 'Login attempt failed');
             } else {
                 info('Succesful login attempt');
                 this.setState({loggedin: true});
@@ -97,30 +127,63 @@ class Main extends React.Component {
         if (this.state.connected) {
             if (this.state.loggedin) {
                 MainComponent = (
-                    <div key="connected_container" className="container-fluid">
+                    <div key="connected_container" style={styles.container}>
                         <Chat users={this.state.users}
-                                   targetName={this.state.targetName}
-                                   userClickCallback={this.userClickCallback}/>
+                              targetName={this.state.targetName}
+                              userClickCallback={this.userClickCallback}/>
                     </div>
                 );
             } else {
                 MainComponent = (
-                    <div key="login_container" className="container-fluid">
+                    <div key="login_container" style={styles.container}>
                         <Login loginLoadingState={this.state.loginLoading}
-                                    loginLoadingCallback={this.loginLoadingCallback}/>
+                               loginLoadingCallback={this.loginLoadingCallback}/>
                     </div>
                 );
             }
         } else {
             MainComponent = (
-                <div key="loader_container" className="container-fluid">
+                <div key="loader_container" style={styles.container}>
                     <LoadScreen message=""/>
                 </div>
             );
         }
 
+        var mainAppBar = <AppBar
+            title="End-To-End"
+            iconElementLeft={<IconButton><MessageIcon /></IconButton>}/>;
+        if (this.state.loggedin) {
+            mainAppBar = <AppBar
+                title="NodeJS End-To-End"
+                iconElementLeft={<IconButton><MessageIcon /></IconButton>}
+                iconElementRight={<IconMenu
+                        iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
+                        targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                        anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
+                            <MenuItem primaryText="Sign out"/>
+                        </IconMenu>}/>;
+        }
+
+        const modalActions = [
+            <FlatButton
+                label="Ok"
+                primary={true}
+                keyboardFocused={true}
+                onTouchTap={this.closeModal}
+            />,
+        ];
         return (
             <div>
+                <Dialog
+                    title={this.state.modalMessage}
+                    actions={modalActions}
+                    modal={false}
+                    open={this.state.modalOpen}
+                    onRequestClose={this.closeModal}
+                >
+                    {this.state.modalMessage}
+                </Dialog>
+                {mainAppBar}
                 {MainComponent}
             </div>
         )

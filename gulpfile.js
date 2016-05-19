@@ -4,11 +4,10 @@ var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var autoprefixer = require('gulp-autoprefixer');
-var babel = require("gulp-babel");
 
 var jsFiles = [
     'bower_components/jquery/dist/jquery.min.js',
-    'bower_components/bootstrap/dist/js/bootstrap.min.js',
+    // 'bower_components/bootstrap/dist/js/bootstrap.min.js',
     'bower_components/socket.io-client/socket.io.js',
     'bower_components/sjcl/sjcl.js',
     'bower_components/cryptojslib/components/core.js',
@@ -31,9 +30,9 @@ var jsFiles = [
 ];
 
 var cssFiles = [
-    'bower_components/bootstrap/dist/css/bootstrap.min.css',
+    // 'bower_components/bootstrap/dist/css/bootstrap.min.css',
     'bower_components/font-awesome/css/font-awesome.min.css',
-    'src/css/style.css'
+    // 'src/css/style.css'
 ];
 
 // custom js files
@@ -51,6 +50,8 @@ gulp.task('js', function () {
 // css
 gulp.task('css', function () {
     gulp.src(cssFiles)
+        .pipe(sourcemaps.init())
+        .on('error', swallowError)
         .pipe(concat('style.css'))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9'))
         .on('error', swallowError)

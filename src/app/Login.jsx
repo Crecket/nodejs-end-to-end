@@ -1,15 +1,25 @@
 import React  from 'react';
 
+import TextField from 'material-ui/TextField';
+import RaisedButton from 'material-ui/RaisedButton';
+
 class Login extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
 
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleSubmitClick = this.handleSubmitClick.bind(this);
     };
 
     handleSubmit(e) {
         e.preventDefault();
+    };
+
+    handleSubmitClick(e) {
+        e.preventDefault();
+        log(this.refs);
+        
         var username = this.refs['inputUsername'].value;
         var password = this.refs['inputPassword'].value;
 
@@ -37,22 +47,24 @@ class Login extends React.Component {
                         </div>
 
                         <div className="panel-body">
-                            <label className="sr-only">Username</label>
-                            <input type="text"
-                                   className="form-control input-lg"
-                                   placeholder="Username"
-                                   ref="inputUsername"
-                                   required autofocus autocomplete="off"/>
 
-                            <label className="sr-only">Password</label>
-                            <input type="password"
-                                   ref="inputPassword"
-                                   className="form-control input-lg"
-                                   placeholder="Password"/>
+                            <TextField
+                                floatingLabelText="Enter your username"
+                                hintText="Username"
+                                ref="inputUsername"
+                                type="text"
+                                required autofocus
+                            /><br/>
 
-                            <button className="btn btn-lg btn-primary btn-block"
-                                    type="submit"
-                                    dangerouslySetInnerHTML={button_login}/>
+                            <TextField
+                                floatingLabelText="Enter your password"
+                                hintText="Password"
+                                ref="inputPassword"
+                                type="password"
+                                required autofocus
+                            /><br/>
+
+                            <RaisedButton label="Login" onClick={this.handleSubmitClick} primary={true}/>
                         </div>
 
                     </div>

@@ -1,6 +1,5 @@
 var webpack = require('webpack');
 var path = require('path');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var BUILD_DIR = path.resolve(__dirname, 'app/dist');
 var SRC_DIR = path.resolve(__dirname, 'src');
@@ -14,7 +13,6 @@ var config = {
         filename: 'react-app.js'
     },
     plugins: [
-        new ExtractTextPlugin("[name].css"),
         new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery",

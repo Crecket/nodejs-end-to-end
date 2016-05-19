@@ -44,22 +44,6 @@ class Chat extends React.Component {
         this.setState({messageList: currentMessages});
     };
 
-    removeMessage(key) {
-        // get current list
-        var currentMessages = this.state.messageList;
-
-        if (key) {
-            // delete message from list
-            delete currentMessages[key];
-        } else {
-            // delete all messages
-            currentMessages = [];
-        }
-
-        // update the message list state
-        this.setState({messageList: currentMessages});
-    }
-
     render() {
         return (
             <div>
@@ -76,7 +60,6 @@ class Chat extends React.Component {
                 <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
                     <MessageList
                         messageList={this.state.messageList}
-                        removeMessage={this.removeMessage.bind(this)}
                     />
                 </div>
             </div>
