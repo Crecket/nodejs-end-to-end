@@ -14,9 +14,6 @@ var config = {
         path: BUILD_DIR,
         filename: '[name]bundle.js'
     },
-    resolve: {
-        modulesDirectories: ["web_modules", "node_modules", "bower_components"]
-    },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new ExtractTextPlugin("[name].css")
@@ -24,30 +21,18 @@ var config = {
     module: {
         loaders: [
             {
-                test: /\.jsx$/,
-                loader: 'babel',
+                test: /\.jsx?$/,
+                loader: 'babel-loader',
                 include: SRC_DIR,
+                exclude: /node_modules/,
                 query: {
                     presets: ['es2015', 'react']
                 }
             },
             {
-                test: /\.js$/,
-                loader: 'babel',
-                include: SRC_DIR
-            },
-            {
                 test: /\.css$/,
                 include: SRC_DIR,
                 loader: ExtractTextPlugin.extract('style-loader', 'css-loader!autoprefixer-loader?{browsers:["Android 2.3", "Android >= 4", "Chrome >= 20", "Firefox >= 24", "Explorer >= 8", "iOS >= 6", "Opera >= 12", "Safari >= 6"]}')
-            }
-        ],
-        loaders: [
-
-            {
-                test: /\.css$/,
-                include: SRC_DIR,
-                loader: "style-loader!css-loader"
             }
         ]
     }

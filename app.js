@@ -22,9 +22,6 @@ var express = require('express');
 // Express app
 var app = express();
 
-// Jwt token authentication
-var jwt = require('jsonwebtoken');
-
 // RSA encryption
 var NodeRSA = require('node-rsa');
 
@@ -33,9 +30,6 @@ var mysql = require('mysql');
 
 // Bcrypt support
 var bcrypt = require('bcrypt');
-
-// Express sessions
-var session = require('express-session')
 
 // Load app-vars
 var config = require('./src/config');
@@ -80,8 +74,8 @@ mysqlConnection.connect(function (err) {
     }
 });
 
-/*
- A rsa key example is in this repo, make sure to generate your own in production enviroments!
+/**
+ * A rsa key example is in this repo, make sure to generate your own in production enviroments!
  */
 // Load RSA private and public key
 var RSAPrivateKey = fs.readFileSync('src/certs/rsa.key') + '';
