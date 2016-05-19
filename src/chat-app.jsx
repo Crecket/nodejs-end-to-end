@@ -1,12 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+var React = require('react');
+var ReactDOM = require('react-dom');
 import injectTapEventPlugin  from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
-// var NodeRSA = require('node-rsa');
-
-var CryptoHelper = require('./app/CryptoHelper');
-
+var NodeRSA = require('node-rsa');
 var Main = require('./app/Main.jsx');
 
 ReactDOM.render(

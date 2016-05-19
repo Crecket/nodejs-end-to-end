@@ -13,6 +13,7 @@
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "extract-text-webpack-plugin": "^1.0.1",
+    "json-loader": "^0.5.4",
     "material-ui": "^0.15.0",
     "merge2": "^0.3.6",
     "mysql": "felixge/node-mysql",

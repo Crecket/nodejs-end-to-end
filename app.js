@@ -102,8 +102,10 @@ console.log('Express started at port: ' + config.port);
 
 // Make express use ejs for rendering views
 app.set('view engine', 'ejs');
+
 // trust first proxy
 app.set('trust proxy', 1);
+
 // change default views directory
 app.set('views', __dirname + '/src/views');
 

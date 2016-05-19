@@ -23,12 +23,10 @@ var jsFiles = [
     // 'bower_components/react/react-with-addons.js',
     // 'bower_components/react/react-dom.js',
     'bower_components/marked/marked.min.js',
-
-    'src/js/libs/node-bundle.js',
-    'src/js/utils.js',
-    'src/js/crypto_helpers.js',
-    'src/js/session_helper.js',
-    'src/js/client.js'
+    'src/app/Utils.js',
+    'src/app/ConnectionHelper.js',
+    'src/app/CryptoHelper.js',
+    'src/app/Client.js'
 ];
 
 var cssFiles = [

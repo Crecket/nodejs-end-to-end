@@ -1,4 +1,4 @@
-var NodeRSA = require('node-rsa');
+// var NodeRSA = require('node-rsa');
 
 function CryptoHelper() {
     var fn = this;
@@ -164,5 +164,3 @@ function CryptoHelper() {
         return CryptoJS.enc.Hex.stringify(bytes);
     };
 }
-
-export default CryptoHelper;
