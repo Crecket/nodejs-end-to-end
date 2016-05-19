@@ -22,9 +22,6 @@ var express = require('express');
 // Express app
 var app = express();
 
-// Jwt token authentication
-var jwt = require('jsonwebtoken');
-
 // RSA encryption
 var NodeRSA = require('node-rsa');
 
@@ -34,11 +31,8 @@ var mysql = require('mysql');
 // Bcrypt support
 var bcrypt = require('bcrypt');
 
-// Express sessions
-var session = require('express-session')
-
 // Load app-vars
-var config = require('./config');
+var config = require('./src/config');
 
 if (os.hostname().trim() === "CrecketMe") {
 
@@ -59,8 +53,8 @@ if (os.hostname().trim() === "CrecketMe") {
 } else {
 
     var options = {
-        key: fs.readFileSync('certs/domain.key'),
-        cert: fs.readFileSync('certs/domain.crt'),
+        key: fs.readFileSync('src/certs/domain.key'),
+        cert: fs.readFileSync('src/certs/domain.crt'),
         requestCert: false
     };
     var https = require('https');
@@ -80,14 +74,14 @@ mysqlConnection.connect(function (err) {
     }
 });
 
-/*
- A rsa key example is in this repo, make sure to generate your own in production enviroments!
+/**
+ * A rsa key example is in this repo, make sure to generate your own in production enviroments!
  */
 // Load RSA private and public key
-var RSAPrivateKey = fs.readFileSync('certs/rsa.key') + '';
+var RSAPrivateKey = fs.readFileSync('src/certs/rsa.key') + '';
 var RSAPrivateKeyBits = new NodeRSA(RSAPrivateKey, 'private');
 
-var RSAPublicKey = fs.readFileSync('certs/rsa.crt') + '';
+var RSAPublicKey = fs.readFileSync('src/certs/rsa.crt') + '';
 var RSAPublicKeyBits = new NodeRSA(RSAPublicKey, 'public');
 
 
@@ -108,25 +102,20 @@ console.log('Express started at port: ' + config.port);
 
 // Make express use ejs for rendering views
 app.set('view engine', 'ejs');
+
 // trust first proxy
 app.set('trust proxy', 1);
 
+// change default views directory
+app.set('views', __dirname + '/src/views');
+
 // home path
 app.get('/', function (req, res, next) {
-    res.render('index', {
-        'login_screen': ejs.render(getView('login_screen')),
-        'chat_screen': ejs.render(getView('chat_screen')),
-        'debug_screen': ejs.render(getView('debug_screen'))
-    });
-});
-
-// react path
-app.get('/react', function (req, res, next) {
-    res.render('react');
+    res.render('index');
 });
 
 // Static files
-app.use(express.static('public'));
+app.use(express.static('app'));
 
 var userList = {};
 
@@ -390,7 +379,7 @@ function refreshUser(userName) {
 
 // Get view contents
 function getView(name) {
-    return fs.readFileSync(__dirname + '/views/' + name + '.ejs', 'utf8');
+    return fs.readFileSync(__dirname + '/src/views/' + name + '.ejs', 'utf8');
 }
 
 // ================================================================================

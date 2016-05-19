@@ -1,31 +1,38 @@
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-var ReactTransitionGroup = React.addons.TransitionGroup;
+import React from 'react';
+import Chat from './chat/Chat.jsx';
+import Login from './login/Login.jsx';
+import LoadScreen from './LoadScreen.jsx';
 
+class Main extends React.Component {
 
-var ReactApp = React.createClass({
-    getInitialState: function () {
-        return {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
             connected: false,
             loggedin: false,
             loginLoading: false,
             targetName: '',
             users: {}
-        }
-    },
-    shouldComponentUpdate: function (nextProps, nextState) {
+        };
+
+        this.loginLoadingCallback = this.loginLoadingCallback.bind(this);
+        this.userClickCallback = this.userClickCallback.bind(this);
+    };
+
+    shouldComponentUpdate(nextProps, nextState) {
         // check if state has changed
         if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
             return true;
         }
         return false;
-    },
-    componentDidMount: function () {
+    };
+
+    componentDidMount() {
         // TODO fix unmount issue
         // listen for server info changes which affect the whole app
         socket.on('server_info', function (server_info) {
-            if (this.isMounted()) {
-                this.setState({users: server_info.user_list, connected: true});
-            }
+            this.setState({users: server_info.user_list, connected: true});
+
             if (!SessionHelper.updateUserList(server_info.user_list)) {
                 // current target is gone so reset the target input box
                 $('#inputTarget').val('');
@@ -35,7 +42,7 @@ var ReactApp = React.createClass({
         // Socket event listeners
         socket.on('connect', function () {
             info('Connected to server');
-            if (this.isMounted() && this.state.connected === false) {
+            if (this.state.connected === false) {
                 this.setState({connected: true});
             }
         }.bind(this));
@@ -43,7 +50,7 @@ var ReactApp = React.createClass({
         // Disconnected from server
         socket.on('disconnect', function () {
             error('Lost contact with server');
-            if (this.isMounted() && this.state.connected === true) {
+            if (this.state.connected === true) {
                 this.setState({connected: false});
             }
             SessionHelper.resetUserList();
@@ -51,7 +58,7 @@ var ReactApp = React.createClass({
 
         // Server requests verification
         socket.on('request verify', function () {
-            if (this.isMounted() && this.state.connected === true) {
+            if (this.state.connected === true) {
                 this.setState({loggedin: false});
             }
         }.bind(this));
@@ -69,11 +76,13 @@ var ReactApp = React.createClass({
             }
             debug(res);
         }.bind(this));
-    },
-    loginLoadingCallback: function () {
+    };
+
+    loginLoadingCallback() {
         this.setState({loginLoading: true});
-    },
-    userClickCallback: function (userName) {
+    };
+
+    userClickCallback(userName) {
         if (SessionHelper.isVerified()) {
             if (SessionHelper.setTarget(userName)) {
                 this.setState({targetName: userName});
@@ -81,14 +90,15 @@ var ReactApp = React.createClass({
         } else {
             warn('Not verified, can\'t select target');
         }
-    },
-    render: function () {
+    };
+
+    render() {
         var MainComponent = "";
         if (this.state.connected) {
             if (this.state.loggedin) {
                 MainComponent = (
                     <div key="connected_container" className="container-fluid">
-                        <ReactChat users={this.state.users}
+                        <Chat users={this.state.users}
                                    targetName={this.state.targetName}
                                    userClickCallback={this.userClickCallback}/>
                     </div>
@@ -96,7 +106,7 @@ var ReactApp = React.createClass({
             } else {
                 MainComponent = (
                     <div key="login_container" className="container-fluid">
-                        <ReactLogin loginLoadingState={this.state.loginLoading}
+                        <Login loginLoadingState={this.state.loginLoading}
                                     loginLoadingCallback={this.loginLoadingCallback}/>
                     </div>
                 );
@@ -104,22 +114,17 @@ var ReactApp = React.createClass({
         } else {
             MainComponent = (
                 <div key="loader_container" className="container-fluid">
-                    <ReactLoadScreen message=""/>
+                    <LoadScreen message=""/>
                 </div>
             );
         }
 
         return (
-            <ReactCSSTransitionGroup
-                transitionName="transition"
-                transitionAppear={true}
-                transitionAppearTimeout={500}
-                transitionEnterTimeout={500}
-                transitionLeaveTimeout={500}
-                component='div'>
+            <div>
                 {MainComponent}
-            </ReactCSSTransitionGroup>
+            </div>
         )
-    }
-});
+    };
+}
 
+export default Main;

@@ -1,3 +1,4 @@
+
 function escapeHtml(text) {
     'use strict';
     return text.replace(/[\"&'\/<>]/g, function (a) {
