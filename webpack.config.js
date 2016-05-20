@@ -26,12 +26,9 @@ var config = {
         loaders: [
             {
                 test: /\.jsx?$/,
-                loader: 'babel-loader',
+                loaders: ['babel-loader'],
                 include: SRC_DIR,
-                exclude: /node_modules/,
-                query: {
-                    presets: ['es2015', 'react']
-                }
+                exclude: /node_modules/
             }, {
                 test: /\.json$/,
                 loader: 'json-loader'

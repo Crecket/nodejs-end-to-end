@@ -16,10 +16,10 @@ class Login extends React.Component {
         super(props, context);
         this.state = {};
 
-        this.handleSubmit = this.handleSubmit.bind(this);
+        // this.handleSubmit = this.handleSubmit.bind(this);
     };
 
-    handleSubmit(e) {
+    handleSubmit = (e) => {
         e.preventDefault();
         // get input field values
         var username = this.refs.inputUsername.input.value;
