@@ -1,5 +1,9 @@
 import React  from 'react';
 
+import TextField from 'material-ui/TextField';
+import Checkbox from 'material-ui/Checkbox';
+import RaisedButton from 'material-ui/RaisedButton';
+
 class NewMessageForm extends React.Component {
     constructor(props, context) {
         super(props, context);
@@ -7,7 +11,7 @@ class NewMessageForm extends React.Component {
             checkboxToggle: false,
             messageLoading: false
         };
-        
+
         this.checkboxClick = this.checkboxClick.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     };
@@ -41,14 +45,8 @@ class NewMessageForm extends React.Component {
         var fileSendDiv;
         if (this.state.checkboxToggle) {
             fileSendDiv = (
-                <div className="form-group">
-                    <div className="col-xs-12 col-sm-6">
-                        <div className="row">
-                            <a className="btn btn-lg btn-primary btn-block" id="file_upload">
-                                Send File
-                            </a>
-                        </div>
-                    </div>
+                <div>
+                    <RaisedButton type="submit" label="Send File" primary={true}/>
                     <div className="col-xs-12 col-sm-6">
                         <div className="row">
                             <label className="">
@@ -70,36 +68,31 @@ class NewMessageForm extends React.Component {
                             </div>
                             <div className="panel-body" id="new_message_body">
 
-                                <div className="form-group">
-                                    <label for="inputTarget">Target</label>
-                                    <input type="text"
-                                           className="form-control input-lg"
-                                           value={this.props.targetName}
-                                           placeholder="No user selected"
-                                           readOnly required/>
-                                </div>
+                                <TextField
+                                    hintText="Target"
+                                    floatingLabelText="Target"
+                                    value={this.props.targetName}
+                                    type="text"
+                                    disabled={true}
+                                    readOnly required
+                                /><br />
 
-                                <div className="form-group">
-                                    <label for="inputMessage">Message</label>
-                                    <input type="text"
-                                           ref="inputMessage"
-                                           className="form-control input-lg"
-                                           placeholder="Message"
-                                           required autocomplete="off"/>
-                                    <button className="btn btn-lg btn-primary btn-block" type="submit">
-                                        Send Message
-                                    </button>
-                                </div>
+                                <TextField
+                                    hintText="Message"
+                                    ref="inputMessage"
+                                    floatingLabelText="Message"
+                                    type="text"
+                                    required autocomplete="off"
+                                /><br />
 
-                                <div className="form-group">
-                                    <div className="col-xs-12">
-                                        <div className="row">
-                                            <label>
-                                                <input type="checkbox" onClick={this.checkboxClick}/>
-                                                Allow people to send me files.
-                                            </label>
-                                        </div>
-                                    </div>
+                                <RaisedButton type="submit" label="Send Message" primary={true}/>
+
+                                <div>
+                                    <Checkbox
+                                        label="Allow people to send me files"
+                                        defaultChecked={false}
+                                        onClick={this.checkboxClick}
+                                    />
                                 </div>
 
                                 {fileSendDiv}
