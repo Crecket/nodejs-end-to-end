@@ -1,27 +1,24 @@
 html,
-body,
-#main {
-    background-color: #222;
+body {
+    margin: 0;
+    background-color: #ffffff;
+    font-family: Roboto, sans-serif;
 }
 
-li {
+.word-break {
     word-break: break-all;
+}
+
+.monospace {
+    font-family: monospace;
 }
 
 textarea.key-text {
     height: 150px;
-    /* To make sure text looks like the correct length for each line */
-    font-family: monospace;
 }
 
 .scroll-div {
     overflow-y: scroll;
-}
-
-@media (min-width: 1024px) {
-    body {
-        padding: 30px;
-    }
 }
 
 #messages {
@@ -32,11 +29,6 @@ textarea.key-text {
 
 .color-white {
     color: #ffffff;
-}
-
-.checksum-text {
-    word-break: break-all;
-    font-family: monospace;
 }
 
 #user_list {

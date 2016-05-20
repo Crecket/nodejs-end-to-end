@@ -22,3 +22,13 @@ ReactDOM.render(
 );
 
 info('Mounted react succesfully');
+
+// function serverInfo(info) {
+//     log(info);
+// }
+//
+// socket.on('server_info', serverInfo);
+//
+// setTimeout(function () {
+//     socket.removeListener('server_info', serverInfo);
+// }, 2000);

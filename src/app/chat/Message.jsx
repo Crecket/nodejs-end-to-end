@@ -34,16 +34,6 @@ class Message extends React.Component {
         return (
             <ListItem primaryText="Calls" rightToggle={<Toggle />} >
                 {messageSender}: {escapeHtml(this.props.message)}
-                <IconButton
-                    onClick={this.callback.bind(this)}
-                    label="Disabled"
-                    color={red500}
-                    hoverColor={red350}
-                    tooltip="Remove this message"
-                    className="pull-right"
-                    tooltipPosition="bottom-right"
-                    iconClassname="muidocs-icon-custom-clear_all"
-                />
             </ListItem>
         );
     };

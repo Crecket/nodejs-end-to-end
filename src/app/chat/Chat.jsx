@@ -11,7 +11,6 @@ class Chat extends React.Component {
         };
 
         this.addMessage = this.addMessage.bind(this);
-        this.removeMessage = this.removeMessage.bind(this);
     };
 
     componentDidMount() {
@@ -23,14 +22,22 @@ class Chat extends React.Component {
         this.addMessage('crecket3', 'some text3');
 
         // Received a message from server
-        socket.on('message', function (res) {
-            // send to session handler
-            SessionHelper.receiveMessage(res, function (callbackMessage) {
-                if (callbackMessage !== false) {
-                    fn.addMessage(res.from, callbackMessage);
-                }
-            });
-        });
+        socket.on('message', fn._SocketMessage);
+    };
+
+    componentWillUnmount() {
+        var fn = this;
+        // Remove socket listeners if component is about to umount
+        socket.removeListener('message', fn._SocketMessage);
+    };
+
+    _SocketMessage(res){
+        // send to session handler
+        SessionHelper.receiveMessage(res, function (callbackMessage) {
+            if (callbackMessage !== false) {
+                this.addMessage(res.from, callbackMessage);
+            }
+        }).bind(this);
     };
 
     addMessage(from, message) {

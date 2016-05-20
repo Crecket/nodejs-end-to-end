@@ -38,6 +38,12 @@ class Main extends React.Component {
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.userClickCallback = this.userClickCallback.bind(this);
+
+        this._SocketServerInfo = this._SocketServerInfo.bind(this);
+        this._SocketConnect = this._SocketConnect.bind(this);
+        this._SocketDisconnect = this._SocketDisconnect.bind(this);
+        this._SocketRequestVerify = this._SocketRequestVerify.bind(this);
+        this._SocketLoginAttemptCallback = this._SocketLoginAttemptCallback.bind(this);
     };
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -57,61 +63,83 @@ class Main extends React.Component {
     };
 
     componentDidMount() {
-        // TODO fix unmount issue
+        var fn = this;
         // listen for server info changes which affect the whole app
-        socket.on('server_info', function (server_info) {
-            this.setState({users: server_info.user_list, connected: true});
-
-            if (!SessionHelper.updateUserList(server_info.user_list)) {
-                // current target is gone so reset the target input box
-                $('#inputTarget').val('');
-            }
-        }.bind(this));
+        socket.on('server_info', fn._SocketServerInfo);
 
         // Socket event listeners
-        socket.on('connect', function () {
-            info('Connected to server');
-            if (this.state.connected === false) {
-                this.setState({connected: true});
-            }
-        }.bind(this));
+        socket.on('connect', fn._SocketConnect);
 
         // Disconnected from server
-        socket.on('disconnect', function () {
-            error('Lost contact with server');
-            if (this.state.connected === true) {
-                this.setState({connected: false});
-            }
-            SessionHelper.resetUserList();
-        }.bind(this));
+        socket.on('disconnect', fn._SocketDisconnect);
 
         // Server requests verification
-        socket.on('request verify', function () {
-            if (this.state.connected === true) {
-                this.setState({loggedin: false});
-            }
-        }.bind(this));
+        socket.on('request verify', fn._SocketRequestVerify);
 
         // login attempt callback
-        socket.on('login_attempt_callback', function (res) {
-            this.setState({loginLoading: false});
-            SessionHelper.loginAttemptCallback(res);
-            if (res.success === false) {
-                warn('Unsuccesful login attempt');
-                this.setState({loggedin: false});
-                this.openModal('Login attempt failed. Invalid password', 'Login attempt failed');
-            } else {
-                info('Succesful login attempt');
-                this.setState({loggedin: true});
-            }
-            debug(res);
-        }.bind(this));
+        socket.on('login_attempt_callback', fn._SocketLoginAttemptCallback);
     };
 
+    componentWillUnmount() {
+        var fn = this;
+        // Remove socket listeners if component is about to umount
+        socket.removeListener('server_info', fn._SocketServerInfo);
+        socket.removeListener('connect', fn._SocketConnect);
+        socket.removeListener('disconnect', fn._SocketDisconnect);
+        socket.removeListener('request verify', fn._SocketRequestVerify);
+        socket.removeListener('login_attempt_callback', fn._SocketLoginAttemptCallback);
+    };
+
+    // socket events
+    _SocketDisconnect() {
+        error('Lost contact with server');
+        if (this.state.connected === true) {
+            this.setState({connected: false});
+        }
+        SessionHelper.resetUserList();
+    };
+
+    _SocketConnect() {
+        info('Connected to server');
+        if (this.state.connected === false) {
+            this.setState({connected: true});
+        }
+    };
+
+    _SocketServerInfo(server_info) {
+        this.setState({users: server_info.user_list, connected: true});
+        if (!SessionHelper.updateUserList(server_info.user_list)) {
+            // current target is gone so reset the target input box
+            $('#inputTarget').val('');
+        }
+    };
+
+    _SocketRequestVerify() {
+        if (this.state.connected === true) {
+            this.setState({loggedin: false});
+        }
+    };
+
+    _SocketLoginAttemptCallback(res) {
+        this.setState({loginLoading: false});
+        SessionHelper.loginAttemptCallback(res);
+        if (res.success === false) {
+            warn('Unsuccesful login attempt');
+            this.setState({loggedin: false});
+            this.openModal('Invalid username or password', 'Login attempt failed');
+        } else {
+            info('Succesful login attempt');
+            this.setState({loggedin: true});
+        }
+        debug(res);
+    };
+
+    // other generic events
     loginLoadingCallback() {
         this.setState({loginLoading: true});
     };
 
+    // user select callback in the userlist
     userClickCallback(userName) {
         if (SessionHelper.isVerified()) {
             if (SessionHelper.setTarget(userName)) {
@@ -149,10 +177,12 @@ class Main extends React.Component {
             );
         }
 
+        // main app bar at the top of the screen
         var mainAppBar = <AppBar
             title="End-To-End"
             iconElementLeft={<IconButton><MessageIcon /></IconButton>}/>;
         if (this.state.loggedin) {
+            // if we're logged in, show a extra menu
             mainAppBar = <AppBar
                 title="NodeJS End-To-End"
                 iconElementLeft={<IconButton><MessageIcon /></IconButton>}
@@ -164,6 +194,7 @@ class Main extends React.Component {
                         </IconMenu>}/>;
         }
 
+        // the default modal actions
         const modalActions = [
             <FlatButton
                 label="Ok"
@@ -173,9 +204,9 @@ class Main extends React.Component {
             />,
         ];
         return (
-            <div>
+            <div className="container">
                 <Dialog
-                    title={this.state.modalMessage}
+                    title={this.state.modalTitle}
                     actions={modalActions}
                     modal={false}
                     open={this.state.modalOpen}

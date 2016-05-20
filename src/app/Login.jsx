@@ -2,6 +2,15 @@ import React  from 'react';
 
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import Paper from 'material-ui/Paper';
+import Divider from 'material-ui/Divider';
+
+const paperLoginStyle = {
+    margin: 20,
+    padding: 20,
+    textAlign: 'center',
+    display: 'inline-block',
+};
 
 class Login extends React.Component {
     constructor(props, context) {
@@ -9,19 +18,18 @@ class Login extends React.Component {
         this.state = {};
 
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleSubmitClick = this.handleSubmitClick.bind(this);
     };
 
     handleSubmit(e) {
         e.preventDefault();
-    };
+        // get input field values
+        var username = this.refs.inputUsername.input.value;
+        var password = this.refs.inputPassword.input.value;
 
-    handleSubmitClick(e) {
-        e.preventDefault();
-        log(this.refs);
-        
-        var username = this.refs['inputUsername'].value;
-        var password = this.refs['inputPassword'].value;
+        // if empty it counts as undefined
+        if (!password) {
+            password = "";
+        }
 
         // check if we're already handeling a login request
         if (!this.props.loginLoadingState) {
@@ -36,40 +44,30 @@ class Login extends React.Component {
     };
 
     render() {
-        var button_login = {__html: (this.props.loginLoadingState) ? 'Login <span class="fa fa-refresh fa-spin"></span>' : 'Login'};
         return (
-            <div className="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+            <Paper style={paperLoginStyle} zDepth={1}>
                 <form method="post" onSubmit={this.handleSubmit}>
-                    <div className="panel panel-success">
+                    <p> Enter your username and password </p>
+                    <TextField
+                        floatingLabelText="Enter your username"
+                        hintText="Username"
+                        ref="inputUsername"
+                        type="text"
+                        required autofocus
+                    />
+                    <br />
+                    <TextField
+                        floatingLabelText="Enter your password"
+                        hintText="Password"
+                        ref="inputPassword"
+                        type="password"
+                        required autofocus
+                    />
+                    <br />
+                    <RaisedButton type="submit" label="Login" onClick={this.handleSubmit} primary={true}/>
 
-                        <div className="panel-heading">
-                            Enter your username and password
-                        </div>
-
-                        <div className="panel-body">
-
-                            <TextField
-                                floatingLabelText="Enter your username"
-                                hintText="Username"
-                                ref="inputUsername"
-                                type="text"
-                                required autofocus
-                            /><br/>
-
-                            <TextField
-                                floatingLabelText="Enter your password"
-                                hintText="Password"
-                                ref="inputPassword"
-                                type="password"
-                                required autofocus
-                            /><br/>
-
-                            <RaisedButton label="Login" onClick={this.handleSubmitClick} primary={true}/>
-                        </div>
-
-                    </div>
                 </form>
-            </div>
+            </Paper>
         );
     };
 }

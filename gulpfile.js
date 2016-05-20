@@ -7,7 +7,8 @@ var autoprefixer = require('gulp-autoprefixer');
 
 var jsFiles = [
     'bower_components/jquery/dist/jquery.min.js',
-    // 'bower_components/bootstrap/dist/js/bootstrap.min.js',
+    // 'bower_components/Materialize/dist/js/materialize.js',
+    'bower_components/bootstrap/dist/js/bootstrap.min.js',
     'bower_components/socket.io-client/socket.io.js',
     'bower_components/sjcl/sjcl.js',
     'bower_components/cryptojslib/components/core.js',
@@ -30,9 +31,9 @@ var jsFiles = [
 ];
 
 var cssFiles = [
-    // 'bower_components/bootstrap/dist/css/bootstrap.min.css',
+    // 'bower_components/Materialize/dist/css/materialize.css',
     'bower_components/font-awesome/css/font-awesome.min.css',
-    // 'src/css/style.css'
+    'src/css/style.css'
 ];
 
 // custom js files
