@@ -3,6 +3,7 @@ import Chat from './chat/Chat.jsx';
 import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
 
+import {Container} from 'material-ui';
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';

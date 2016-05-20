@@ -1,5 +1,8 @@
 import React  from 'react';
 
+import {List, ListItem} from 'material-ui/List';
+import ActionInfo from 'material-ui/svg-icons/action/info';
+
 class User extends React.Component {
     constructor(props, context) {
         super(props, context);
@@ -14,19 +17,14 @@ class User extends React.Component {
     };
 
     render() {
-        if (SessionHelper.getUsername() === this.props.username) {
-            return (
-                <li key={this.props.username}>
-                    {this.props.username}
-                </li>
-            );
-        } else {
-            return (
-                <li key={this.props.username}>
-                    <a onClick={this.userClickCallback.bind(this)}>{this.props.username}</a>
-                </li>
-            );
-        }
+        return (
+            <ListItem
+                onClick={this.userClickCallback.bind(this)}
+                rightIcon={<ActionInfo />}
+                primaryText={this.props.username}
+                key={this.props.username}
+            />
+        );
     };
 }
 

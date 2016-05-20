@@ -23,12 +23,13 @@ ReactDOM.render(
 
 info('Mounted react succesfully');
 
-// function serverInfo(info) {
-//     log(info);
-// }
-//
-// socket.on('server_info', serverInfo);
-//
-// setTimeout(function () {
-//     socket.removeListener('server_info', serverInfo);
-// }, 2000);
+setTimeout(function () {
+    // create new encryption key set on startup
+    SessionHelper.newKeySet(function (keys) {
+        updateChecksums();
+    });
+    // create new signing key set on startup
+    SessionHelper.newKeySetSign(function (keys) {
+        updateChecksums();
+    });
+}, 100);

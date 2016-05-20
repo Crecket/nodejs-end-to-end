@@ -1,7 +1,35 @@
 import React  from 'react';
+
 import UserList from './UserList.jsx';
 import NewMessageForm from './NewMessageForm.jsx';
 import MessageList from './MessageList.jsx';
+import Paper from 'material-ui/Paper';
+import ClearFix from 'material-ui/internal/ClearFix';
+import spacing from 'material-ui/styles/spacing';
+import withWidth, {SMALL, MEDIUM, LARGE} from 'material-ui/utils/withWidth';
+
+const desktopGutter = spacing.desktopGutter;
+
+log(SMALL, MEDIUM, LARGE);
+
+const style = {
+    paperStyle: {
+        margin: 20,
+        padding: 20,
+        textAlign: 'center',
+        display: 'inline-block',
+    },
+    paperLeftStyle: {
+        margin: 20,
+        padding: 20,
+        textAlign: 'center',
+        display: 'inline-block',
+    },
+    root: {
+        padding: desktopGutter,
+        boxSizing: 'border-box',
+    },
+};
 
 class Chat extends React.Component {
     constructor(props, context) {
@@ -31,7 +59,7 @@ class Chat extends React.Component {
         socket.removeListener('message', fn._SocketMessage);
     };
 
-    _SocketMessage(res){
+    _SocketMessage(res) {
         // send to session handler
         SessionHelper.receiveMessage(res, function (callbackMessage) {
             if (callbackMessage !== false) {
@@ -54,7 +82,7 @@ class Chat extends React.Component {
     render() {
         return (
             <div>
-                <div className="col-xs-12 col-sm-6 col-md-5 col-lg-4">
+                <Paper style={style.paperLeftStyle}>
                     <UserList
                         users={this.props.users}
                         userClickCallback={this.props.userClickCallback}
@@ -63,15 +91,15 @@ class Chat extends React.Component {
                         targetName={this.props.targetName}
                         newMessageCallback={this.addMessage.bind(this)}
                     />
-                </div>
-                <div className="col-xs-12 col-sm-6 col-md-7 col-lg-8">
+                </Paper>
+                <Paper style={style.paperStyle}>
                     <MessageList
                         messageList={this.state.messageList}
                     />
-                </div>
+                </Paper>
             </div>
         );
-    }
+    };
 }
 
 

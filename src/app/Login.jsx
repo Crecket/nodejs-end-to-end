@@ -3,7 +3,6 @@ import React  from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
-import Divider from 'material-ui/Divider';
 
 const paperLoginStyle = {
     margin: 20,
@@ -46,7 +45,7 @@ class Login extends React.Component {
     render() {
         return (
             <Paper style={paperLoginStyle} zDepth={1}>
-                <form method="post" onSubmit={this.handleSubmit}>
+                <form onSubmit={this.handleSubmit}>
                     <p> Enter your username and password </p>
                     <TextField
                         floatingLabelText="Enter your username"
@@ -55,7 +54,7 @@ class Login extends React.Component {
                         type="text"
                         required autofocus
                     />
-                    <br />
+                    <br/>
                     <TextField
                         floatingLabelText="Enter your password"
                         hintText="Password"

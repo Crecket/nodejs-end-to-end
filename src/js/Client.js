@@ -15,20 +15,6 @@ var serverTime;
 var CryptoHelper = new CryptoHelper();
 var SessionHelper = new ConnectionHelper(socket, CryptoHelper);
 
-// create new encryption key set on startup
-SessionHelper.newKeySet(function (keys) {
-    $('#public_key_input').val(keys.publicKey);
-    $('#private_key_input').val(keys.privateKey);
-    updateChecksums();
-});
-
-// create new signing key set on startup
-SessionHelper.newKeySetSign(function (keys) {
-    $('#public_key_sign_input').val(keys.publicKeySign);
-    $('#private_key_sign_input').val(keys.privateKeySign);
-    updateChecksums();
-});
-
 setInterval(function () {
     // stay alive through heartbeat
     socket.emit('heart_beat', 'oi');
