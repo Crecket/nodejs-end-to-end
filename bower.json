@@ -16,7 +16,8 @@
     "font-awesome": "^4.5.0",
     "react": "^15.0.2",
     "marked": "^0.3.5",
-    "Materialize": "materialize#^0.97.6"
+    "Materialize": "materialize#^0.97.6",
+    "flexboxgrid": "^6.3.0"
   },
   "private": true
 }

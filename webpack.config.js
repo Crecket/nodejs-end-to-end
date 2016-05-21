@@ -12,6 +12,13 @@ var config = {
         path: BUILD_DIR,
         filename: 'react-app.js'
     },
+    resolve: {
+        extensions: ['', '.jsx', '.scss', '.js', '.json'],  // along the way, subsequent file(s) to be consumed by webpack
+        modulesDirectories: [
+            'node_modules',
+            path.resolve(__dirname, './node_modules')
+        ]
+    },
     plugins: [
         new webpack.ProvidePlugin({
             $: "jquery",
@@ -32,6 +39,10 @@ var config = {
             }, {
                 test: /\.json$/,
                 loader: 'json-loader'
+            }, {
+                test: /\.css$/,
+                loader: 'style!css?modules',
+                include: /flexboxgrid/,
             }
         ]
     }

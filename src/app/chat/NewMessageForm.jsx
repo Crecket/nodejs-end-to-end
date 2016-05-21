@@ -1,8 +1,23 @@
 import React  from 'react';
-
 import TextField from 'material-ui/TextField';
 import Checkbox from 'material-ui/Checkbox';
 import RaisedButton from 'material-ui/RaisedButton';
+
+const styles = {
+    inputs: {
+        width: '100%',
+    },
+    imageInput: {
+        cursor: 'pointer',
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        right: 0,
+        left: 0,
+        width: '100%',
+        opacity: 0,
+    },
+};
 
 class NewMessageForm extends React.Component {
     constructor(props, context) {
@@ -11,18 +26,15 @@ class NewMessageForm extends React.Component {
             checkboxToggle: false,
             messageLoading: false
         };
-
-        this.checkboxClick = this.checkboxClick.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
     };
 
-    checkboxClick() {
+    checkboxClick = () => {
         this.setState({checkboxToggle: !this.state.checkboxToggle}, function () {
             SessionHelper.setFileSetting(this.state.checkboxToggle);
         });
     };
 
-    handleSubmit(e) {
+    handleSubmit = (e) => {
         e.preventDefault();
         if (!this.state.messageLoading && SessionHelper.hasTarget()) {
             var message = this.refs['inputMessage'].value;
@@ -42,66 +54,66 @@ class NewMessageForm extends React.Component {
 
     render() {
 
-        var fileSendDiv;
-        if (this.state.checkboxToggle) {
-            fileSendDiv = (
-                <div>
-                    <RaisedButton type="submit" label="Send File" primary={true}/>
-                    <div className="col-xs-12 col-sm-6">
-                        <div className="row">
-                            <label className="">
-                                Choose a file <input type="file" id="file_upload_test"/>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
+        /*
+         until we fix everything else this will be disabled
+
+         var fileSendDiv;
+         if (this.state.checkboxToggle) {
+         fileSendDiv = (
+         <RaisedButton
+         label="Choose an Image"
+         labelPosition="before"
+         style={styles.button}
+         primary={true}
+         >
+         <input type="file" style={styles.imageInput}/>
+         </RaisedButton>
+         );
+         <Checkbox
+         label="Allow people to send me files"
+         checked={this.state.checkboxToggle}
+         onClick={this.checkboxClick}
+         />
+         <br />
+
+         {fileSendDiv}
+
+         }*/
 
         return (
-            <div className="col-xs-12">
-                <div className="row">
-                    <form onSubmit={this.handleSubmit} method="post">
-                        <div className="panel panel-info">
-                            <div className="panel-heading body_toggle" data-toggle="new_message_body">
-                                New Message
-                            </div>
-                            <div className="panel-body" id="new_message_body">
+            <form onSubmit={this.handleSubmit} method="post">
+                <p>New Message</p>
 
-                                <TextField
-                                    hintText="Target"
-                                    floatingLabelText="Target"
-                                    value={this.props.targetName}
-                                    type="text"
-                                    disabled={true}
-                                    readOnly required
-                                /><br />
+                <TextField
+                    style={styles.inputs}
+                    hintText="Target"
+                    floatingLabelText="Target"
+                    value={this.props.targetName}
+                    type="text"
+                    disabled={true}
+                    readOnly required
+                />
+                <br />
 
-                                <TextField
-                                    hintText="Message"
-                                    ref="inputMessage"
-                                    floatingLabelText="Message"
-                                    type="text"
-                                    required autocomplete="off"
-                                /><br />
+                <TextField
+                    style={styles.inputs}
+                    hintText="Message"
+                    ref="inputMessage"
+                    floatingLabelText="Message"
+                    type="text"
+                    required autocomplete="off"
+                />
+                <br />
 
-                                <RaisedButton type="submit" label="Send Message" primary={true}/>
+                <RaisedButton
+                    type="submit"
+                    label="Send Message"
+                    primary={true}
+                    style={styles.inputs}
+                />
+                <br />
 
-                                <div>
-                                    <Checkbox
-                                        label="Allow people to send me files"
-                                        defaultChecked={false}
-                                        onClick={this.checkboxClick}
-                                    />
-                                </div>
-
-                                {fileSendDiv}
-
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            </form>
         );
     };
 }

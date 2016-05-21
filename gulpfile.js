@@ -32,6 +32,7 @@ var jsFiles = [
 
 var cssFiles = [
     // 'bower_components/Materialize/dist/css/materialize.css',
+    'bower_components/flexboxgrid/css/flexboxgrid.css',
     'bower_components/font-awesome/css/font-awesome.min.css',
     'src/css/style.css'
 ];

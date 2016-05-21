@@ -4,30 +4,12 @@ import UserList from './UserList.jsx';
 import NewMessageForm from './NewMessageForm.jsx';
 import MessageList from './MessageList.jsx';
 import Paper from 'material-ui/Paper';
-import ClearFix from 'material-ui/internal/ClearFix';
-import spacing from 'material-ui/styles/spacing';
-import withWidth, {SMALL, MEDIUM, LARGE} from 'material-ui/utils/withWidth';
-
-const desktopGutter = spacing.desktopGutter;
-
-log(SMALL, MEDIUM, LARGE);
 
 const style = {
-    paperStyle: {
-        margin: 20,
-        padding: 20,
-        textAlign: 'center',
+    paper: {
         display: 'inline-block',
-    },
-    paperLeftStyle: {
-        margin: 20,
+        width: '100%',
         padding: 20,
-        textAlign: 'center',
-        display: 'inline-block',
-    },
-    root: {
-        padding: desktopGutter,
-        boxSizing: 'border-box',
     },
 };
 
@@ -81,22 +63,33 @@ class Chat extends React.Component {
 
     render() {
         return (
-            <div>
-                <Paper style={style.paperLeftStyle}>
-                    <UserList
-                        users={this.props.users}
-                        userClickCallback={this.props.userClickCallback}
-                    />
-                    <NewMessageForm
-                        targetName={this.props.targetName}
-                        newMessageCallback={this.addMessage.bind(this)}
-                    />
-                </Paper>
-                <Paper style={style.paperStyle}>
-                    <MessageList
-                        messageList={this.state.messageList}
-                    />
-                </Paper>
+            <div className="row">
+
+                <div className="col-xs-12 col-sm-6 col-md-4">
+                    <div className="box-row">
+                        <Paper style={style.paper}>
+                            <UserList
+                                users={this.props.users}
+                                userClickCallback={this.props.userClickCallback}
+                            />
+                            <NewMessageForm
+                                targetName={this.props.targetName}
+                                newMessageCallback={this.addMessage.bind(this)}
+                            />
+                        </Paper>
+                    </div>
+                </div>
+
+                <div className="col-xs-12 col-sm-6 col-md-8">
+                    <div className="box-row">
+                        <Paper style={style.paper}>
+                            <MessageList
+                                messageList={this.state.messageList}
+                            />
+                        </Paper>
+                    </div>
+                </div>
+
             </div>
         );
     };

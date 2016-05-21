@@ -1,7 +1,7 @@
 import React  from 'react';
 
 import FontIcon from 'material-ui/FontIcon';
-import {blue500, red500, red350, greenA200} from 'material-ui/styles/colors';
+import {grey800, deepPurple900, blueGrey900, blueGrey500, lightGreenA700, indigoA700, redA700, red800} from 'material-ui/styles/colors';
 import {ListItem} from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';

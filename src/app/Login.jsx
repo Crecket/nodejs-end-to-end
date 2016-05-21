@@ -4,12 +4,19 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
 
-const paperLoginStyle = {
-    margin: 20,
-    padding: 20,
-    textAlign: 'center',
-    display: 'inline-block',
+
+const styles = {
+    inputs: {
+        width: '100%',
+    },
+    paperLoginStyle: {
+        margin: 20,
+        padding: 20,
+        textAlign: 'center',
+        display: 'inline-block',
+    },
 };
+
 
 class Login extends React.Component {
     constructor(props, context) {
@@ -44,29 +51,43 @@ class Login extends React.Component {
 
     render() {
         return (
-            <Paper style={paperLoginStyle} zDepth={1}>
-                <form onSubmit={this.handleSubmit}>
-                    <p> Enter your username and password </p>
-                    <TextField
-                        floatingLabelText="Enter your username"
-                        hintText="Username"
-                        ref="inputUsername"
-                        type="text"
-                        required autofocus
-                    />
-                    <br/>
-                    <TextField
-                        floatingLabelText="Enter your password"
-                        hintText="Password"
-                        ref="inputPassword"
-                        type="password"
-                        required autofocus
-                    />
-                    <br />
-                    <RaisedButton type="submit" label="Login" onClick={this.handleSubmit} primary={true}/>
+            <div className="row center-xs">
+                <div className="col-xs-12 col-sm-4">
+                    <div className="box">
+                        <Paper style={styles.paperLoginStyle} zDepth={1}>
+                            <form onSubmit={this.handleSubmit}>
+                                <p> Enter your username and password </p>
+                                <TextField
+                                    floatingLabelText="Enter your username"
+                                    hintText="Username"
+                                    ref="inputUsername"
+                                    style={styles.inputs}
+                                    type="text"
+                                    required autofocus
+                                />
+                                <br/>
+                                <TextField
+                                    floatingLabelText="Enter your password"
+                                    hintText="Password"
+                                    ref="inputPassword"
+                                    style={styles.inputs}
+                                    type="password"
+                                    required autofocus
+                                />
+                                <br />
+                                <RaisedButton
+                                    style={styles.inputs}
+                                    type="submit"
+                                    label="Login"
+                                    onClick={this.handleSubmit}
+                                    primary={true}
+                                />
 
-                </form>
-            </Paper>
+                            </form>
+                        </Paper>
+                    </div>
+                </div>
+            </div>
         );
     };
 }

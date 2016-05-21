@@ -2,21 +2,16 @@ import React from 'react';
 import Chat from './chat/Chat.jsx';
 import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
+import MainAppbar from './components/MainAppbar.jsx';
 
 import {Container} from 'material-ui';
-import AppBar from 'material-ui/AppBar';
-import IconButton from 'material-ui/IconButton';
-import IconMenu from 'material-ui/IconMenu';
-import MenuItem from 'material-ui/MenuItem';
-import MessageIcon from 'material-ui/svg-icons/communication/message';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
+import {cyan800} from 'material-ui/styles/colors';
 
 const styles = {
     container: {
         textAlign: 'center',
-        paddingTop: 150,
     },
 };
 
@@ -156,43 +151,23 @@ class Main extends React.Component {
         if (this.state.connected) {
             if (this.state.loggedin) {
                 MainComponent = (
-                    <div key="connected_container" style={styles.container}>
-                        <Chat users={this.state.users}
-                              targetName={this.state.targetName}
-                              userClickCallback={this.userClickCallback}/>
-                    </div>
+                    <Chat
+                        users={this.state.users}
+                        targetName={this.state.targetName}
+                        userClickCallback={this.userClickCallback}/>
                 );
             } else {
                 MainComponent = (
-                    <div key="login_container" style={styles.container}>
-                        <Login loginLoadingState={this.state.loginLoading}
-                               loginLoadingCallback={this.loginLoadingCallback}/>
-                    </div>
+                    <Login
+                        className="center-xs"
+                        loginLoadingState={this.state.loginLoading}
+                        loginLoadingCallback={this.loginLoadingCallback}/>
                 );
             }
         } else {
             MainComponent = (
-                <div key="loader_container" style={styles.container}>
-                    <LoadScreen message=""/>
-                </div>
+                <LoadScreen message=""/>
             );
-        }
-
-        // main app bar at the top of the screen
-        var mainAppBar = <AppBar
-            title="End-To-End"
-            iconElementLeft={<IconButton><MessageIcon /></IconButton>}/>;
-        if (this.state.loggedin) {
-            // if we're logged in, show a extra menu
-            mainAppBar = <AppBar
-                title="NodeJS End-To-End"
-                iconElementLeft={<IconButton><MessageIcon /></IconButton>}
-                iconElementRight={<IconMenu
-                        iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-                        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                        anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
-                            <MenuItem primaryText="Sign out"/>
-                        </IconMenu>}/>;
         }
 
         // the default modal actions
@@ -205,7 +180,7 @@ class Main extends React.Component {
             />,
         ];
         return (
-            <div className="container">
+            <div className="wrap container-fluid">
                 <Dialog
                     title={this.state.modalTitle}
                     actions={modalActions}
@@ -215,8 +190,10 @@ class Main extends React.Component {
                 >
                     {this.state.modalMessage}
                 </Dialog>
-                {mainAppBar}
-                {MainComponent}
+                <MainAppbar customStyle={styles.appbar} loggedIn={this.state.loggedin}/>
+                <div className="content">
+                    {MainComponent}
+                </div>
             </div>
         )
     };
