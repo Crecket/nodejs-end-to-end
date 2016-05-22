@@ -23,34 +23,35 @@ class NewMessageForm extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            checkboxToggle: false,
+            // checkboxToggle: false,
             messageLoading: false
         };
-    };
-
-    checkboxClick = () => {
-        this.setState({checkboxToggle: !this.state.checkboxToggle}, function () {
-            SessionHelper.setFileSetting(this.state.checkboxToggle);
-        });
     };
 
     handleSubmit = (e) => {
         e.preventDefault();
         if (!this.state.messageLoading && SessionHelper.hasTarget()) {
-            var message = this.refs['inputMessage'].value;
+            log(this.refs.inputMessage);
+            log(this.refs.inputMessage.value);
+            var message = this.refs.inputMessage.value;
 
-            if (message.length > 0 && message.length < 255) {
+            if (message && message.length > 0 && message.length < 255) {
                 this.setState({messageLoading: true});
                 if (SessionHelper.sendMessage(message)) {
                     this.props.newMessageCallback(SessionHelper.getUsername(), message);
                 }
             } else {
-                debug('Message length: ' + message.length);
                 this.setState({messageLoading: false});
             }
         }
 
     };
+
+    // checkboxClick = () => {
+    //     this.setState({checkboxToggle: !this.state.checkboxToggle}, function () {
+    //         SessionHelper.setFileSetting(this.state.checkboxToggle);
+    //     });
+    // };
 
     render() {
 
@@ -82,37 +83,47 @@ class NewMessageForm extends React.Component {
 
         return (
             <form onSubmit={this.handleSubmit} method="post">
-                <p>New Message</p>
+                <div className="row middle-xs">
 
-                <TextField
-                    style={styles.inputs}
-                    hintText="Target"
-                    floatingLabelText="Target"
-                    value={this.props.targetName}
-                    type="text"
-                    disabled={true}
-                    readOnly required
-                />
-                <br />
+                    <div className="col-xs-12">
+                        <div className="box-row">
+                            <TextField
+                                style={styles.inputs}
+                                hintText="Target"
+                                floatingLabelText="Target"
+                                value={this.props.targetName}
+                                type="text"
+                                disabled={true}
+                                readOnly required
+                            />
+                        </div>
+                    </div>
 
-                <TextField
-                    style={styles.inputs}
-                    hintText="Message"
-                    ref="inputMessage"
-                    floatingLabelText="Message"
-                    type="text"
-                    required autocomplete="off"
-                />
-                <br />
+                    <div className="col-xs-12">
+                        <div className="box-row">
+                            <TextField
+                                style={styles.inputs}
+                                hintText="Message"
+                                ref="inputMessage"
+                                floatingLabelText="Message"
+                                type="text"
+                                required autocomplete="off"
+                            />
+                        </div>
+                    </div>
 
-                <RaisedButton
-                    type="submit"
-                    label="Send Message"
-                    primary={true}
-                    style={styles.inputs}
-                />
-                <br />
+                    <div className="col-xs-12">
+                        <div className="box-row">
+                            <RaisedButton
+                                type="submit"
+                                label="Send Message"
+                                primary={true}
+                                style={styles.inputs}
+                            />
+                        </div>
+                    </div>
 
+                </div>
             </form>
         );
     };

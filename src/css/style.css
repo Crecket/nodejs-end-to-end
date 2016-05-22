@@ -23,7 +23,7 @@ body {
     padding-left: 1rem;
 }
 
-.content{
+.content {
     margin-top: 10px;
 }
 
@@ -32,7 +32,8 @@ body {
         padding-right: 2rem;
         padding-left: 2rem;
     }
-    .content{
+
+    .content {
         margin-top: 50px;
     }
 }

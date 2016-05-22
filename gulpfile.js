@@ -7,7 +7,6 @@ var autoprefixer = require('gulp-autoprefixer');
 
 var jsFiles = [
     'bower_components/jquery/dist/jquery.min.js',
-    // 'bower_components/Materialize/dist/js/materialize.js',
     'bower_components/bootstrap/dist/js/bootstrap.min.js',
     'bower_components/socket.io-client/socket.io.js',
     'bower_components/sjcl/sjcl.js',
@@ -31,13 +30,12 @@ var jsFiles = [
 ];
 
 var cssFiles = [
-    // 'bower_components/Materialize/dist/css/materialize.css',
     'bower_components/flexboxgrid/css/flexboxgrid.css',
     'bower_components/font-awesome/css/font-awesome.min.css',
     'src/css/style.css'
 ];
 
-// custom js files
+// js
 gulp.task('js', function () {
     gulp.src(jsFiles)
         .pipe(sourcemaps.init())
@@ -60,7 +58,7 @@ gulp.task('css', function () {
         .pipe(gulp.dest('app/dist'))
 });
 
-gulp.task('watch', function () {
+gulp.task('watch', ['default'], function () {
     gulp.watch(jsFiles, ['js']);
     gulp.watch(cssFiles, ['css']);
 });

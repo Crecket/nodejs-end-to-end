@@ -1,7 +1,6 @@
 import React  from 'react';
 
 import {List, ListItem} from 'material-ui/List';
-import ActionInfo from 'material-ui/svg-icons/action/info';
 
 class User extends React.Component {
     constructor(props, context) {
@@ -20,7 +19,7 @@ class User extends React.Component {
         return (
             <ListItem
                 onClick={this.userClickCallback.bind(this)}
-                rightIcon={<ActionInfo />}
+                rightIcon={this.props.userIcon}
                 primaryText={this.props.username}
                 key={this.props.username}
             />
