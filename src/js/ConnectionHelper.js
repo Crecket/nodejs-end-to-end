@@ -374,65 +374,64 @@ function ConnectionHelper(socket, CryptoHelper) {
         this.updateKey();
     };
 
-    // TODO fix the new custom file input
-    // send a file in chunks to a target
-    this.sendFile = function (data_package, callback) {
-        if (allowFiles) {
-            var index = 0;
-            var maxIndex = data_package.length;
-            var packageData = {'target': targetName, 'data': '', 'index': 0, 'maxIndex': maxIndex};
-
-            // use a delayed timer instead of for loop to throttle data
-            var timer = setInterval(function () {
-                if (!fn.hasAesKey() || !fn.hasTarget() || !fn.getFileSetting()) {
-                    warn('We no longer have a target/aes key to send the file securely or file transfers have been disabled.');
-                    clearInterval(timer);
-                    callback(false);
-
-                } else if (index <= maxIndex) {
-                    // not the last package, update package and key
-                    packageData.data = data_package.index;
-                    packageData.key = index;
-
-                    // random iv for this package
-                    var iv = CryptoHelper.newAesIv();
-
-                    // Encryp with a stored aes key
-                    var messageCypher = CryptoHelper.aesEncrypt(serializeArray(packageData), targetKey, iv);
-
-                    if (messageCypher !== false) {
-                        // send the cypher and iv to target
-                        var transferPackage = {
-                            'cypher': messageCypher,
-                            'iv': iv,
-                            'target': targetName,
-                            'from': username
-                        };
-                        socket.emit('file_package_transfer', transferPackage);
-                        debug('Sending package to ' + targetName, transferPackage);
-
-                        // Callback the current transfer percentage
-                        callback(100 / maxIndex * index);
-                    } else {
-                        warn('Package ' + index + ' could not be encrypted securely');
-                        clearInterval(timer);
-                        callback(false);
-                    }
-                } else {
-                    info('Sent all packages to ' + targetName);
-                    clearInterval(timer);
-                    callback(true);
-                }
-                index++;
-            }, 10);
-        } else {
-            warn('You can only send files if you allow file transfers');
-        }
-    };
-    this.receiveFile = function () {
-
-    };
-
+    // // TODO fix the new custom file input
+    // // send a file in chunks to a target
+    // this.sendFile = function (data_package, callback) {
+    //     if (allowFiles) {
+    //         var index = 0;
+    //         var maxIndex = data_package.length;
+    //         var packageData = {'target': targetName, 'data': '', 'index': 0, 'maxIndex': maxIndex};
+    //
+    //         // use a delayed timer instead of for loop to throttle data
+    //         var timer = setInterval(function () {
+    //             if (!fn.hasAesKey() || !fn.hasTarget() || !fn.getFileSetting()) {
+    //                 warn('We no longer have a target/aes key to send the file securely or file transfers have been disabled.');
+    //                 clearInterval(timer);
+    //                 callback(false);
+    //
+    //             } else if (index <= maxIndex) {
+    //                 // not the last package, update package and key
+    //                 packageData.data = data_package.index;
+    //                 packageData.key = index;
+    //
+    //                 // random iv for this package
+    //                 var iv = CryptoHelper.newAesIv();
+    //
+    //                 // Encryp with a stored aes key
+    //                 var messageCypher = CryptoHelper.aesEncrypt(serializeArray(packageData), targetKey, iv);
+    //
+    //                 if (messageCypher !== false) {
+    //                     // send the cypher and iv to target
+    //                     var transferPackage = {
+    //                         'cypher': messageCypher,
+    //                         'iv': iv,
+    //                         'target': targetName,
+    //                         'from': username
+    //                     };
+    //                     socket.emit('file_package_transfer', transferPackage);
+    //                     debug('Sending package to ' + targetName, transferPackage);
+    //
+    //                     // Callback the current transfer percentage
+    //                     callback(100 / maxIndex * index);
+    //                 } else {
+    //                     warn('Package ' + index + ' could not be encrypted securely');
+    //                     clearInterval(timer);
+    //                     callback(false);
+    //                 }
+    //             } else {
+    //                 info('Sent all packages to ' + targetName);
+    //                 clearInterval(timer);
+    //                 callback(true);
+    //             }
+    //             index++;
+    //         }, 10);
+    //     } else {
+    //         warn('You can only send files if you allow file transfers');
+    //     }
+    // };
+    // this.receiveFile = function () {
+    //
+    // };
 
     // return if this private verified variable is true/false
     this.isVerified = function () {

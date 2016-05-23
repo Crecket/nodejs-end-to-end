@@ -1,8 +1,8 @@
 import React  from 'react';
-
 import UserList from './UserList.jsx';
 import NewMessageForm from './NewMessageForm.jsx';
 import MessageList from './MessageList.jsx';
+
 import Paper from 'material-ui/Paper';
 
 const style = {
@@ -69,57 +69,49 @@ class Chat extends React.Component {
         // update the message list state
         this.setState({messageList: currentMessages});
     };
-    
+
     render() {
         return (
             <div className="row">
 
-                <div className="col-xs-12">
+                <div className="col-xs-12 col-md-6">
                     <div className="box-row">
                         <div className="row">
 
                             <div className="col-xs-12 col-md-6">
                                 <div className="box-row">
-                                    <div className="row">
-
-                                        <div className="col-xs-12 col-md-6">
-                                            <div className="box-row">
-                                                <Paper style={style.paperAlt}>
-                                                    <UserList
-                                                        users={this.props.users}
-                                                        userClickCallback={this.props.userClickCallback}
-                                                    />
-                                                </Paper>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-xs-12 col-md-6">
-                                            <div className="box-row">
-                                                <Paper style={style.paper}>
-                                                    <NewMessageForm
-                                                        targetName={this.props.targetName}
-                                                        newMessageCallback={this.addMessage.bind(this)}
-                                                    />
-                                                </Paper>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="col-xs-12 col-md-6">
-                                <div className="box-row">
                                     <Paper style={style.paperAlt}>
-                                        <MessageList
-                                            messageList={this.state.messageList}
+                                        <UserList
+                                            users={this.props.users}
                                             userClickCallback={this.props.userClickCallback}
                                         />
                                     </Paper>
                                 </div>
                             </div>
 
+                            <div className="col-xs-12 col-md-6">
+                                <div className="box-row">
+                                    <Paper style={style.paper}>
+                                        <NewMessageForm
+                                            targetName={this.props.targetName}
+                                            newMessageCallback={this.addMessage.bind(this)}
+                                        />
+                                    </Paper>
+                                </div>
+                            </div>
+
                         </div>
+                    </div>
+                </div>
+
+                <div className="col-xs-12 col-md-6">
+                    <div className="box-row">
+                        <Paper style={style.paperAlt}>
+                            <MessageList
+                                messageList={this.state.messageList}
+                                userClickCallback={this.props.userClickCallback}
+                            />
+                        </Paper>
                     </div>
                 </div>
 

@@ -20,6 +20,8 @@ class UserList extends React.Component {
         this.state = {};
     };
 
+
+    // todo update icons propperly using state or props
     render() {
         var fn = this;
         return (

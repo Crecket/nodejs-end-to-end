@@ -3,6 +3,7 @@ import Chat from './chat/Chat.jsx';
 import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
 import MainAppbar from './components/MainAppbar.jsx';
+import Debug from './debug/Debug.jsx';
 
 import {Container} from 'material-ui';
 import Dialog from 'material-ui/Dialog';
@@ -13,6 +14,12 @@ const styles = {
     container: {
         textAlign: 'center',
     },
+    paper: {
+        display: 'inline-block',
+        width: '100%',
+        minHeight: 268,
+        padding: 20,
+    },
 };
 
 class Main extends React.Component {
@@ -21,20 +28,30 @@ class Main extends React.Component {
         super(props, context);
         this.state = {
             connected: false,
+
+            publicKey: "",
+            privateKey: "",
+            publicKeySign: "",
+            privateKeySign: "",
+
             loggedin: false,
             loginLoading: false,
+
             targetName: '',
             users: {},
+
             modalOpen: false,
             modalMessage: "",
-            modalTitle: ""
+            modalTitle: "",
         };
 
+        // bind the general functions
         this.loginLoadingCallback = this.loginLoadingCallback.bind(this);
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.userClickCallback = this.userClickCallback.bind(this);
 
+        // bind the socket functions
         this._SocketServerInfo = this._SocketServerInfo.bind(this);
         this._SocketConnect = this._SocketConnect.bind(this);
         this._SocketDisconnect = this._SocketDisconnect.bind(this);
@@ -60,6 +77,15 @@ class Main extends React.Component {
 
     componentDidMount() {
         var fn = this;
+
+        // create default keysets
+        SessionHelper.newKeySet(function (keys) {
+            fn.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
+        });
+        SessionHelper.newKeySetSign(function (keys) {
+            fn.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
+        });
+
         // listen for server info changes which affect the whole app
         socket.on('server_info', fn._SocketServerInfo);
 
@@ -130,12 +156,10 @@ class Main extends React.Component {
         debug(res);
     };
 
-    // other generic events
     loginLoadingCallback() {
         this.setState({loginLoading: true});
     };
 
-    // user select callback in the userlist
     userClickCallback(userName) {
         if (SessionHelper.isVerified()) {
             if (SessionHelper.setTarget(userName)) {
@@ -194,6 +218,13 @@ class Main extends React.Component {
                 <div className="content">
                     {MainComponent}
                 </div>
+
+                <Debug
+                    encryptionKey={this.state.publicKey}
+                    decryptionKey={this.state.privateKey}
+                    signingKey={this.state.privateKeySign}
+                    verificationKey={this.state.publicKeySign}
+                />
             </div>
         )
     };

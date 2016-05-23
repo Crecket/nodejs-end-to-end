@@ -26,15 +26,3 @@ ReactDOM.render(
 );
 
 info('Mounted react succesfully');
-
-// load the session keys
-setTimeout(function () {
-    // create new encryption key set on startup
-    SessionHelper.newKeySet(function (keys) {
-        updateChecksums();
-    });
-    // create new signing key set on startup
-    SessionHelper.newKeySetSign(function (keys) {
-        updateChecksums();
-    });
-}, 100);
