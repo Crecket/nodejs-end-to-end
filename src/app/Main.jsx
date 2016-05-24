@@ -78,13 +78,15 @@ class Main extends React.Component {
     componentDidMount() {
         var fn = this;
 
-        // create default keysets
-        SessionHelper.newKeySet(function (keys) {
-            fn.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
-        });
-        SessionHelper.newKeySetSign(function (keys) {
-            fn.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
-        });
+        setTimeout(function () {
+            // create default keysets
+            SessionHelper.newKeySet(function (keys) {
+                fn.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
+            });
+            SessionHelper.newKeySetSign(function (keys) {
+                fn.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
+            });
+        }, 100);
 
         // listen for server info changes which affect the whole app
         socket.on('server_info', fn._SocketServerInfo);

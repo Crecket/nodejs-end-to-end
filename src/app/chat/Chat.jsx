@@ -74,37 +74,29 @@ class Chat extends React.Component {
         return (
             <div className="row">
 
-                <div className="col-xs-12 col-md-6">
+                <div className="col-xs-12 col-sm-6 col-md-3 last-md">
                     <div className="box-row">
-                        <div className="row">
-
-                            <div className="col-xs-12 col-md-6">
-                                <div className="box-row">
-                                    <Paper style={style.paperAlt}>
-                                        <UserList
-                                            users={this.props.users}
-                                            userClickCallback={this.props.userClickCallback}
-                                        />
-                                    </Paper>
-                                </div>
-                            </div>
-
-                            <div className="col-xs-12 col-md-6">
-                                <div className="box-row">
-                                    <Paper style={style.paper}>
-                                        <NewMessageForm
-                                            targetName={this.props.targetName}
-                                            newMessageCallback={this.addMessage.bind(this)}
-                                        />
-                                    </Paper>
-                                </div>
-                            </div>
-
-                        </div>
+                        <Paper style={style.paperAlt}>
+                            <UserList
+                                users={this.props.users}
+                                userClickCallback={this.props.userClickCallback}
+                            />
+                        </Paper>
                     </div>
                 </div>
 
-                <div className="col-xs-12 col-md-6">
+                <div className="col-xs-12 col-sm-6 col-md-3">
+                    <div className="box-row">
+                        <Paper style={style.paper}>
+                            <NewMessageForm
+                                targetName={this.props.targetName}
+                                newMessageCallback={this.addMessage.bind(this)}
+                            />
+                        </Paper>
+                    </div>
+                </div>
+
+                <div className="col-xs-12 col-sm-12 col-md-6">
                     <div className="box-row">
                         <Paper style={style.paperAlt}>
                             <MessageList
@@ -119,6 +111,5 @@ class Chat extends React.Component {
         );
     };
 }
-
 
 export default Chat;

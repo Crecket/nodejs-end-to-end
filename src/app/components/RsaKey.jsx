@@ -17,11 +17,14 @@ class Debug extends React.Component {
     render() {
         return (
             <TextField
+                className="monospace"
+                name={this.props.nameTag}
                 style={styles.textarea}
                 value={this.props.rsaKey}
                 multiLine={true}
                 rows={2}
                 rowsMax={5}
+                readOnly
             />
         );
     };

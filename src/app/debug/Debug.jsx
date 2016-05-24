@@ -1,8 +1,21 @@
 import React  from 'react';
-
 import RsaKey from '../components/RsaKey.jsx';
+import AesKeyList from './AesKeyList.jsx';
 
-const style = {};
+import Paper from 'material-ui/Paper';
+import Subheader from 'material-ui/Subheader';
+import RaisedButton from 'material-ui/RaisedButton';
+import Toggle from 'material-ui/Toggle';
+import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import {grey900, grey800} from 'material-ui/styles/colors';
+
+const styles = {
+    paper: {
+        display: 'inline-block',
+        width: '100%',
+        padding: 20,
+    },
+};
 
 class Debug extends React.Component {
     constructor(props, context) {
@@ -21,75 +34,96 @@ class Debug extends React.Component {
     render() {
         return (
             <div className="row">
+                <div className="col-xs-12">
+                    <Card className="box-row" style={{backgroundColor: ''}}>
+                        <CardHeader
+                            style={{backgroundColor: grey900}}
+                            title="Settings"
+                            actAsExpander={true}
+                            showExpandableButton={true}
+                        />
+                        <CardText expandable={true}>
+                            <div className="row">
 
-                <div class="col-xs-12">
-                    <div class="box-row">
-                        <p> Settings </p>
+                                <div className="col-xs-12">
+                                    <div className="box-row">
+                                        <Paper style={styles.paper}>
+                                            <div className="row">
 
-                        <div class="col-xs-12 col-sm-6">
-                            <div class="row">
-                                <label for="inputTarget">Private decryption key</label>
-                                <RsaKey rsaKey={this.props.decryptionKey}/>
-                            </div>
-                        </div>
+                                                <div className="col-xs-12 col-sm-6">
+                                                    <div className="box-row">
+                                                        <Subheader>Private decryption key</Subheader>
+                                                        <RsaKey nameTag="privateDecryptionKey"
+                                                                rsaKey={this.props.decryptionKey}/>
+                                                    </div>
+                                                </div>
 
-                        <div class="col-xs-12 col-sm-6">
-                            <div class="row">
-                                <label for="inputTarget">Public encryption key</label>
-                                <RsaKey rsaKey={this.props.encryptionKey}/>
-                            </div>
-                        </div>
+                                                <div className="col-xs-12 col-sm-6">
+                                                    <div className="box-row">
+                                                        <Subheader>Public encryption key</Subheader>
+                                                        <RsaKey nameTag="publicEncryptionKey"
+                                                                rsaKey={this.props.encryptionKey}/>
+                                                    </div>
+                                                </div>
 
-                        <div class="col-xs-12">
-                            <div class="row">
+                                                <div className="col-xs-12">
+                                                    <div className="box-row">
+                                                        <RaisedButton
+                                                            style={styles.inputs}
+                                                            type="submit"
+                                                            label="New encryption keypair"
+                                                            primary={true}
+                                                        />
+                                                    </div>
+                                                </div>
 
-                                <div class="col-xs-12">
-                                    <div class="row">
-                                        <a class="btn btn-warning col-xs-12" id="new_encryption_keypair">
-                                            New encryption keypair <i class="fa fa-refresh"></i>
-                                        </a>
+                                            </div>
+                                        </Paper>
                                     </div>
                                 </div>
 
-                            </div>
-                        </div>
+                                <div className="col-xs-12">
+                                    <div className="box-row">
+                                        <Paper style={styles.paper}>
+                                            <div className="row">
 
-                        <div class="col-xs-12 col-sm-6">
-                            <div class="row">
-                                <label for="inputTarget">Private signing key</label>
-                                <RsaKey rsaKey={this.props.signingKey}/>
-                            </div>
-                        </div>
+                                                <div className="col-xs-12 col-sm-6">
+                                                    <div className="box-row">
+                                                        <Subheader>Private signing key</Subheader>
+                                                        <RsaKey nameTag="privateSigningKey"
+                                                                rsaKey={this.props.signingKey}/>
+                                                    </div>
+                                                </div>
 
-                        <div class="col-xs-12 col-sm-6">
-                            <div class="row">
-                                <label for="inputTarget">Public verification key</label>
-                                <RsaKey rsaKey={this.props.verificationKey}/>
-                            </div>
-                        </div>
+                                                <div className="col-xs-12 col-sm-6">
+                                                    <div className="box-row">
+                                                        <Subheader>Public verification key</Subheader>
+                                                        <RsaKey nameTag="publicVerificationKey"
+                                                                rsaKey={this.props.verificationKey}/>
+                                                    </div>
+                                                </div>
 
-                        <div class="col-xs-12">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div class="row">
-                                        <a class="btn btn-warning col-xs-12" id="new_encryption_sign_keypair">
-                                            New signing keypair <i class="fa fa-refresh"></i>
-                                        </a>
+                                                <div className="col-xs-12">
+                                                    <div className="box-row">
+                                                        <RaisedButton
+                                                            style={styles.inputs}
+                                                            type="submit"
+                                                            label="New signing keypair"
+                                                            primary={true}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </Paper>
                                     </div>
                                 </div>
+
+                                {<AesKeyList />}
+
                             </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="col-xs-12">
-                    <h2 class="color-white">Stored AES keys</h2>
-                    <p class="color-white">
-                        These are the AES keys stored on this client and the RSA keys that were used to verify these AES
-                        keys.
-                    </p>
-                    <div id="stored_key_div"></div>
+                        </CardText>
+                    </Card>
                 </div>
             </div>
         );
