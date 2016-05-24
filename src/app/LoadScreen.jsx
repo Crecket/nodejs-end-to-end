@@ -7,12 +7,13 @@ class LoadScreen extends React.Component {
     render() {
         var inlineStyle = {
             color: 'white',
-            align: 'center'
+            textAlign: 'center',
         };
+
         return (
-            <div>
+            <div style={inlineStyle}>
                 <CircularProgress size={1.5}/>
-                <p>No connection to the server</p>
+                <p>{this.props.message}</p>
             </div>
         );
     };

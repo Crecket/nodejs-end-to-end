@@ -498,9 +498,9 @@ function ConnectionHelper(socket, CryptoHelper) {
     // set allow file transfer setting
     this.setFileSetting = function (boolean) {
         allowFiles = boolean;
-        if(boolean){
+        if (boolean) {
             debug('You can now send and receive files');
-        }else{
+        } else {
             debug('You can no longer send and receive files')
         }
     };

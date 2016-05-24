@@ -31,12 +31,7 @@ class AesKeys extends React.Component {
             <div className="col-xs-12">
                 <div className="box-row">
                     <Paper style={styles.paper}>
-                        <h2>Stored AES keys</h2>
-                        <p>
-                            These are the AES keys stored on this client and the RSA keys that were used to verify these
-                            AES keys.
-                        </p>
-                        <div id="stored_key_div"></div>
+                        <Subheader>Stored AES keys</Subheader>
                     </Paper>
                 </div>
             </div>

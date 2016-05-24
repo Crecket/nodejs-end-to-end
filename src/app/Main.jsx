@@ -177,22 +177,36 @@ class Main extends React.Component {
         if (this.state.connected) {
             if (this.state.loggedin) {
                 MainComponent = (
-                    <Chat
-                        users={this.state.users}
-                        targetName={this.state.targetName}
-                        userClickCallback={this.userClickCallback}/>
+                    <div className="content">
+                        <Chat
+                            users={this.state.users}
+                            targetName={this.state.targetName}
+                            userClickCallback={this.userClickCallback}
+                        />
+                        <Debug
+                            encryptionKey={this.state.publicKey}
+                            decryptionKey={this.state.privateKey}
+                            signingKey={this.state.privateKeySign}
+                            verificationKey={this.state.publicKeySign}
+                        />
+                    </div>
                 );
             } else {
                 MainComponent = (
-                    <Login
-                        className="center-xs"
-                        loginLoadingState={this.state.loginLoading}
-                        loginLoadingCallback={this.loginLoadingCallback}/>
+                    <div className="content">
+                        <Login
+                            className="center-xs"
+                            loginLoadingState={this.state.loginLoading}
+                            loginLoadingCallback={this.loginLoadingCallback}
+                        />
+                    </div>
                 );
             }
         } else {
             MainComponent = (
-                <LoadScreen message=""/>
+                <div className="content">
+                    <LoadScreen message="No connection to the server"/>
+                </div>
             );
         }
 
@@ -216,17 +230,10 @@ class Main extends React.Component {
                 >
                     {this.state.modalMessage}
                 </Dialog>
+                
                 <MainAppbar customStyle={styles.appbar} loggedIn={this.state.loggedin}/>
-                <div className="content">
-                    {MainComponent}
-                </div>
 
-                <Debug
-                    encryptionKey={this.state.publicKey}
-                    decryptionKey={this.state.privateKey}
-                    signingKey={this.state.privateKeySign}
-                    verificationKey={this.state.publicKeySign}
-                />
+                {MainComponent}
             </div>
         )
     };
