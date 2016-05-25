@@ -119,8 +119,8 @@ class Debug extends React.Component {
                                     </div>
                                 </div>
 
-                                {<AesKeyList />}
-
+                                <AesKeyList userKeys={this.props.userKeys}/>
+                                
                             </div>
                         </CardText>
                     </Card>

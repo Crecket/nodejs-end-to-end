@@ -16,7 +16,7 @@ const styles = {
     },
 };
 
-class AesKeys extends React.Component {
+class AesKey extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
@@ -52,4 +52,4 @@ class AesKeys extends React.Component {
 }
 
 
-export default AesKeys;
+export default AesKey;

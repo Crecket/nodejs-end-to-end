@@ -26,14 +26,26 @@ class NewMessageForm extends React.Component {
             // checkboxToggle: false,
             messageLoading: false
         };
+
+        this._SocketMessageCallback = this._SocketMessageCallback.bind(this);
+    };
+
+    componentDidMount() {
+        var fn = this;
+        // Received a message from server
+        socket.on('message_callback', fn._SocketMessageCallback);
+    };
+
+    componentWillUnmount() {
+        var fn = this;
+        // Remove socket listeners if component is about to umount
+        socket.removeListener('message_callback', fn._SocketMessageCallback);
     };
 
     handleSubmit = (e) => {
         e.preventDefault();
         if (!this.state.messageLoading && SessionHelper.hasTarget()) {
-            log(this.refs.inputMessage);
-            log(this.refs.inputMessage.value);
-            var message = this.refs.inputMessage.value;
+            var message = this.refs.inputMessage.input.value;
 
             if (message && message.length > 0 && message.length < 255) {
                 this.setState({messageLoading: true});
@@ -46,6 +58,10 @@ class NewMessageForm extends React.Component {
         }
 
     };
+
+    _SocketMessageCallback(res) {
+        this.setState({messageLoading: false});
+    }
 
     // checkboxClick = () => {
     //     this.setState({checkboxToggle: !this.state.checkboxToggle}, function () {

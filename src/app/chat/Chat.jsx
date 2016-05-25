@@ -31,6 +31,7 @@ class Chat extends React.Component {
         };
 
         this.addMessage = this.addMessage.bind(this);
+        this._SocketMessage = this._SocketMessage.bind(this);
     };
 
     componentDidMount() {
@@ -51,12 +52,13 @@ class Chat extends React.Component {
     };
 
     _SocketMessage(res) {
+        var fn = this;
         // send to session handler
         SessionHelper.receiveMessage(res, function (callbackMessage) {
             if (callbackMessage !== false) {
-                this.addMessage(res.from, callbackMessage);
+                fn.addMessage(res.from, callbackMessage);
             }
-        }).bind(this);
+        });
     };
 
     addMessage(from, message) {
@@ -64,7 +66,7 @@ class Chat extends React.Component {
         var currentMessages = this.state.messageList;
 
         // push new message to list
-        currentMessages.push({when: curDate(), from: from, message: message});
+        currentMessages.unshift({when: curDate(), from: from, message: message});
 
         // update the message list state
         this.setState({messageList: currentMessages});
@@ -90,7 +92,7 @@ class Chat extends React.Component {
                         <Paper style={style.paper}>
                             <NewMessageForm
                                 targetName={this.props.targetName}
-                                newMessageCallback={this.addMessage.bind(this)}
+                                newMessageCallback={this.addMessage}
                             />
                         </Paper>
                     </div>

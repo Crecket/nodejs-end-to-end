@@ -1,10 +1,8 @@
 import React  from 'react';
-import RsaKey from '../components/RsaKey.jsx';
+import AesKey from './AesKey.jsx';
 
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
-import RaisedButton from 'material-ui/RaisedButton';
-import Toggle from 'material-ui/Toggle';
 
 const styles = {
     paper: {
@@ -20,24 +18,22 @@ class AesKeys extends React.Component {
         this.state = {};
     };
 
-    componentDidMount() {
-    };
-
-    componentWillUnmount() {
-    };
-
     render() {
+        var fn = this;
+        log(fn.props.userKeys, typeof fn.props.userKeys);
         return (
             <div className="col-xs-12">
                 <div className="box-row">
                     <Paper style={styles.paper}>
                         <Subheader>Stored AES keys</Subheader>
+                        {Object.keys(fn.props.userKeys).map(function (key) {
+                            <AesKey aesKeyData={fn.props.userKeys[key]}/>
+                        })}
                     </Paper>
                 </div>
             </div>
         );
     };
 }
-
 
 export default AesKeys;
