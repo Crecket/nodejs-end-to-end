@@ -32,7 +32,7 @@ class AesKey extends React.Component {
         return (
             <div className="col-xs-12">
                 <div className="box-row">
-                    <Card className="box-row" style={{backgroundColor: ''}}>
+                    <Card className="box-row" style={{backgroundColor: '#fff'}}>
                         <CardHeader
                             style={{backgroundColor: grey900}}
                             title="Settings"
@@ -41,7 +41,7 @@ class AesKey extends React.Component {
                         />
                         <CardText expandable={true}>
                             <div className="row">
-
+                                asdfasdf
                             </div>
                         </CardText>
                     </Card>

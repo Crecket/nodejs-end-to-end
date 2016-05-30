@@ -24,10 +24,9 @@ class NewMessageForm extends React.Component {
         super(props, context);
         this.state = {
             // checkboxToggle: false,
-            messageLoading: false
+            messageLoading: false,
+            inputText: ''
         };
-
-        this._SocketMessageCallback = this._SocketMessageCallback.bind(this);
     };
 
     componentDidMount() {
@@ -42,10 +41,15 @@ class NewMessageForm extends React.Component {
         socket.removeListener('message_callback', fn._SocketMessageCallback);
     };
 
+    handleChange = () => {
+        this.setState({inputText: this.refs.inputMessage.input.value});
+    }
+
     handleSubmit = (e) => {
         e.preventDefault();
         if (!this.state.messageLoading && SessionHelper.hasTarget()) {
             var message = this.refs.inputMessage.input.value;
+            this.setState({inputText: ''});
 
             if (message && message.length > 0 && message.length < 255) {
                 this.setState({messageLoading: true});
@@ -59,7 +63,7 @@ class NewMessageForm extends React.Component {
 
     };
 
-    _SocketMessageCallback(res) {
+    _SocketMessageCallback = (res) => {
         this.setState({messageLoading: false});
     }
 
@@ -122,6 +126,8 @@ class NewMessageForm extends React.Component {
                                 hintText="Message"
                                 ref="inputMessage"
                                 floatingLabelText="Message"
+                                onChange={this.handleChange}
+                                value={this.state.inputText}
                                 type="text"
                                 required autocomplete="off"
                             />
@@ -142,7 +148,10 @@ class NewMessageForm extends React.Component {
                 </div>
             </form>
         );
-    };
+    }
+    ;
 }
 
-export default NewMessageForm;
+export
+default
+NewMessageForm;

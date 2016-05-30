@@ -280,7 +280,7 @@ class Main extends React.Component {
                             userClickCallback={this.userClickCallback}
                         />
                         <Debug
-                            keyList={this.state.userKeys}
+                            userKeys={this.state.userKeys}
                             encryptionKey={this.state.publicKey}
                             decryptionKey={this.state.privateKey}
                             signingKey={this.state.privateKeySign}

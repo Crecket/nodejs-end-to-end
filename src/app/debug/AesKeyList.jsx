@@ -20,13 +20,15 @@ class AesKeys extends React.Component {
 
     render() {
         var fn = this;
-        log(fn.props.userKeys, typeof fn.props.userKeys);
         return (
             <div className="col-xs-12">
                 <div className="box-row">
                     <Paper style={styles.paper}>
                         <Subheader>Stored AES keys</Subheader>
                         {Object.keys(fn.props.userKeys).map(function (key) {
+                            {
+                                console.log(key, fn.props.userKeys[key])
+                            }
                             <AesKey aesKeyData={fn.props.userKeys[key]}/>
                         })}
                     </Paper>
