@@ -19,18 +19,19 @@ class AesKeys extends React.Component {
     };
 
     render() {
+        log('Refreshing aes key list');
+        log(this.props.userKeys);
         var fn = this;
         return (
             <div className="col-xs-12">
                 <div className="box-row">
                     <Paper style={styles.paper}>
                         <Subheader>Stored AES keys</Subheader>
-                        {Object.keys(fn.props.userKeys).map(function (key) {
-                            {
-                                console.log(key, fn.props.userKeys[key])
-                            }
-                            <AesKey aesKeyData={fn.props.userKeys[key]}/>
-                        })}
+                        <div className="keylist">
+                            {Object.keys(fn.props.userKeys).map(function (key) {
+                                <AesKey aesKeyData={fn.props.userKeys[key]}/>
+                            })}
+                        </div>
                     </Paper>
                 </div>
             </div>

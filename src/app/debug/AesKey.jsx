@@ -29,22 +29,10 @@ class AesKey extends React.Component {
     };
 
     render() {
+        log('Aes key', this.props.aesKeyData);
         return (
             <div className="col-xs-12">
                 <div className="box-row">
-                    <Card className="box-row" style={{backgroundColor: '#fff'}}>
-                        <CardHeader
-                            style={{backgroundColor: grey900}}
-                            title="Settings"
-                            actAsExpander={true}
-                            showExpandableButton={true}
-                        />
-                        <CardText expandable={true}>
-                            <div className="row">
-                                asdfasdf
-                            </div>
-                        </CardText>
-                    </Card>
                 </div>
             </div>
         );
