@@ -134,8 +134,8 @@ io.on('connection', function (socket) {
     // Socketid shortcut
     var socketid = socket.id;
 
-    // Send server's public key to client
-    socket.emit('public_key', RSAPublicKey);
+    // Send server's public key to client and other basic info
+    sendServerInfo();
 
     // Send verify request to user (Show login form)
     socket.emit('request verify');
@@ -401,8 +401,7 @@ function randomToken() {
     return crypto.randomBytes(128).toString('hex');
 }
 
-// Server custom heartbeat
-setInterval(function () {
+function sendServerInfo(){
     var tempArray = {};
     serverTime = Math.floor(Date.now() / 1000);
 
@@ -417,6 +416,10 @@ setInterval(function () {
     // send to client
     io.emit('server_info', {
         'user_list': tempArray,
+        'publicKey': RSAPublicKey,
         'time': serverTime
     });
-}, 1000);
+}
+
+// Server custom heartbeat
+setInterval(sendServerInfo, 1000);

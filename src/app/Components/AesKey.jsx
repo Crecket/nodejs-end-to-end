@@ -8,7 +8,7 @@ const styles = {
     },
 };
 
-class RsaKey extends React.Component {
+class Debug extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
@@ -20,10 +20,7 @@ class RsaKey extends React.Component {
                 className="monospace"
                 name={this.props.nameTag}
                 style={styles.textarea}
-                value={this.props.rsaKey}
-                multiLine={true}
-                rows={2}
-                rowsMax={5}
+                value={this.props.aesKey}
                 readOnly
             />
         );
@@ -31,4 +28,4 @@ class RsaKey extends React.Component {
 }
 
 
-export default RsaKey;
+export default Debug;

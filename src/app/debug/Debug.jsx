@@ -1,6 +1,5 @@
 import React  from 'react';
 import RsaKey from '../components/RsaKey.jsx';
-import AesKeyList from './AesKeyList.jsx';
 
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
@@ -118,8 +117,6 @@ class Debug extends React.Component {
                                         </Paper>
                                     </div>
                                 </div>
-
-                                <AesKeyList userKeys={this.props.userKeys}/>
 
                             </div>
                         </CardText>

@@ -1,4 +1,3 @@
-
 function escapeHtml(text) {
     'use strict';
     return text.replace(/[\"&'\/<>]/g, function (a) {
@@ -103,4 +102,10 @@ function stringToPackage(data, size) {
 function resetFormElement(e) {
     e.wrap('<form>').closest('form').get(0).reset();
     e.unwrap();
+}
+
+function mapObject(object, callback) {
+    return Object.keys(object).map(function (key) {
+        return callback(key, object[key]);
+    });
 }

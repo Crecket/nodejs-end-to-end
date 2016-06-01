@@ -3,12 +3,12 @@ import Chat from './chat/Chat.jsx';
 import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
 import MainAppbar from './components/MainAppbar.jsx';
+import AesKeyList from './aes/AesKeyList.jsx';
 import Debug from './debug/Debug.jsx';
 
 import {Container} from 'material-ui';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import {cyan800} from 'material-ui/styles/colors';
 
 const styles = {
     container: {
@@ -157,6 +157,7 @@ class Main extends React.Component {
 
     // listen for server info changes which affect the whole app
     _SocketServerInfo(server_info) {
+        SessionHelper.setServerPublicKey(server_info.publicKey);
         this.setState({users: server_info.user_list, connected: true});
         if (!SessionHelper.updateUserList(server_info.user_list)) {
             // current target is gone so reset the target input box
@@ -249,6 +250,7 @@ class Main extends React.Component {
 
     // Receive public key from server
     _SocketPublicKey(response) {
+        log('Received server public key');
         SessionHelper.setServerPublicKey(response);
     };
 
@@ -285,6 +287,10 @@ class Main extends React.Component {
                             decryptionKey={this.state.privateKey}
                             signingKey={this.state.privateKeySign}
                             verificationKey={this.state.publicKeySign}
+                        />
+
+                        <AesKeyList
+                            userKeys={this.state.userKeys}
                         />
                     </div>
                 );
