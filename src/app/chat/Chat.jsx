@@ -38,8 +38,8 @@ class Chat extends React.Component {
         var fn = this;
 
         // TODO test message
-        this.addMessage('crecket', 'some text');
-        this.addMessage('crecket2', 'some text2');
+        this.addMessage('test1', 'some text');
+        this.addMessage('test2', 'some text2');
 
         // Received a message from server
         socket.on('message', fn._SocketMessage);
