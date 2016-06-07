@@ -3,8 +3,8 @@ import Chat from './chat/Chat.jsx';
 import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
 import MainAppbar from './components/MainAppbar.jsx';
-import AesKeyList from './aes/AesKeyList.jsx';
-import Debug from './debug/Debug.jsx';
+import AesKeyList from './AesKeyList.jsx';
+import Settings from './Settings.jsx';
 
 import {Container} from 'material-ui';
 import Dialog from 'material-ui/Dialog';
@@ -46,26 +46,6 @@ class Main extends React.Component {
             modalTitle: "",
         };
 
-        // bind the general functions
-        this.loginLoadingCallback = this.loginLoadingCallback.bind(this);
-        this.openModal = this.openModal.bind(this);
-        this.closeModal = this.closeModal.bind(this);
-        this.userClickCallback = this.userClickCallback.bind(this);
-        this.setUserKeys = this.setUserKeys.bind(this);
-
-        // bind the socket functions
-        this._SocketServerInfo = this._SocketServerInfo.bind(this);
-        this._SocketConnect = this._SocketConnect.bind(this);
-        this._SocketUserDisconnect = this._SocketUserDisconnect.bind(this);
-        this._SocketDisconnect = this._SocketDisconnect.bind(this);
-        this._SocketRequestVerify = this._SocketRequestVerify.bind(this);
-        this._SocketLoginAttemptCallback = this._SocketLoginAttemptCallback.bind(this);
-        this._SocketAesKeyRequest = this._SocketAesKeyRequest.bind(this);
-        this._SocketAesKeyResponse = this._SocketAesKeyResponse.bind(this);
-        this._SocketConfirmAes = this._SocketConfirmAes.bind(this);
-        this._SocketConfirmAesResponse = this._SocketConfirmAesResponse.bind(this);
-        this._SocketPublicKey = this._SocketPublicKey.bind(this);
-        this._SocketLoginSaltCallback = this._SocketLoginSaltCallback.bind(this);
     };
 
     componentDidMount() {
@@ -74,12 +54,8 @@ class Main extends React.Component {
         // delay because creating the keysets blocks browser rendering
         setTimeout(function () {
             // create default keysets
-            SessionHelper.newKeySet(function (keys) {
-                fn.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
-            });
-            SessionHelper.newKeySetSign(function (keys) {
-                fn.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
-            });
+            fn.refreshEncryptionKeys();
+            fn.refreshSigningKeys();
         }, 100);
 
         socket.on('user_disconnect', fn._SocketUserDisconnect);
@@ -123,23 +99,39 @@ class Main extends React.Component {
         return false;
     };
 
+    // set a new key set for the encryption/decryption keys
+    refreshEncryptionKeys = () => {
+        var fn = this;
+        SessionHelper.newKeySet(function (keys) {
+            fn.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
+        });
+    }
+
+    // set a new key set for the sign/verification keys
+    refreshSigningKeys = () => {
+        var fn = this;
+        SessionHelper.newKeySetSign(function (keys) {
+            fn.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
+        });
+    }
+
     // open the general modal
-    openModal(message, title) {
+    openModal = (message, title) => {
         this.setState({modalOpen: true, modalMessage: message, modalTitle: title});
     };
 
     // close the general modal
-    closeModal() {
+    closeModal = () => {
         this.setState({modalOpen: false});
     };
 
     // update the stored aes keys
-    setUserKeys() {
+    setUserKeys = () => {
         this.setState({userKeys: SessionHelper.getKeyList()});
     }
 
     // Disconnected from server
-    _SocketDisconnect() {
+    _SocketDisconnect = () => {
         error('Lost contact with server');
         if (this.state.connected === true) {
             this.setState({connected: false});
@@ -148,7 +140,7 @@ class Main extends React.Component {
     };
 
     // Socket event listeners
-    _SocketConnect() {
+    _SocketConnect = () => {
         info('Connected to server');
         if (this.state.connected === false) {
             this.setState({connected: true});
@@ -156,7 +148,7 @@ class Main extends React.Component {
     };
 
     // listen for server info changes which affect the whole app
-    _SocketServerInfo(server_info) {
+    _SocketServerInfo = (server_info) => {
         SessionHelper.setServerPublicKey(server_info.publicKey);
         this.setState({users: server_info.user_list, connected: true});
         if (!SessionHelper.updateUserList(server_info.user_list)) {
@@ -166,7 +158,7 @@ class Main extends React.Component {
     };
 
     // a user has disconnected
-    _SocketUserDisconnect(username, user_list) {
+    _SocketUserDisconnect = (username, user_list) => {
         debug('User disconnected: ' + username);
         // first update the userlist
         if (!SessionHelper.updateUserList(user_list)) {
@@ -177,17 +169,17 @@ class Main extends React.Component {
     };
 
     // Server requests verification
-    _SocketRequestVerify() {
+    _SocketRequestVerify = () => {
         if (this.state.connected === true) {
             this.setState({loggedin: false});
         }
     };
 
     // login attempt callback
-    _SocketLoginAttemptCallback(res) {
+    _SocketLoginAttemptCallback = (response) => {
         this.setState({loginLoading: false});
-        SessionHelper.loginAttemptCallback(res);
-        if (res.success === false) {
+        SessionHelper.loginAttemptCallback(response);
+        if (response.success === false) {
             warn('Unsuccesful login attempt');
             this.setState({loggedin: false});
             this.openModal('Invalid username or password', 'Login attempt failed');
@@ -195,18 +187,18 @@ class Main extends React.Component {
             info('Succesful login attempt');
             this.setState({loggedin: true});
         }
-        debug(res);
+        debug(response);
     };
 
     // TODO allow user to verify and accept request manually first
     // someone wants to chat and is requesting that we create a new aes key to use
-    _SocketAesKeyRequest(request) {
+    _SocketAesKeyRequest = (request) => {
         info('Received AES request');
         SessionHelper.createNewAes(request);
     };
 
     // other client wants a confirmation for this request
-    _SocketAesKeyResponse(response) {
+    _SocketAesKeyResponse = (response) => {
         var fn = this;
         info('Received AES response');
         debug(response);
@@ -218,7 +210,7 @@ class Main extends React.Component {
     };
 
     // the client a aes key was requested from has sent a response
-    _SocketConfirmAes(response) {
+    _SocketConfirmAes = (response) => {
         var fn = this;
         info('Received AES confirmation');
         debug(response);
@@ -230,7 +222,7 @@ class Main extends React.Component {
     };
 
     // the client has sent a response to our confirmation request
-    _SocketConfirmAesResponse(response) {
+    _SocketConfirmAesResponse = (response) => {
         var fn = this;
         info('Received AES confirmation response');
         debug(response);
@@ -242,25 +234,25 @@ class Main extends React.Component {
     };
 
     // Server returns the user's salt
-    _SocketLoginSaltCallback(salt) {
+    _SocketLoginSaltCallback = (salt) => {
         debug('Salt callback');
         // send to session handler
         SessionHelper.loginSaltCallback(salt);
     };
 
     // Receive public key from server
-    _SocketPublicKey(response) {
+    _SocketPublicKey = (response) => {
         log('Received server public key');
         SessionHelper.setServerPublicKey(response);
     };
 
     // set loading state
-    loginLoadingCallback() {
+    loginLoadingCallback = () => {
         this.setState({loginLoading: true});
     };
 
     // handle user clicks on userlist or messagelist items
-    userClickCallback(userName) {
+    userClickCallback = (userName) => {
         if (SessionHelper.isVerified()) {
             if (SessionHelper.setTarget(userName)) {
                 this.setState({targetName: userName});
@@ -281,12 +273,15 @@ class Main extends React.Component {
                             targetName={this.state.targetName}
                             userClickCallback={this.userClickCallback}
                         />
-                        <Debug
+
+                        <Settings
                             userKeys={this.state.userKeys}
                             encryptionKey={this.state.publicKey}
                             decryptionKey={this.state.privateKey}
                             signingKey={this.state.privateKeySign}
                             verificationKey={this.state.publicKeySign}
+                            refreshEncryptionKeys={this.refreshEncryptionKeys}
+                            refreshSigningKeys={this.refreshSigningKeys}
                         />
 
                         <AesKeyList

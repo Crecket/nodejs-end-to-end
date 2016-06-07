@@ -1,10 +1,6 @@
 import React  from 'react';
-import AesKeyCollection from './AesKeyCollection.jsx';
+import AesKeyCollection from './aes/AesKeyCollection.jsx';
 
-import Paper from 'material-ui/Paper';
-import Subheader from 'material-ui/Subheader';
-import RaisedButton from 'material-ui/RaisedButton';
-import Toggle from 'material-ui/Toggle';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import {grey900, grey800, grey600} from 'material-ui/styles/colors';
 

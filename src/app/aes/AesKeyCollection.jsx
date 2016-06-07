@@ -27,6 +27,15 @@ class AesKeyCollection extends React.Component {
         };
     };
 
+    // react function to test if props and/or state have changed
+    shouldComponentUpdate(nextProps, nextState) {
+        // check if state has changed
+        if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
+            return true;
+        }
+        return false;
+    };
+
     componentDidMount() {
     };
 
@@ -34,10 +43,6 @@ class AesKeyCollection extends React.Component {
     };
 
     render() {
-        log('Aes key', this.props.userKey);
-
-        // https://github.com/callemall/material-ui/blob/master/docs/src/app/components/CodeExample/CodeBlock.js
-
         // easier handling
         var Username = this.props.userKey.rsa_keys.username;
         var AesKeyVar = this.props.userKey.key;
@@ -63,7 +68,7 @@ class AesKeyCollection extends React.Component {
 
                                             <div className="col-xs-12">
                                                 <div className="box-row">
-                                                    <Subheader>Private decryption key</Subheader>
+                                                    <Subheader>AES key</Subheader>
                                                     <AesKey nameTag={Username + "aesKey"}
                                                             aesKey={AesKeyVar}/>
                                                 </div>
