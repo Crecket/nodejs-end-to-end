@@ -5,14 +5,25 @@ A simple (And probably insecure) attempt at end-to-end encryption using Javscrip
 - npm 
 - bower
 - node.js
-- npm browserify 
-- python (Used for node-bcrypt)
+- npm: browserify 
+- npm: gulp
+- python (Used for node-bcrypt) - Check
 
 ## Installation 
 First create a file 'app-vars.js' in the root and enter your mysql password. Next, run the following commands
 
 - npm run setup 
 - node app
+
+## Commands list
+- `npm run setup` : Runs all required commands for the initial setup
+- `npm run refresh` : Similar to setup but this does not change your RSA/SSL certificates
+- `npm run browser` : Turns node-rsa into a package which we can use on the browser
+- `npm run build` : Runs the webpack script that compiles the files and creates the react application
+- `npm run dev` : Similar to `npm run build` except it also starts a watcher for development
+- `npm run cert` : Creates RSA and SSL certificates to be used in the application
+- `gulp` : Compiles any other non-react files
+- `gulp watch` : Similar to `gulp` except it also starts a watcher for development
 
 ## Rsa keys
 All clients have 2 2048 bit size key sets which are generated on page load. 
@@ -70,3 +81,6 @@ Send files in chunks
 
 - #### Invalidate aes key
 Allow users to invalidate aes keys manualy. Make sure the server invalidates aes keys when rsa keys have changed for either client.
+
+- #### Check npm/bower package list
+There are probably a few unnecesary packages in there which we can remove
