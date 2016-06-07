@@ -52,6 +52,9 @@ For testing you can use self signed certificates. Run `npm run cert` to create a
 
 ## Issues/Todo
 
+- #### Styling/Layouts
+Better css styling and updateing the layout
+
 - #### Public key's could be faked by server
 Could be solved by allowing users to enter their own public/private keys which they can than send over a different chat service. 
 Only way to fix this is add client-side key storage and easily editable public keys for other clients
