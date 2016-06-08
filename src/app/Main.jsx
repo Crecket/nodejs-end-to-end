@@ -94,7 +94,6 @@ class Main extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         // check if state has changed
         if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
-            log(this.state.userKeys, nextState.userKeys);
             return true;
         }
         return false;

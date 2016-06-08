@@ -60,27 +60,3 @@ From now on client1 and client2 will use this aes key to communicate
 
 ## SSL
 For testing you can use self signed certificates. Run `npm run cert` to create a ssl certificate and private key.
-
-## Issues/Todo
-
-- #### Styling/Layouts
-Better css styling and updateing the layout
-
-- #### Public key's could be faked by server
-Could be solved by allowing users to enter their own public/private keys which they can than send over a different chat service. 
-Only way to fix this is add client-side key storage and easily editable public keys for other clients
-
-- #### Login scheme is flawed
-SHA512 + unique salt which is created on register is created on login attempt. salt is now exposed to client
-
-- #### Manual accept for aes request
-Allow users to accept aes requests instead of allowing anyone to conenct with anyone.
-
-- #### File sending
-Send files in chunks
-
-- #### Invalidate aes key
-Allow users to invalidate aes keys manualy. Make sure the server invalidates aes keys when rsa keys have changed for either client.
-
-- #### Check npm/bower package list
-There are probably a few unnecesary packages in there which we can remove
