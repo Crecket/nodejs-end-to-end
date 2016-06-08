@@ -25,9 +25,6 @@ var app = express();
 // RSA encryption
 var NodeRSA = require('node-rsa');
 
-// Mysql library
-var mysql = require('mysql');
-
 // Bcrypt support
 var bcrypt = require('bcrypt');
 
@@ -64,19 +61,7 @@ if (os.hostname().trim() === "CrecketMe") {
     var server = https.createServer(options, app);
     console.log('Offline server started over https. ' + os.hostname().trim());
 
-    // Create mysql connection
-    var mysqlConnection = mysql.createConnection('mysql://root:' + config.MysqlPassword + '@localhost/nodejs_db?debug=false');
 }
-
-// Test mysql connection
-mysqlConnection.connect(function (err) {
-    if (err !== null) {
-        console.log('Mysql error');
-        console.log(err);
-        process.exit(); // Exit proccess
-    }
-});
-
 
 /**
  * A rsa key example is in this repo, make sure to generate your own in production enviroments!
@@ -257,7 +242,7 @@ io.on('connection', function (socket) {
                     console.log(username, 'Updated public keys');
                 }
             }else{
-                console.log(inputKeys);
+                socket.emit('request verify');
             }
         }else{
             socket.emit('request verify');
@@ -272,31 +257,26 @@ io.on('connection', function (socket) {
     // TODO track failed attempts and other login essentials
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (usernameInput, password_cipher) {
-
         var callbackResult = {'success': false, 'message': "Invalid login attempt", "username": false};
 
         if (!verified) {
 
             console.log('');
-            console.log('Login attempt');
+            console.log('Login attempt ' + usernameInput);
 
             if (password_cipher) {
                 var password_hash = rsaDecrypt(password_cipher);
             }
 
-            mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [usernameInput], function (err, result, fields) {
-                if (err) {
-                    callbackResult.message = "Something went wrong";
-                    socket.emit('login_attempt_callback', callbackResult);
-                    throw err;
-                }
+            if(userDatabaseList[usernameInput.toLowerCase()]){
+                // user exists
+                var lookupuser = userDatabaseList[usernameInput.toLowerCase()];
 
-                console.log(usernameInput);
 
                 // Only want 1 user/result
                 if (result.length === 1) {
                     // hash from the database
-                    var db_hash = result[0].hash;
+                    var db_hash = lookupuser.password;
 
                     // compare password hash with db_hash
                     bcrypt.compare(password_hash, db_hash, function (err, res) {
@@ -304,21 +284,18 @@ io.on('connection', function (socket) {
 
                             callbackResult.success = true;
                             callbackResult.message = 'Succesfully logged in';
-                            callbackResult.username = result[0].username;
+                            callbackResult.username = lookupuser.username;
                             verified = true;
 
                             // Add user to userlist
-                            addUser(result[0].username, socketid, ip);
-                            username = result[0].username;
+                            addUser(lookupuser.username, socketid, ip);
+                            username = lookupuser.username;
                         } else {
                             callbackResult.message = "Invalid login attempt";
                             console.log('Return result', callbackResult);
                         }
-                        socket.emit('login_attempt_callback', callbackResult);
 
-                        if (err) {
-                            console.log(err);
-                        }
+                        socket.emit('login_attempt_callback', callbackResult);
                     });
 
                 } else {
@@ -326,7 +303,7 @@ io.on('connection', function (socket) {
                     console.log('Return result', callbackResult);
                     socket.emit('login_attempt_callback', callbackResult);
                 }
-            });
+            }
         } else {
             callbackResult.message = "";
             callbackResult.success = true;

@@ -14,8 +14,6 @@
     "jquery": "^2.2.3",
     "json-loader": "^0.5.4",
     "material-ui": "^0.15.0",
-    "merge2": "^0.3.6",
-    "mysql": "felixge/node-mysql",
     "node-forge": "^0.6.39",
     "node-rsa": "^0.3.2",
     "react": "^15.0.2",
@@ -53,7 +51,7 @@
     "dev": "webpack -d --watch --progress --colors ",
     "build": "webpack --progress --colors ",
     "browser": "browserify -r node-rsa > ./src/js/node-bundle.js",
-    "cert": "node generate.js domain rsa certs/"
+    "cert": "node generate.js domain rsa src/certs/"
   },
   "repository": {
     "type": "git",
