@@ -1,15 +1,8 @@
 import React  from 'react';
 import AesKeyCollection from './aes/AesKeyCollection.jsx';
 
-import transitions from 'material-ui/styles/transitions';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-import {grey900, grey800, grey600} from 'material-ui/styles/colors';
-import IconButton from 'material-ui/IconButton';
-import VpnKey from 'material-ui/svg-icons/communication/vpn-key';
-import ArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
-import ArrowUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
-import AppBar from 'material-ui/AppBar';
-import Paper from 'material-ui/Paper';
+import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
 
 const styles = {
     paper: {
@@ -17,11 +10,6 @@ const styles = {
         width: '100%',
         overflow: 'auto',
         maxHeight: 1400,
-        transition: transitions.create('max-height', '500ms', '0ms', 'ease-in-out'),
-    },
-    paperHidden: {
-        maxHeight: 0,
-        overflow: 'hidden'
     },
     keycollection: {
         margin: 20,
@@ -42,28 +30,26 @@ class AesKeys extends React.Component {
 
     render() {
         var fn = this;
-
-        let keyDivStyle = Object.assign({}, styles.paper, styles.paperHidden);
-        let barIcon = <ArrowDown/>;
-        if (this.state.visible) {
-            keyDivStyle = styles.paper;
-            barIcon = <ArrowUp/>;
-        }
-
+        
         return (
             <div>
                 <div className="row">
                     <div className="col-xs-12">
-                        <AppBar
-                            title="AES Keys"
-                            iconElementLeft={<IconButton><VpnKey /></IconButton>}
-                            iconElementRight={<IconButton onClick={this.toggleState}>{barIcon}</IconButton>}
-                        />
-                        <Paper className="row" style={keyDivStyle}>
-                            {mapObject(fn.props.userKeys, function (key, value) {
-                                return <AesKeyCollection key={key} userKey={value} style={styles.keycollection}/>;
-                            })}
-                        </Paper>
+                        <Card className="box-row">
+                            <CardHeader
+                                title="AES Keys"
+                                style={{background: cyanA400}}
+                                actAsExpander={true}
+                                showExpandableButton={true}
+                            />
+                            <CardText
+                                expandable={true}
+                            >
+                                {mapObject(fn.props.userKeys, function (key, value) {
+                                    return <AesKeyCollection key={key} userKey={value} style={styles.keycollection}/>;
+                                })}
+                            </CardText>
+                        </Card>
                     </div>
                 </div>
             </div>

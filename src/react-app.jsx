@@ -4,11 +4,10 @@ import ReactDOM  from '../node_modules/react-dom';
 import injectTapEventPlugin  from '../node_modules/react-tap-event-plugin';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import {grey800, deepPurple900, blueGrey900, blueGrey500, lightGreenA700, indigoA700, redA700, red800} from 'material-ui/styles/colors';
+import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 
 // get the dark theme
-const darkTheme = getMuiTheme(darkBaseTheme);
+const lightTheme = getMuiTheme(lightBaseTheme);
 
 // include jquery
 require('script!jquery');
@@ -21,7 +20,7 @@ injectTapEventPlugin();
 
 // render the react app
 ReactDOM.render(
-    <MuiThemeProvider muiTheme={darkTheme}><Main /></MuiThemeProvider>,
+    <MuiThemeProvider muiTheme={lightTheme}><Main /></MuiThemeProvider>,
     document.getElementById('app')
 );
 

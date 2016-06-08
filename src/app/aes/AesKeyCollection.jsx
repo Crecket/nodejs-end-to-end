@@ -2,22 +2,10 @@ import React  from 'react';
 import RsaKey from '../components/RsaKey.jsx';
 import AesKey from '../components/AesKey.jsx';
 
-import Paper from 'material-ui/Paper';
-import Subheader from 'material-ui/Subheader';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-import {grey900, grey800} from 'material-ui/styles/colors';
+import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
+import Subheader from 'material-ui/Subheader';
 import transitions from 'material-ui/styles/transitions';
-
-const styles = {
-    paper: {
-        display: 'inline-block',
-        width: '100%',
-        padding: 20,
-    },
-    cardText: {
-        transition: transitions.create('max-height', '800ms', '0ms', 'ease-in-out'),
-    }
-};
 
 class AesKeyCollection extends React.Component {
     constructor(props, context) {
@@ -36,12 +24,6 @@ class AesKeyCollection extends React.Component {
         return false;
     };
 
-    componentDidMount() {
-    };
-
-    componentWillUnmount() {
-    };
-
     render() {
         // easier handling
         var Username = this.props.userKey.rsa_keys.username;
@@ -54,12 +36,15 @@ class AesKeyCollection extends React.Component {
                 <div className="box-row">
                     <Card className="box-row">
                         <CardHeader
-                            style={{backgroundColor: grey900}}
                             title={Username}
+                            style={{background: cyanA400}}
                             actAsExpander={true}
                             showExpandableButton={true}
                         />
-                        <CardText expandable={true} style={styles.cardText}>
+                        <CardText
+                            expandable={true}
+                            style={{background: lightBlue500}}
+                        >
                             <div className="row">
 
                                 <div className="col-xs-12">

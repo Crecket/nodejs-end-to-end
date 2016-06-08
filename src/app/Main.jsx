@@ -329,7 +329,7 @@ class Main extends React.Component {
                     {this.state.modalMessage}
                 </Dialog>
 
-                <MainAppbar customStyle={styles.appbar} loggedIn={this.state.loggedin}/>
+                <MainAppbar loggedIn={this.state.loggedin}/>
 
                 {MainComponent}
             </div>

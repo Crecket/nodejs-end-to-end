@@ -5,7 +5,7 @@ import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-import {grey900, grey800} from 'material-ui/styles/colors';
+import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
 
 const styles = {
     paper: {
@@ -29,7 +29,7 @@ class Settings extends React.Component {
         }
         return false;
     };
-    
+
     componentDidMount() {
         var fn = this;
     };
@@ -42,14 +42,17 @@ class Settings extends React.Component {
         return (
             <div className="row">
                 <div className="col-xs-12">
-                    <Card className="box-row" style={{backgroundColor: ''}}>
+                    <Card className="box-row">
                         <CardHeader
-                            style={{backgroundColor: grey900}}
                             title="Settings"
+                            style={{background: cyanA400}}
                             actAsExpander={true}
                             showExpandableButton={true}
                         />
-                        <CardText expandable={true}>
+                        <CardText
+                            expandable={true}
+                            style={{background: lightBlue500}}
+                        >
                             <div className="row">
 
                                 <div className="col-xs-12">

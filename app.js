@@ -1,8 +1,8 @@
 // CryptoJS library
-var CryptoJS = require("crypto-js");
+// var CryptoJS = require("crypto-js");
 
 // sjcl library
-var sjcl = require("sjcl");
+// var sjcl = require("sjcl");
 
 // Generic crypto
 var crypto = require('crypto');
@@ -33,6 +33,9 @@ var bcrypt = require('bcrypt');
 
 // Load app-vars
 var config = require('./src/config');
+
+// will contain all the registered users
+var userDatabaseList = [];
 
 if (os.hostname().trim() === "CrecketMe") {
 
@@ -73,6 +76,7 @@ mysqlConnection.connect(function (err) {
         process.exit(); // Exit proccess
     }
 });
+
 
 /**
  * A rsa key example is in this repo, make sure to generate your own in production enviroments!
@@ -247,11 +251,16 @@ io.on('connection', function (socket) {
     // incoming message request
     socket.on('public_key', function (inputKeys) {
         if (verified) {
-            setUserKeys(username, inputKeys);
-            if (inputKeys.publicKey && inputKeys.publicKeySign) {
-                // Only log if both are set to avoid double logs on startup
-                console.log(username, 'Updated public keys');
+            if(setUserKeys(username, inputKeys)){
+                if (inputKeys.publicKey && inputKeys.publicKeySign) {
+                    // Only log if both are set to avoid double logs on startup
+                    console.log(username, 'Updated public keys');
+                }
+            }else{
+                console.log(inputKeys);
             }
+        }else{
+            socket.emit('request verify');
         }
     });
 
@@ -274,17 +283,6 @@ io.on('connection', function (socket) {
             if (password_cipher) {
                 var password_hash = rsaDecrypt(password_cipher);
             }
-
-            // // bcrypt hashing exmple, use it to create new users for now
-            //     bcrypt.genSalt(11, function (err, salt) {
-            //         bcrypt.hash(password_hash, salt, function (err, hash) {
-            //             console.log('');
-            //             console.log(password_hash);
-            //             console.log('');
-            //             console.log(hash);
-            //             console.log('');
-            //         });
-            //     });
 
             mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [usernameInput], function (err, result, fields) {
                 if (err) {
@@ -347,13 +345,17 @@ io.on('connection', function (socket) {
 // Set username public key
 // param2: key as plain text
 function setUserKeys(username, keys) {
-    var tempKey = new NodeRSA(keys.publicKey, 'public');
-    var tempKeySign = new NodeRSA(keys.publicKeySign, 'public');
+    if(keys){
+        var tempKey = new NodeRSA(keys.publicKey, 'public');
+        var tempKeySign = new NodeRSA(keys.publicKeySign, 'public');
 
-    if (tempKey.isPublic() && tempKeySign.isPublic()) {
-        userList[username]['public_key'] = tempKey.exportKey('public');
-        userList[username]['public_key_sign'] = tempKeySign.exportKey('public');
+        if (tempKey.isPublic() && tempKeySign.isPublic()) {
+            userList[username]['public_key'] = tempKey.exportKey('public');
+            userList[username]['public_key_sign'] = tempKeySign.exportKey('public');
+            return true;
+        }
     }
+    return false;
 }
 
 // Add user to userlist
@@ -401,7 +403,7 @@ function randomToken() {
     return crypto.randomBytes(128).toString('hex');
 }
 
-function sendServerInfo(){
+function sendServerInfo() {
     var tempArray = {};
     serverTime = Math.floor(Date.now() / 1000);
 
@@ -420,6 +422,86 @@ function sendServerInfo(){
         'time': serverTime
     });
 }
+
+// add a new user to the user list
+function addDatabaseUser(username, password, callback) {
+    // check if user already exists
+    if (!userList[username.toLowerCase()]) {
+
+        // hash the password with bcrypt
+        bcrypt.genSalt(11, function (err, salt) {
+            bcrypt.hash(password, salt, function (err, hash) {
+                if(!err && hash){
+                    // store in the userlist array
+                    userDatabaseList[username.toLowerCase()] = {username: username, password: hash};
+
+                    // update the user config
+                    saveDatabaseUsers();
+
+                    // callback
+                    callback(true);
+                    return true;
+                }
+                callback(false);
+                return false;
+            });
+        });
+    }else{
+        callback(false);
+    }
+}
+
+// load the user list from the config
+function loadDatabaseUsers() {
+    try {
+        var data = fs.readFileSync('./src/users.json');
+        userDatabaseList = JSON.parse(data);
+        // console.log(userList);
+    }
+    catch (err) {
+        console.log('Server failed to load and parse the user list from the config.')
+        console.log(err);
+    }
+}
+
+// store the user list to the config file
+function saveDatabaseUsers() {
+    var data = JSON.stringify(userDatabaseList);
+    fs.writeFile('./src/users.json', data, function (err) {
+        if (err) {
+            console.log('Server failed to save the user list to the config file.');
+            console.log(err.message);
+            // process.exit();
+            return;
+        }
+    });
+}
+
+// Load the user list from config
+loadDatabaseUsers();
+
+
+// addDatabaseUser('Crecket', '1234', function(result){
+//     console.log('New user added: ', result);
+// });
+// addDatabaseUser('Admin', '1234', function(result){
+//     console.log('New user added: ', result);
+// });
+// addDatabaseUser('test1', '', function(result){
+//     console.log('New user added: ', result);
+// });
+// addDatabaseUser('test2', '', function(result){
+//     console.log('New user added: ', result);
+// });
+// addDatabaseUser('test3', '', function(result){
+//     console.log('New user added: ', result);
+// });
+// addDatabaseUser('test4', '', function(result){
+//     console.log('New user added: ', result);
+// });
+// addDatabaseUser('test5', '', function(result){
+//     console.log('New user added: ', result);
+// });
 
 // Server custom heartbeat
 setInterval(sendServerInfo, 1000);

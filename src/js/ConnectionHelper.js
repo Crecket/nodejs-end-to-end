@@ -130,6 +130,7 @@ function ConnectionHelper(socket, CryptoHelper) {
     this.updateKey = function () {
         if (verified) {
             debug('Sending public key to server');
+            // log(publicKey, publicKeySign);
             socket.emit('public_key', {'publicKey': publicKey, 'publicKeySign': publicKeySign});
         }
     };

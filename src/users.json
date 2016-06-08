@@ -1,0 +1,30 @@
+{
+  "test1": {
+    "username": "test1",
+    "password": "$2a$11$USowZilE2kY6fsGSQCMJweAqLehjqzYUyLTcMYtnEWhk0ZCX8zADK"
+  },
+  "test3": {
+    "username": "test3",
+    "password": "$2a$11$3rSOIicvLWhLa8.1iPm8pOioN23mYCgK7gyq0Lzo1vxq4n3FF1izG"
+  },
+  "crecket": {
+    "username": "Crecket",
+    "password": "$2a$11$2.Vt8H7WWFL6.9X5zcIfsOgqUeo4x8nkOKIWcPBh/sCPAPxR7HvPu"
+  },
+  "admin": {
+    "username": "Admin",
+    "password": "$2a$11$6kM1XMsDNFE.SXI4WTrj3ua/JQxtYAOFHSiIN944ZMZlMsj2veDe6"
+  },
+  "test4": {
+    "username": "test4",
+    "password": "$2a$11$bLlByDbktCxMKjLHCf0UN.2DgR5cfsUGI1AI3YcQ0CQco2T6Y/U8S"
+  },
+  "test5": {
+    "username": "test5",
+    "password": "$2a$11$48GSZkilalzAHZfHKd8Zk.xDc0bVLSFv4DXTVEk/2ighEUWiinvYi"
+  },
+  "test2": {
+    "username": "test2",
+    "password": "$2a$11$a4eDlsnPtZ5jX06kiHHsdu2SCMIAFhdpxXVkutnhSmRC2QdSZ1Xju"
+  }
+}

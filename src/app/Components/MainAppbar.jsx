@@ -10,7 +10,6 @@ import {cyan800} from 'material-ui/styles/colors';
 
 const styles = {
     appbar: {
-        backgroundColor: cyan800,
         width: '100%',
     },
 };
