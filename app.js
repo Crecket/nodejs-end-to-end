@@ -274,8 +274,6 @@ io.on('connection', function (socket) {
 
             var lookupuser = userDatabaseList[usernameInput.toLowerCase()];
 
-            console.log(lookupuser);
-
             // check if defined
             if (lookupuser) {
 

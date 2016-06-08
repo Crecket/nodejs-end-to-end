@@ -43,7 +43,7 @@ class AesKeyCollection extends React.Component {
                         />
                         <CardText
                             expandable={true}
-                            style={{background: lightBlue500}}
+                            style={{background: ''}}
                         >
                             <div className="row">
 

@@ -24,13 +24,9 @@ class AesKeys extends React.Component {
         };
     };
 
-    toggleState = () => {
-        this.setState({visible: !this.state.visible});
-    };
-
     render() {
         var fn = this;
-        
+
         return (
             <div>
                 <div className="row">
@@ -45,9 +41,12 @@ class AesKeys extends React.Component {
                             <CardText
                                 expandable={true}
                             >
-                                {mapObject(fn.props.userKeys, function (key, value) {
-                                    return <AesKeyCollection key={key} userKey={value} style={styles.keycollection}/>;
-                                })}
+                                <div className="row">
+                                    {mapObject(fn.props.userKeys, function (key, value) {
+                                        return <AesKeyCollection key={key} userKey={value}
+                                                                 style={styles.keycollection}/>;
+                                    })}
+                                </div>
                             </CardText>
                         </Card>
                     </div>

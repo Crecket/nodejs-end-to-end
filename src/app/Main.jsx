@@ -94,6 +94,7 @@ class Main extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         // check if state has changed
         if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
+            log(this.state.userKeys, nextState.userKeys);
             return true;
         }
         return false;
@@ -190,7 +191,6 @@ class Main extends React.Component {
         debug(response);
     };
 
-    // TODO allow user to verify and accept request manually first
     // someone wants to chat and is requesting that we create a new aes key to use
     _SocketAesKeyRequest = (request) => {
         info('Received AES request');

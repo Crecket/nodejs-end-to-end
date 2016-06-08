@@ -68,8 +68,6 @@ function ConnectionHelper(socket, CryptoHelper) {
         // Encrypt with server's public key
         var passwordCipher = CryptoHelper.rsaEncryptPem(serverPublicKey, passwordHash);
 
-        log(passwordHash, passwordCipher);
-
         // Send attempt to server
         socket.emit('login_attempt', tempUsername, passwordCipher);
 
@@ -80,7 +78,6 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // call back from login attempt
     this.loginAttemptCallback = function (res) {
-        warn(res);
         if (res.success !== false) {
             verified = true;
             username = res.username;
