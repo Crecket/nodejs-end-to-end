@@ -1,7 +1,7 @@
-import  React  from '../node_modules/react';
-import ReactDOM  from '../node_modules/react-dom';
+import  React  from 'react';
+import ReactDOM  from 'react-dom';
 
-import injectTapEventPlugin  from '../node_modules/react-tap-event-plugin';
+import injectTapEventPlugin  from 'react-tap-event-plugin';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';

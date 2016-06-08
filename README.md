@@ -2,12 +2,12 @@
 A simple (And probably insecure) attempt at end-to-end encryption using Javscript and NodeJS
 
 ## Requirements
-- npm 
-- bower
 - node.js
-- npm: browserify 
-- npm: gulp
-- python (Used for node-bcrypt) - Check
+- npm 
+- bower - npm install -g bower
+- browserify - npm install -g browserify 
+- gulp - npm install -g gulp 
+- python (Used for node-bcrypt)
 
 ## Installation 
 First create a file 'app-vars.js' in the root and enter your mysql password. Next, run the following commands

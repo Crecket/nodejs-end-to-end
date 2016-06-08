@@ -6,7 +6,7 @@ var SRC_DIR = path.resolve(__dirname, 'src');
 
 var config = {
     entry: [
-        SRC_DIR + '/react-app.jsx'
+        SRC_DIR + '/client/react-app.jsx'
     ],
     output: {
         path: BUILD_DIR,

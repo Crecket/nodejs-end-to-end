@@ -3,13 +3,8 @@
 /bower_components
 
 /app/dist/*
-/public
 
-/src/certs/*
-!/src/certs/empty
-/certs/*
-!/certs/empty
+/src/server/certs/*
+!/src/server/certs/empty
 
-
-/src/config.js
-/config.js
+/src/server/configs/config.js

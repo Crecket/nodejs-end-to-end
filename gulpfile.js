@@ -22,17 +22,17 @@ var jsFiles = [
     'bower_components/react/react-with-addons.js',
     'bower_components/react/react-dom.js',
     'bower_components/marked/marked.min.js',
-    'src/js/node-bundle.js',
-    'src/js/Utils.js',
-    'src/js/ConnectionHelper.js',
-    'src/js/CryptoHelper.js',
-    'src/js/Client.js'
+    'src/client/js/node-bundle.js',
+    'src/client/js/Utils.js',
+    'src/client/js/ConnectionHelper.js',
+    'src/client/js/CryptoHelper.js',
+    'src/client/js/Client.js'
 ];
 
 var cssFiles = [
     'bower_components/flexboxgrid/css/flexboxgrid.css',
     'bower_components/font-awesome/css/font-awesome.min.css',
-    'src/css/style.css'
+    'src/client/css/style.css'
 ];
 
 // js
