@@ -134,7 +134,7 @@ class Main extends React.Component {
     _SocketDisconnect = () => {
         error('Lost contact with server');
         if (this.state.connected === true) {
-            this.setState({connected: false});
+            this.setState({connected: false, loginLoading: false, loggedin: false});
         }
         SessionHelper.resetUserList();
     };
@@ -171,7 +171,7 @@ class Main extends React.Component {
     // Server requests verification
     _SocketRequestVerify = () => {
         if (this.state.connected === true) {
-            this.setState({loggedin: false});
+            this.setState({loginLoading: false, loggedin: false});
         }
     };
 

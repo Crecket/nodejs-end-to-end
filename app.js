@@ -1,5 +1,5 @@
 // CryptoJS library
-// var CryptoJS = require("crypto-js");
+var CryptoJS = require("crypto-js");
 
 // sjcl library
 // var sjcl = require("sjcl");
@@ -32,7 +32,7 @@ var bcrypt = require('bcrypt');
 var config = require('./src/config');
 
 // will contain all the registered users
-var userDatabaseList = [];
+var userDatabaseList = {};
 
 if (os.hostname().trim() === "CrecketMe") {
 
@@ -220,31 +220,30 @@ io.on('connection', function (socket) {
     // send back salt
     socket.on('request_salt', function (username) {
         var salt = false;
-
-        // select salt for this user
-        mysqlConnection.query('SELECT * FROM `users` WHERE LOWER(username) = LOWER(?)', [username], function (err, result, fields) {
-            if (err || result.length !== 1) {
-                // TODO if no user is found salt varies each time so if salt !== salt in > 2 attempts than user doesn't exist
-                salt = randomToken();
-            } else {
-                salt = result[0].salt;
-            }
-            socket.emit('login_salt_callback', salt);
-        });
+        var lookupuser = userDatabaseList[username.toLowerCase()];
+        // get the salt
+        if (lookupuser) {
+            // user exists
+            salt = lookupuser.salt;
+        } else {
+            // TODO if no user is found salt varies each time so if salt !== salt in > 2 attempts than user doesn't exist
+            salt = randomToken();
+        }
+        socket.emit('login_salt_callback', salt);
     });
 
     // incoming message request
     socket.on('public_key', function (inputKeys) {
         if (verified) {
-            if(setUserKeys(username, inputKeys)){
+            if (setUserKeys(username, inputKeys)) {
                 if (inputKeys.publicKey && inputKeys.publicKeySign) {
                     // Only log if both are set to avoid double logs on startup
                     console.log(username, 'Updated public keys');
                 }
-            }else{
+            } else {
                 socket.emit('request verify');
             }
-        }else{
+        } else {
             socket.emit('request verify');
         }
     });
@@ -266,15 +265,22 @@ io.on('connection', function (socket) {
 
             if (password_cipher) {
                 var password_hash = rsaDecrypt(password_cipher);
+            } else {
+                callbackResult.message = "Invalid request";
+                callbackResult.success = true;
+                socket.emit('login_attempt_callback', callbackResult);
+                return;
             }
 
-            if(userDatabaseList[usernameInput.toLowerCase()]){
-                // user exists
-                var lookupuser = userDatabaseList[usernameInput.toLowerCase()];
+            var lookupuser = userDatabaseList[usernameInput.toLowerCase()];
 
+            console.log(lookupuser);
+
+            // check if defined
+            if (lookupuser) {
 
                 // Only want 1 user/result
-                if (result.length === 1) {
+                if (lookupuser) {
                     // hash from the database
                     var db_hash = lookupuser.password;
 
@@ -322,7 +328,7 @@ io.on('connection', function (socket) {
 // Set username public key
 // param2: key as plain text
 function setUserKeys(username, keys) {
-    if(keys){
+    if (keys) {
         var tempKey = new NodeRSA(keys.publicKey, 'public');
         var tempKeySign = new NodeRSA(keys.publicKeySign, 'public');
 
@@ -405,26 +411,32 @@ function addDatabaseUser(username, password, callback) {
     // check if user already exists
     if (!userList[username.toLowerCase()]) {
 
+        // salt to use in the client
+        var clientSalt = randomToken();
+
+        // hash that the client would generate
+        var clientHash = CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(password + clientSalt));
+
         // hash the password with bcrypt
         bcrypt.genSalt(11, function (err, salt) {
-            bcrypt.hash(password, salt, function (err, hash) {
-                if(!err && hash){
+            bcrypt.hash(clientHash, salt, function (err, hash) {
+                if (!err && hash) {
                     // store in the userlist array
-                    userDatabaseList[username.toLowerCase()] = {username: username, password: hash};
+                    userDatabaseList[username.toLowerCase()] = {
+                        username: username,
+                        password: hash,
+                        salt: clientSalt
+                    };
 
-                    // update the user config
+                    // store the new list in json
                     saveDatabaseUsers();
 
                     // callback
                     callback(true);
                     return true;
                 }
-                callback(false);
-                return false;
             });
         });
-    }else{
-        callback(false);
     }
 }
 
@@ -433,7 +445,6 @@ function loadDatabaseUsers() {
     try {
         var data = fs.readFileSync('./src/users.json');
         userDatabaseList = JSON.parse(data);
-        // console.log(userList);
     }
     catch (err) {
         console.log('Server failed to load and parse the user list from the config.')
@@ -443,42 +454,33 @@ function loadDatabaseUsers() {
 
 // store the user list to the config file
 function saveDatabaseUsers() {
-    var data = JSON.stringify(userDatabaseList);
-    fs.writeFile('./src/users.json', data, function (err) {
+    var stringified = JSON.stringify(userDatabaseList);
+    fs.writeFile('./src/users.json', stringified, function (err) {
         if (err) {
             console.log('Server failed to save the user list to the config file.');
             console.log(err.message);
-            // process.exit();
             return;
         }
     });
 }
 
-// Load the user list from config
 loadDatabaseUsers();
 
+// addDatabaseUser('Crecket', '1234', function (result) {
+// });
+// addDatabaseUser('Admin', '1234', function (result) {
+// });
+// addDatabaseUser('test1', '', function (result) {
+// });
+// addDatabaseUser('test2', '', function (result) {
+// });
+// addDatabaseUser('test3', '', function (result) {
+// });
+// addDatabaseUser('test4', '', function (result) {
+// });
+// addDatabaseUser('test5', '', function (result) {
+// });
 
-// addDatabaseUser('Crecket', '1234', function(result){
-//     console.log('New user added: ', result);
-// });
-// addDatabaseUser('Admin', '1234', function(result){
-//     console.log('New user added: ', result);
-// });
-// addDatabaseUser('test1', '', function(result){
-//     console.log('New user added: ', result);
-// });
-// addDatabaseUser('test2', '', function(result){
-//     console.log('New user added: ', result);
-// });
-// addDatabaseUser('test3', '', function(result){
-//     console.log('New user added: ', result);
-// });
-// addDatabaseUser('test4', '', function(result){
-//     console.log('New user added: ', result);
-// });
-// addDatabaseUser('test5', '', function(result){
-//     console.log('New user added: ', result);
-// });
 
 // Server custom heartbeat
 setInterval(sendServerInfo, 1000);

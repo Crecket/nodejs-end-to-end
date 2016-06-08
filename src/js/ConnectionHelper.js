@@ -68,6 +68,8 @@ function ConnectionHelper(socket, CryptoHelper) {
         // Encrypt with server's public key
         var passwordCipher = CryptoHelper.rsaEncryptPem(serverPublicKey, passwordHash);
 
+        log(passwordHash, passwordCipher);
+
         // Send attempt to server
         socket.emit('login_attempt', tempUsername, passwordCipher);
 
@@ -78,13 +80,13 @@ function ConnectionHelper(socket, CryptoHelper) {
 
     // call back from login attempt
     this.loginAttemptCallback = function (res) {
+        warn(res);
         if (res.success !== false) {
             verified = true;
             username = res.username;
             this.updateKey();
         }
     };
-
 
     // Decrypt a cypher by using the created aes key
     this.receiveMessage = function (receivedData, callback) {
@@ -125,7 +127,6 @@ function ConnectionHelper(socket, CryptoHelper) {
         return false;
     };
 
-
     // if user is verified, send the server the current key
     this.updateKey = function () {
         if (verified) {
@@ -152,7 +153,6 @@ function ConnectionHelper(socket, CryptoHelper) {
     this.setServerPublicKey = function (key) {
         serverPublicKey = key;
     };
-
 
     // request a new aes key from a target
     this.requestAesKey = function (target) {

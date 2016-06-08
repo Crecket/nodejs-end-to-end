@@ -140,9 +140,12 @@ function CryptoHelper() {
     // ======================== Hashing ==========================
 
     // SHA512 hashing
-    this.hash = function (text) {
+    this.hash = function (text, salt) {
         // Return binary as hex
-        return CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(text));
+        if(!salt){
+            salt = '';
+        }
+        return CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(text + salt));
     };
 
     // Verify password length/type etz
