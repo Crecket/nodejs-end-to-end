@@ -17,6 +17,9 @@ var ejs = require('ejs');
 // Express for serving files
 var express = require('express');
 
+// helmet is used to ensure HSTS
+var helmet = require('helmet');
+
 // Express app
 var app = express();
 
@@ -27,9 +30,7 @@ var NodeRSA = require('node-rsa');
 var bcrypt = require('bcrypt');
 
 // jwt tokens
-jwt = require('jsonwebtoken');
-
-// custom vars
+var jwt = require('jsonwebtoken');
 
 // Load app-vars
 var config = require('./src/server/configs/config');
@@ -46,24 +47,9 @@ var userList = {};
 // start servertime
 var serverTime = Math.floor(Date.now() / 1000);
 
-if (os.hostname().trim() === config.onlineHostName) {
-    var options = {
-        key: fs.readFileSync('/etc/letsencrypt/live/crecket.me/privkey.pem'),
-        cert: fs.readFileSync('/etc/letsencrypt/live/crecket.me/cert.pem'),
-        ca: [fs.readFileSync('/etc/letsencrypt/live/crecket.me/chain.pem')],
-        requestCert: false
-    };
-} else {
-    var options = {
-        key: fs.readFileSync('src/server/certs/domain.key'),
-        cert: fs.readFileSync('src/server/certs/domain.crt'),
-        requestCert: false
-    };
-}
-
 // start the express server using either the online or offline settings
 var https = require('https');
-var server = https.createServer(options, app);
+var server = https.createServer(config.sslOptions, app);
 console.log('Server started over https for host: ' + os.hostname().trim());
 
 // Retrieve the server's rsa keys

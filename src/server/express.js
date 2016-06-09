@@ -7,6 +7,13 @@ app.set('trust proxy', 1);
 // change default views directory
 app.set('views', __dirname + '/src/server/views');
 
+// use helmet to establish hsts
+app.use(helmet.hsts({
+    maxAge: 31536000000,
+    includeSubdomains: true,
+    force: true
+}));
+
 // home path
 app.get('/', function (req, res, next) {
     res.render('index.ejs');
