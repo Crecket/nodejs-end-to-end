@@ -50,6 +50,16 @@ class Login extends React.Component {
         }
     };
 
+    testLogin = (e) => {
+        e.preventDefault();
+        if (!this.props.loginLoadingState) {
+            // update login loading state
+            this.props.loginLoadingCallback();
+            // start a new login attempt
+            SessionHelper.loginAttempt('test' + (1 + Math.floor(Math.random() * 99)), '');
+        }
+    };
+
     render() {
         return (
             <div className="row center-xs">
@@ -85,6 +95,20 @@ class Login extends React.Component {
                                 />
 
                             </form>
+                        </Paper>
+                    </div>
+                </div>
+                <div className="col-xs-12 col-sm-4">
+                    <div className="box">
+                        <Paper style={styles.paperLoginStyle} zDepth={1}>
+                            <p>Test accounts with no password</p>
+                            <RaisedButton
+                                style={styles.inputs}
+                                type="submit"
+                                label="Login with test account"
+                                onClick={this.testLogin}
+                                primary={true}
+                            />
                         </Paper>
                     </div>
                 </div>

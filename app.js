@@ -38,6 +38,7 @@ var config = require('./src/server/configs/config');
 // Load user management
 var userManagement = require('./src/server/user_management');
 
+// load initial users
 userManagement.users.loadUsers();
 
 // stored user accounts

@@ -39508,6 +39508,16 @@
 	            }
 	        };
 	
+	        _this.testLogin = function (e) {
+	            e.preventDefault();
+	            if (!_this.props.loginLoadingState) {
+	                // update login loading state
+	                _this.props.loginLoadingCallback();
+	                // start a new login attempt
+	                SessionHelper.loginAttempt('test' + (1 + Math.floor(Math.random() * 99)), '');
+	            }
+	        };
+	
 	        _this.state = {};
 	
 	        // this.handleSubmit = this.handleSubmit.bind(this);
@@ -39563,6 +39573,30 @@
 	                                    primary: true
 	                                })
 	                            )
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-xs-12 col-sm-4' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'box' },
+	                        _react2.default.createElement(
+	                            _Paper2.default,
+	                            { style: styles.paperLoginStyle, zDepth: 1 },
+	                            _react2.default.createElement(
+	                                'p',
+	                                null,
+	                                'Test accounts with no password'
+	                            ),
+	                            _react2.default.createElement(_RaisedButton2.default, {
+	                                style: styles.inputs,
+	                                type: 'submit',
+	                                label: 'Login with test account',
+	                                onClick: this.testLogin,
+	                                primary: true
+	                            })
 	                        )
 	                    )
 	                )
