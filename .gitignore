@@ -2,8 +2,6 @@
 /node_modules
 /bower_components
 
-/app/dist/*
-
 /src/server/certs/*
 !/src/server/certs/empty
 
