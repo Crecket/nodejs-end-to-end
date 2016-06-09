@@ -1,8 +1,17 @@
 // RSA encryption
 var NodeRSA = require('node-rsa');
-
 // Bcrypt support
 var bcrypt = require('bcrypt');
+// CryptoJS library
+var CryptoJS = require("crypto-js");
+// file management
+var fs = require('fs');
+// Generic crypto
+var crypto = require('crypto');
+// Random 128 byte token
+function randomToken() {
+    return crypto.randomBytes(128).toString('hex');
+}
 
 var userManagement = {
     session: {
@@ -31,6 +40,7 @@ var userManagement = {
                 'last_activity': new Date()
             };
         },
+        // remove user from the list
         removeUser: function (userName) {
             delete this.userList[userName];
         },
@@ -55,7 +65,36 @@ var userManagement = {
     },
     users: {
         userList: {},
+        //get userlist
+        getUserList: function () {
+            return this.userList;
+        },
+        // load the userlist from the config
+        loadUsers: function () {
+            try {
+                var data = fs.readFileSync('./src/server/configs/users.json');
+                var TempList = JSON.parse(data);
+            } catch (err) {
+                console.log('Server failed to load and parse the user list from the config.')
+                console.log(err);
+            }
+            // set to the variable
+            this.userList = TempList;
+        },
+        // store the user list into the config
+        saveUsers: function () {
+            var stringified = JSON.stringify(this.userList);
+            fs.writeFile('./src/server/configs/users.json', stringified, function (err) {
+                if (err) {
+                    console.log('Server failed to save the user list to the config file.');
+                    console.log(err.message);
+                    return;
+                }
+            });
+        },
+        // add a new user to the config files
         newUser: function (username, password, callback) {
+            var fn = this;
             // check if user already exists
             if (!this.userList[username.toLowerCase()]) {
 
@@ -70,18 +109,19 @@ var userManagement = {
                     bcrypt.hash(clientHash, salt, function (err, hash) {
                         if (!err && hash) {
                             // store in the userlist array
-                            this.userList[username.toLowerCase()] = {
+                            fn.userList[username.toLowerCase()] = {
                                 username: username,
                                 password: hash,
                                 salt: clientSalt
                             };
 
                             // store the new list in json
-                            saveDatabaseUsers();
+                            fn.saveUsers();
 
                             // callback
-                            callback(true);
-                            return true;
+                            if (callback) {
+                                callback(true);
+                            }
                         }
                     });
                 });

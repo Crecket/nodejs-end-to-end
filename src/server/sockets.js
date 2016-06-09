@@ -22,9 +22,10 @@ io.on('connection', function (socket) {
 
     // disconnected user
     socket.on('disconnect', function () {
-        removeUser(username);
+        // get the stored users
+        userManagement.session.removeUser(username);
         // send to all clients
-        socket.broadcast.emit('user_disconnect', username, userList);
+        socket.broadcast.emit('user_disconnect', username, userManagement.session.getUserList());
     });
 
     // incoming message request
@@ -36,8 +37,11 @@ io.on('connection', function (socket) {
             var cypher = messageData.cypher;
             var target = messageData.target;
 
-            if (userList[target]) {
-                var targetData = userList[target];
+            // get the stored users
+            var sessionUsers = userManagement.session.getUserList();
+
+            if (sessionUsers[target]) {
+                var targetData = sessionUsers[target];
 
                 if (cypher.length > 0 && cypher.length < 5000) {
 
@@ -67,8 +71,10 @@ io.on('connection', function (socket) {
     socket.on('request_aes', function (request) {
         var messageCallback = {'success': false, "message": ""};
         if (verified) {
-            if (userList[request.target]) {
-                var targetData = userList[request.target];
+            // get the stored users
+            var sessionUsers = userManagement.session.getUserList();
+            if (sessionUsers[request.target]) {
+                var targetData = sessionUsers[request.target];
                 io.sockets.connected[targetData.socketId].emit('aesKeyRequest', request);
             } else {
                 messageCallback.message = "User not found.";
@@ -80,8 +86,10 @@ io.on('connection', function (socket) {
     // client wants to create a new aes key with another client
     socket.on('response_aes_request', function (response) {
         if (verified) {
-            if (userList[response.target]) {
-                var targetData = userList[response.target];
+            // get the stored users
+            var sessionUsers = userManagement.session.getUserList();
+            if (sessionUsers[response.target]) {
+                var targetData = sessionUsers[response.target];
 
                 io.sockets.connected[targetData.socketId].emit('aesKeyResponse', response);
             }
@@ -91,8 +99,11 @@ io.on('connection', function (socket) {
     // confirm a aes request to ensure both clients know which keys to use
     socket.on('confirm_aes', function (request) {
         if (verified) {
-            if (userList[request.target]) {
-                var targetData = userList[request.target];
+            // get the stored users
+            var sessionUsers = userManagement.session.getUserList();
+
+            if (sessionUsers[request.target]) {
+                var targetData = sessionUsers[request.target];
                 io.sockets.connected[targetData.socketId].emit('confirm_aes', request);
             }
         }
@@ -111,10 +122,14 @@ io.on('connection', function (socket) {
     // send back salt
     socket.on('request_salt', function (username) {
         var salt = false;
-        var lookupuser = userDatabaseList[username.toLowerCase()];
-        // get the salt
+
+        // get the stored users
+        var storedUsers = userManagement.users.getUserList();
+
+        // check if exists
+        var lookupuser = storedUsers[username.toLowerCase()];
         if (lookupuser) {
-            // user exists
+            // get the salt
             salt = lookupuser.salt;
         } else {
             // TODO if no user is found salt varies each time so if salt !== salt in > 2 attempts than user doesn't exist
@@ -126,7 +141,7 @@ io.on('connection', function (socket) {
     // incoming message request
     socket.on('public_key', function (inputKeys) {
         if (verified) {
-            if (setUserKeys(username, inputKeys)) {
+            if (userManagement.session.setUserKeys(username, inputKeys)) {
                 if (inputKeys.publicKey && inputKeys.publicKeySign) {
                     // Only log if both are set to avoid double logs on startup
                     console.log(username, 'Updated public keys');
@@ -149,6 +164,8 @@ io.on('connection', function (socket) {
     socket.on('login_attempt', function (usernameInput, password_cipher) {
         var callbackResult = {'success': false, 'message': "Invalid login attempt", "username": false};
 
+        var storedUsers = userManagement.users.getUserList();
+
         if (!verified) {
 
             console.log('');
@@ -163,7 +180,7 @@ io.on('connection', function (socket) {
                 return;
             }
 
-            var lookupuser = userDatabaseList[usernameInput.toLowerCase()];
+            var lookupuser = storedUsers[usernameInput.toLowerCase()];
 
             // check if defined
             if (lookupuser) {
@@ -183,7 +200,7 @@ io.on('connection', function (socket) {
                             verified = true;
 
                             // Add user to userlist
-                            addUser(lookupuser.username, socketid, ip);
+                            userManagement.session.addUser(lookupuser.username, socketid, ip);
                             username = lookupuser.username;
                         } else {
                             callbackResult.message = "Invalid login attempt";
@@ -209,7 +226,7 @@ io.on('connection', function (socket) {
     // refresh user timestamps
     socket.on('heart_beat', function () {
         if (verified) {
-            refreshUser(username);
+            userManagement.session.updateTime(username);
         }
     });
 });
@@ -220,12 +237,14 @@ function sendServerInfo() {
     // update server time
     serverTime = Math.floor(Date.now() / 1000);
 
+    var tempUserList = userManagement.session.getUserList();
+
     // Loop through user list so we can filter what data we send
-    for (var key in userList) {
+    for (var key in tempUserList) {
         tempArray[key] = {};
-        tempArray[key]['username'] = userList[key]['username'];
-        tempArray[key]['public_key'] = userList[key]['public_key'];
-        tempArray[key]['public_key_sign'] = userList[key]['public_key_sign'];
+        tempArray[key]['username'] = tempUserList[key]['username'];
+        tempArray[key]['public_key'] = tempUserList[key]['public_key'];
+        tempArray[key]['public_key_sign'] = tempUserList[key]['public_key_sign'];
     }
 
     // send to client
@@ -235,3 +254,22 @@ function sendServerInfo() {
         'time': serverTime
     });
 }
+
+
+// Encrypt with private key
+function rsaEncrypt(data) {
+    return RSAPublicKeyBits.encrypt(data, 'base64');
+}
+
+// Decrypt with public key
+function rsaDecrypt(data) {
+    return RSAPrivateKeyBits.decrypt(data, 'utf8', 'base64');
+}
+
+// Random 128 byte token
+function randomToken() {
+    return crypto.randomBytes(128).toString('hex');
+}
+
+// Server custom heartbeat, send basic information to the client every second
+setInterval(sendServerInfo, 1000);
