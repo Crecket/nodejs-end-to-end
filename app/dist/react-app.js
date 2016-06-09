@@ -30521,7 +30521,7 @@
 	            if (response.success === false) {
 	                warn('Unsuccesful login attempt');
 	                _this.setState({ loggedin: false });
-	                _this.openModal('Invalid username or password', 'Login attempt failed');
+	                _this.openModal(response.message, 'Login attempt failed');
 	            } else {
 	                info('Succesful login attempt');
 	                _this.setState({ loggedin: true });

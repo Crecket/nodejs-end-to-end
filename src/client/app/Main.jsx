@@ -182,7 +182,7 @@ class Main extends React.Component {
         if (response.success === false) {
             warn('Unsuccesful login attempt');
             this.setState({loggedin: false});
-            this.openModal('Invalid username or password', 'Login attempt failed');
+            this.openModal(response.message, 'Login attempt failed');
         } else {
             info('Succesful login attempt');
             this.setState({loggedin: true});

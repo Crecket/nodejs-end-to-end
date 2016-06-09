@@ -194,14 +194,24 @@ io.on('connection', function (socket) {
                     bcrypt.compare(password_hash, db_hash, function (err, res) {
                         if (!err && res) {
 
-                            callbackResult.success = true;
-                            callbackResult.message = 'Succesfully logged in';
-                            callbackResult.username = lookupuser.username;
-                            verified = true;
+                            var storedSessionUsers = userManagement.session.getUserList();
 
-                            // Add user to userlist
-                            userManagement.session.addUser(lookupuser.username, socketid, ip);
-                            username = lookupuser.username;
+                            // check if the user is already active
+                            if(!storedSessionUsers[usernameInput.toLowerCase()]){
+                                callbackResult.success = true;
+                                callbackResult.message = 'Succesfully logged in';
+                                callbackResult.username = lookupuser.username;
+                                verified = true;
+
+                                // Add user to userlist
+                                userManagement.session.addUser(lookupuser.username, socketid, ip);
+                                username = lookupuser.username;
+                            }else{
+                                // user already has a active session
+                                callbackResult.success = false;
+                                callbackResult.message = 'This user is already active in a different client.';
+                            }
+
                         } else {
                             callbackResult.message = "Invalid login attempt";
                             console.log('Return result', callbackResult);
