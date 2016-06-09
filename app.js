@@ -41,12 +41,6 @@ var userManagement = require('./src/server/user_management');
 // load initial users
 userManagement.users.loadUsers();
 
-// stored user accounts
-var userDatabaseList = {};
-
-// active clients
-var userList = {};
-
 // start servertime
 var serverTime = Math.floor(Date.now() / 1000);
 

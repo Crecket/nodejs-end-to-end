@@ -39513,7 +39513,7 @@
 	            if (!_this.props.loginLoadingState) {
 	                // update login loading state
 	                _this.props.loginLoadingCallback();
-	                // start a new login attempt
+	                // start a new login attempt with a random test1 t/m test99 account
 	                SessionHelper.loginAttempt('test' + (1 + Math.floor(Math.random() * 99)), '');
 	            }
 	        };
