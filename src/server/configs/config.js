@@ -40,8 +40,8 @@ if (os.hostname().trim() === config.onlineHostName) {
     };
 } else {
     config.sslOptions = {
-        key: fs.readFileSync('src/server/certs/host.key'),
-        cert: fs.readFileSync('src/server/certs/host.crt'),
+        key: fs.readFileSync('src/server/certs/localhost.key'),
+        cert: fs.readFileSync('src/server/certs/localhost.crt'),
         ciphers: [
             "ECDHE-RSA-AES256-SHA384",
             "DHE-RSA-AES256-SHA384",

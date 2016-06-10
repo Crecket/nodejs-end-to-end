@@ -112,6 +112,7 @@ io.on('connection', function (socket) {
     // confirm a aes request response
     socket.on('confirm_aes_response', function (request) {
         if (verified) {
+            var userList = userManagement.session.getUserList();
             if (userList[request.target]) {
                 var targetData = userList[request.target];
                 io.sockets.connected[targetData.socketId].emit('confirm_aes_response', request);
@@ -156,6 +157,7 @@ io.on('connection', function (socket) {
 
     // change upload file setting
     socket.on('upload_setting', function (bool) {
+        var userList = userManagement.session.getUserList();
         userList[username]['allow_files'] = bool;
     });
 

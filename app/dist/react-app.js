@@ -30874,12 +30874,30 @@
 	
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Chat).call(this, props, context));
 	
+	        _this._SocketMessage = function (res) {
+	            var fn = _this;
+	            // send to session handler
+	            SessionHelper.receiveMessage(res, function (callbackMessage) {
+	                if (callbackMessage !== false) {
+	                    fn.addMessage(res.from, callbackMessage);
+	                }
+	            });
+	        };
+	
+	        _this.addMessage = function (from, message) {
+	            // get current list
+	            var currentMessages = _this.state.messageList;
+	
+	            // push new message to list
+	            currentMessages.unshift({ when: curDate(), from: from, message: message });
+	
+	            // update the message list state
+	            _this.setState({ messageList: currentMessages });
+	        };
+	
 	        _this.state = {
 	            messageList: []
 	        };
-	
-	        _this.addMessage = _this.addMessage.bind(_this);
-	        _this._SocketMessage = _this._SocketMessage.bind(_this);
 	        return _this;
 	    }
 	
@@ -30887,10 +30905,6 @@
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 	            var fn = this;
-	
-	            // TODO test message
-	            this.addMessage('test1', 'some text');
-	            this.addMessage('test2', 'some text2');
 	
 	            // Received a message from server
 	            socket.on('message', fn._SocketMessage);
@@ -30901,29 +30915,6 @@
 	            var fn = this;
 	            // Remove socket listeners if component is about to umount
 	            socket.removeListener('message', fn._SocketMessage);
-	        }
-	    }, {
-	        key: '_SocketMessage',
-	        value: function _SocketMessage(res) {
-	            var fn = this;
-	            // send to session handler
-	            SessionHelper.receiveMessage(res, function (callbackMessage) {
-	                if (callbackMessage !== false) {
-	                    fn.addMessage(res.from, callbackMessage);
-	                }
-	            });
-	        }
-	    }, {
-	        key: 'addMessage',
-	        value: function addMessage(from, message) {
-	            // get current list
-	            var currentMessages = this.state.messageList;
-	
-	            // push new message to list
-	            currentMessages.unshift({ when: curDate(), from: from, message: message });
-	
-	            // update the message list state
-	            this.setState({ messageList: currentMessages });
 	        }
 	    }, {
 	        key: 'render',
@@ -39593,7 +39584,7 @@
 	                            _react2.default.createElement(_RaisedButton2.default, {
 	                                style: styles.inputs,
 	                                type: 'submit',
-	                                label: 'Login with test account',
+	                                label: 'Login',
 	                                onClick: this.testLogin,
 	                                primary: true
 	                            })

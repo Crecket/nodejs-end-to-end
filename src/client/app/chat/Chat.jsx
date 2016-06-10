@@ -29,17 +29,10 @@ class Chat extends React.Component {
         this.state = {
             messageList: []
         };
-
-        this.addMessage = this.addMessage.bind(this);
-        this._SocketMessage = this._SocketMessage.bind(this);
     };
 
     componentDidMount() {
         var fn = this;
-
-        // TODO test message
-        this.addMessage('test1', 'some text');
-        this.addMessage('test2', 'some text2');
 
         // Received a message from server
         socket.on('message', fn._SocketMessage);
@@ -51,7 +44,7 @@ class Chat extends React.Component {
         socket.removeListener('message', fn._SocketMessage);
     };
 
-    _SocketMessage(res) {
+    _SocketMessage = (res) => {
         var fn = this;
         // send to session handler
         SessionHelper.receiveMessage(res, function (callbackMessage) {
@@ -61,7 +54,7 @@ class Chat extends React.Component {
         });
     };
 
-    addMessage(from, message) {
+    addMessage = (from, message) => {
         // get current list
         var currentMessages = this.state.messageList;
 

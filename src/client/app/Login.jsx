@@ -105,7 +105,7 @@ class Login extends React.Component {
                             <RaisedButton
                                 style={styles.inputs}
                                 type="submit"
-                                label="Login with test account"
+                                label="Login"
                                 onClick={this.testLogin}
                                 primary={true}
                             />
