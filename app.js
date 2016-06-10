@@ -1,4 +1,4 @@
-// libraries
+"use strict";
 // CryptoJS library
 var CryptoJS = require("crypto-js");
 

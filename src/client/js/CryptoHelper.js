@@ -148,10 +148,10 @@ function CryptoHelper() {
         return CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(text + salt));
     };
 
-    // Verify password length/type etz
+    // Verify password characters etz
     this.validPasswordType = function (password) {
         // atleast 8 characters but anything more than 512 is redundant
-        if (password.length < 8 || password.length > 512) {
+        if (password.length > 512) {
             return false;
         }
         return true;

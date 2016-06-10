@@ -75,8 +75,8 @@ var userManagement = {
                 var data = fs.readFileSync('./src/server/configs/users.json');
                 var TempList = JSON.parse(data);
             } catch (err) {
-                console.log('Server failed to load and parse the user list from the config.')
-                console.log(err);
+                // console.log(err);
+                // this.saveUsers();
             }
             // set to the variable
             this.userList = TempList;
@@ -126,6 +126,11 @@ var userManagement = {
                     });
                 });
             }
+        },
+        // delete a user
+        removeUser: function (username) {
+            delete this.userList[tempUsername];
+            this.saveUsers();
         }
     }
 };

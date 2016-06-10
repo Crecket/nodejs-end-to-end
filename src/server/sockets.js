@@ -176,60 +176,56 @@ io.on('connection', function (socket) {
             if (password_cipher) {
                 var password_hash = rsaDecrypt(password_cipher);
             } else {
-                callbackResult.message = "Invalid request";
-                callbackResult.success = true;
+                callbackResult.message = "Invalid login attempt";
+                callbackResult.success = false;
                 socket.emit('login_attempt_callback', callbackResult);
                 return;
             }
 
             var lookupuser = storedUsers[usernameInput.toLowerCase()];
 
-            // check if defined
+            // Only want 1 user/result
             if (lookupuser) {
+                // hash from the database
+                var db_hash = lookupuser.password;
 
-                // Only want 1 user/result
-                if (lookupuser) {
-                    // hash from the database
-                    var db_hash = lookupuser.password;
+                // compare password hash with db_hash
+                bcrypt.compare(password_hash, db_hash, function (err, res) {
+                    if (!err && res) {
 
-                    // compare password hash with db_hash
-                    bcrypt.compare(password_hash, db_hash, function (err, res) {
-                        if (!err && res) {
+                        var storedSessionUsers = userManagement.session.getUserList();
 
-                            var storedSessionUsers = userManagement.session.getUserList();
+                        // check if the user is already active
+                        if (!storedSessionUsers[usernameInput.toLowerCase()]) {
+                            callbackResult.success = true;
+                            callbackResult.message = 'Succesfully logged in';
+                            callbackResult.username = lookupuser.username;
+                            verified = true;
 
-                            // check if the user is already active
-                            if(!storedSessionUsers[usernameInput.toLowerCase()]){
-                                callbackResult.success = true;
-                                callbackResult.message = 'Succesfully logged in';
-                                callbackResult.username = lookupuser.username;
-                                verified = true;
-
-                                // Add user to userlist
-                                userManagement.session.addUser(lookupuser.username, socketid, ip);
-                                username = lookupuser.username;
-                            }else{
-                                // user already has a active session
-                                callbackResult.success = false;
-                                callbackResult.message = 'This user is already active in a different client.';
-                            }
-
+                            // Add user to userlist
+                            userManagement.session.addUser(lookupuser.username, socketid, ip);
+                            username = lookupuser.username;
                         } else {
-                            callbackResult.message = "Invalid login attempt";
-                            console.log('Return result', callbackResult);
+                            // user already has a active session
+                            callbackResult.success = false;
+                            callbackResult.message = 'This user is already active in a different client.';
                         }
 
-                        socket.emit('login_attempt_callback', callbackResult);
-                    });
+                    } else {
+                        callbackResult.message = "Invalid login attempt";
+                        console.log('Return result', callbackResult);
+                    }
 
-                } else {
-                    callbackResult.message = "Invalid login attempt";
-                    console.log('Return result', callbackResult);
                     socket.emit('login_attempt_callback', callbackResult);
-                }
+                });
+
+            } else {
+                callbackResult.message = "Invalid login attempt";
+                console.log('Return result', callbackResult);
+                socket.emit('login_attempt_callback', callbackResult);
             }
         } else {
-            callbackResult.message = "";
+            callbackResult.message = "You're already logged in";
             callbackResult.success = true;
             socket.emit('login_attempt_callback', callbackResult);
         }
