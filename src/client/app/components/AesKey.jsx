@@ -8,7 +8,7 @@ const styles = {
     },
 };
 
-class Debug extends React.Component {
+class AesKey extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {};
@@ -28,4 +28,4 @@ class Debug extends React.Component {
 }
 
 
-export default Debug;
+export default AesKey;

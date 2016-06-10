@@ -1,6 +1,7 @@
 import React  from 'react';
 import RsaKey from '../components/RsaKey.jsx';
 import AesKey from '../components/AesKey.jsx';
+import Md5Label from '../components/Md5Label.jsx';
 
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
@@ -64,6 +65,7 @@ class AesKeyCollection extends React.Component {
                                                     <Subheader>Public Encryption Key</Subheader>
                                                     <RsaKey nameTag={Username + "publicEncryptionKey"}
                                                             rsaKey={PublicKey}/>
+                                                    <Md5Label nameTag="publicEncryptionMd5Label" MD5Val={PublicKey}/>
                                                 </div>
                                             </div>
 
@@ -72,6 +74,7 @@ class AesKeyCollection extends React.Component {
                                                     <Subheader>Public Verification Key</Subheader>
                                                     <RsaKey nameTag={Username + "publicVerificationKey"}
                                                             rsaKey={PublicKeySign}/>
+                                                    <Md5Label nameTag="publicVerificationMd5Label" MD5Val={PublicKey}/>
                                                 </div>
                                             </div>
 

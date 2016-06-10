@@ -67,19 +67,34 @@ var userManagement = {
         userList: {},
         //get userlist
         getUserList: function () {
+            console.log(this.userList);
             return this.userList;
         },
         // load the userlist from the config
         loadUsers: function () {
-            try {
-                var data = fs.readFileSync('./src/server/configs/users.json');
-                var TempList = JSON.parse(data);
-            } catch (err) {
-                // console.log(err);
-                // this.saveUsers();
-            }
-            // set to the variable
-            this.userList = TempList;
+            var fn = this;
+            // get file data
+            fs.readFile('./src/server/configs/users.json', (err, data) => {
+                // TODO better error handling
+                let TempList;
+                if (err) {
+                    // file does not exist, set default list
+                    TempList = {};
+                } else {
+                    // file exists, try to parse it
+                    try {
+                        TempList = JSON.parse(data);
+                    } catch (err) {
+                        // on error, reset list since we can't parse it
+                        TempList = {};
+                    }
+                }
+
+                // set to the variable
+                this.userList = TempList;
+            });
+
+
         },
         // store the user list into the config
         saveUsers: function () {

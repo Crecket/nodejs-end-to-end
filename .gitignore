@@ -1,8 +1,13 @@
-# Created by .ignore support plugin (hsz.mobi)
+# Library files
 /node_modules
 /bower_components
 
+# certificates
 /src/server/certs/*
 !/src/server/certs/empty
 
+# user list
+/src/server/configs/users.json
+
+# config file
 /src/server/configs/config.js
