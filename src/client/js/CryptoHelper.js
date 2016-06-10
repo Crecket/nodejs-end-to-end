@@ -148,6 +148,12 @@ function CryptoHelper() {
         return CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(text + salt));
     };
 
+    // MD5 hashing
+    this.MD5 = function (text) {
+        // Return binary as hex
+        return CryptoJS.enc.Hex.stringify(CryptoJS.MD5(text));
+    };
+
     // Verify password characters etz
     this.validPasswordType = function (password) {
         // atleast 8 characters but anything more than 512 is redundant

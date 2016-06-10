@@ -67,12 +67,10 @@ var userManagement = {
         userList: {},
         //get userlist
         getUserList: function () {
-            console.log(this.userList);
             return this.userList;
         },
         // load the userlist from the config
         loadUsers: function () {
-            var fn = this;
             // get file data
             fs.readFile('./src/server/configs/users.json', (err, data) => {
                 // TODO better error handling

@@ -1,11 +1,12 @@
 import React  from 'react';
 import RsaKey from './components/RsaKey.jsx';
+import Md5Label from './components/Md5Label.jsx';
 
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
+import {cyanA400, lightBlue500} from 'material-ui/styles/colors';
 
 const styles = {
     paper: {
@@ -65,6 +66,7 @@ class Settings extends React.Component {
                                                         <Subheader>Private decryption key</Subheader>
                                                         <RsaKey nameTag="privateDecryptionKey"
                                                                 rsaKey={this.props.decryptionKey}/>
+                                                        <Md5Label nameTag="privateDecryptionKeyMd5Label" MD5Val={this.props.decryptionKey}/>
                                                     </div>
                                                 </div>
 
@@ -73,6 +75,7 @@ class Settings extends React.Component {
                                                         <Subheader>Public encryption key</Subheader>
                                                         <RsaKey nameTag="publicEncryptionKey"
                                                                 rsaKey={this.props.encryptionKey}/>
+                                                        <Md5Label nameTag="publicEncryptionKeyMd5Label" MD5Val={this.props.encryptionKey}/>
                                                     </div>
                                                 </div>
 
@@ -103,6 +106,7 @@ class Settings extends React.Component {
                                                         <Subheader>Private signing key</Subheader>
                                                         <RsaKey nameTag="privateSigningKey"
                                                                 rsaKey={this.props.signingKey}/>
+                                                        <Md5Label nameTag="privateSigningKeyMd5Label" MD5Val={this.props.signingKey}/>
                                                     </div>
                                                 </div>
 
@@ -111,6 +115,7 @@ class Settings extends React.Component {
                                                         <Subheader>Public verification key</Subheader>
                                                         <RsaKey nameTag="publicVerificationKey"
                                                                 rsaKey={this.props.verificationKey}/>
+                                                        <Md5Label nameTag="publicVerificationKeyMd5Label" MD5Val={this.props.verificationKey}/>
                                                     </div>
                                                 </div>
 

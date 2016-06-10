@@ -9,12 +9,10 @@ class Md5Label extends React.Component {
     };
 
     render() {
-        let md5Hash = CryptoJS.MD5(this.props.MD5Val);
+        var md5Hash = CryptoHelper.MD5(this.props.MD5Val);
+        console.log(typeof md5Hash);
         return (
-            <Subheader
-                name={this.props.nameTag}
-                value={md5Hash}
-            />
+            <Subheader name={this.props.nameTag}>Checksum: {md5Hash}</Subheader>
         );
     };
 }

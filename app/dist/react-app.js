@@ -43759,56 +43759,44 @@
 	                                        'div',
 	                                        { className: 'box-row' },
 	                                        _react2.default.createElement(
-	                                            'div',
-	                                            { className: 'row' },
-	                                            _react2.default.createElement(
-	                                                'div',
-	                                                { className: 'col-xs-12' },
-	                                                _react2.default.createElement(
-	                                                    'div',
-	                                                    { className: 'box-row' },
-	                                                    _react2.default.createElement(
-	                                                        _Subheader2.default,
-	                                                        null,
-	                                                        'AES key'
-	                                                    ),
-	                                                    _react2.default.createElement(_AesKey2.default, { nameTag: Username + "aesKey",
-	                                                        aesKey: AesKeyVar })
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                'div',
-	                                                { className: 'col-xs-12 col-sm-6' },
-	                                                _react2.default.createElement(
-	                                                    'div',
-	                                                    { className: 'box-row' },
-	                                                    _react2.default.createElement(
-	                                                        _Subheader2.default,
-	                                                        null,
-	                                                        'Public Encryption Key'
-	                                                    ),
-	                                                    _react2.default.createElement(_RsaKey2.default, { nameTag: Username + "publicEncryptionKey",
-	                                                        rsaKey: PublicKey }),
-	                                                    _react2.default.createElement(_Md5Label2.default, { nameTag: 'publicEncryptionMd5Label', MD5Val: PublicKey })
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                'div',
-	                                                { className: 'col-xs-12 col-sm-6' },
-	                                                _react2.default.createElement(
-	                                                    'div',
-	                                                    { className: 'box-row' },
-	                                                    _react2.default.createElement(
-	                                                        _Subheader2.default,
-	                                                        null,
-	                                                        'Public Verification Key'
-	                                                    ),
-	                                                    _react2.default.createElement(_RsaKey2.default, { nameTag: Username + "publicVerificationKey",
-	                                                        rsaKey: PublicKeySign }),
-	                                                    _react2.default.createElement(_Md5Label2.default, { nameTag: 'publicVerificationMd5Label', MD5Val: PublicKey })
-	                                                )
-	                                            )
-	                                        )
+	                                            _Subheader2.default,
+	                                            null,
+	                                            'AES key'
+	                                        ),
+	                                        _react2.default.createElement(_AesKey2.default, { nameTag: Username + "aesKey",
+	                                            aesKey: AesKeyVar })
+	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'col-xs-12 col-sm-6' },
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'box-row' },
+	                                        _react2.default.createElement(
+	                                            _Subheader2.default,
+	                                            null,
+	                                            'Public Encryption Key'
+	                                        ),
+	                                        _react2.default.createElement(_RsaKey2.default, { nameTag: Username + "publicEncryptionKey",
+	                                            rsaKey: PublicKey }),
+	                                        _react2.default.createElement(_Md5Label2.default, { nameTag: 'publicEncryptionMd5Label', MD5Val: PublicKey })
+	                                    )
+	                                ),
+	                                _react2.default.createElement(
+	                                    'div',
+	                                    { className: 'col-xs-12 col-sm-6' },
+	                                    _react2.default.createElement(
+	                                        'div',
+	                                        { className: 'box-row' },
+	                                        _react2.default.createElement(
+	                                            _Subheader2.default,
+	                                            null,
+	                                            'Public Verification Key'
+	                                        ),
+	                                        _react2.default.createElement(_RsaKey2.default, { nameTag: Username + "publicVerificationKey",
+	                                            rsaKey: PublicKeySign }),
+	                                        _react2.default.createElement(_Md5Label2.default, { nameTag: 'publicVerificationMd5Label', MD5Val: PublicKeySign })
 	                                    )
 	                                )
 	                            )
@@ -43974,6 +43962,8 @@
 	    value: true
 	});
 	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _react = __webpack_require__(/*! react */ 2);
@@ -44007,11 +43997,14 @@
 	    _createClass(Md5Label, [{
 	        key: 'render',
 	        value: function render() {
-	            var md5Hash = CryptoJS.MD5(this.props.MD5Val);
-	            return _react2.default.createElement(_Subheader2.default, {
-	                name: this.props.nameTag,
-	                value: md5Hash
-	            });
+	            var md5Hash = CryptoHelper.MD5(this.props.MD5Val);
+	            console.log(typeof md5Hash === 'undefined' ? 'undefined' : _typeof(md5Hash));
+	            return _react2.default.createElement(
+	                _Subheader2.default,
+	                { name: this.props.nameTag },
+	                'Checksum: ',
+	                md5Hash
+	            );
 	        }
 	    }]);
 	
@@ -45405,6 +45398,10 @@
 	
 	var _RsaKey2 = _interopRequireDefault(_RsaKey);
 	
+	var _Md5Label = __webpack_require__(/*! ./components/Md5Label.jsx */ 370);
+	
+	var _Md5Label2 = _interopRequireDefault(_Md5Label);
+	
 	var _Paper = __webpack_require__(/*! material-ui/Paper */ 336);
 	
 	var _Paper2 = _interopRequireDefault(_Paper);
@@ -45522,7 +45519,8 @@
 	                                                            'Private decryption key'
 	                                                        ),
 	                                                        _react2.default.createElement(_RsaKey2.default, { nameTag: 'privateDecryptionKey',
-	                                                            rsaKey: this.props.decryptionKey })
+	                                                            rsaKey: this.props.decryptionKey }),
+	                                                        _react2.default.createElement(_Md5Label2.default, { nameTag: 'privateDecryptionKeyMd5Label', MD5Val: this.props.decryptionKey })
 	                                                    )
 	                                                ),
 	                                                _react2.default.createElement(
@@ -45537,7 +45535,8 @@
 	                                                            'Public encryption key'
 	                                                        ),
 	                                                        _react2.default.createElement(_RsaKey2.default, { nameTag: 'publicEncryptionKey',
-	                                                            rsaKey: this.props.encryptionKey })
+	                                                            rsaKey: this.props.encryptionKey }),
+	                                                        _react2.default.createElement(_Md5Label2.default, { nameTag: 'publicEncryptionKeyMd5Label', MD5Val: this.props.encryptionKey })
 	                                                    )
 	                                                ),
 	                                                _react2.default.createElement(
@@ -45583,7 +45582,8 @@
 	                                                            'Private signing key'
 	                                                        ),
 	                                                        _react2.default.createElement(_RsaKey2.default, { nameTag: 'privateSigningKey',
-	                                                            rsaKey: this.props.signingKey })
+	                                                            rsaKey: this.props.signingKey }),
+	                                                        _react2.default.createElement(_Md5Label2.default, { nameTag: 'privateSigningKeyMd5Label', MD5Val: this.props.signingKey })
 	                                                    )
 	                                                ),
 	                                                _react2.default.createElement(
@@ -45598,7 +45598,8 @@
 	                                                            'Public verification key'
 	                                                        ),
 	                                                        _react2.default.createElement(_RsaKey2.default, { nameTag: 'publicVerificationKey',
-	                                                            rsaKey: this.props.verificationKey })
+	                                                            rsaKey: this.props.verificationKey }),
+	                                                        _react2.default.createElement(_Md5Label2.default, { nameTag: 'publicVerificationKeyMd5Label', MD5Val: this.props.verificationKey })
 	                                                    )
 	                                                ),
 	                                                _react2.default.createElement(

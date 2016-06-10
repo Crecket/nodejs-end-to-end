@@ -127,8 +127,6 @@ io.on('connection', function (socket) {
         // get the stored users
         var storedUsers = userManagement.users.getUserList();
 
-        console.log(storedUsers);
-
         // check if exists
         var lookupuser = storedUsers[username.toLowerCase()];
         if (lookupuser) {
