@@ -2,6 +2,9 @@
 // CryptoJS library
 var CryptoJS = require("crypto-js");
 
+// is library, used for assertions
+const is = require('@pwn/is');
+
 // Generic crypto
 var crypto = require('crypto');
 

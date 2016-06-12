@@ -6,21 +6,20 @@ import MainAppbar from './components/MainAppbar.jsx';
 import AesKeyList from './AesKeyList.jsx';
 import Settings from './Settings.jsx';
 
+// Themes
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import CustomDark from './themes/CustomDark';
+import CustomLight from './themes/CustomLight';
+// theme list so we can access them more easily
+const ThemesList = {
+    "CustomDark": CustomDark,
+    "CustomLight": CustomLight
+};
+
+// material-ui components
 import {Container} from 'material-ui';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-
-const styles = {
-    container: {
-        textAlign: 'center',
-    },
-    paper: {
-        display: 'inline-block',
-        width: '100%',
-        minHeight: 268,
-        padding: 20,
-    },
-};
 
 class Main extends React.Component {
 
@@ -44,9 +43,25 @@ class Main extends React.Component {
             modalOpen: false,
             modalMessage: "",
             modalTitle: "",
+
+            muiTheme: 'CustomDark',
         };
 
     };
+
+    getChildContext() {
+        if (typeof ThemesList[this.state.muiTheme] !== "undefined") {
+            // check if style exists and than use it
+            return {
+                muiTheme: getMuiTheme(ThemesList[this.state.muiTheme])
+            };
+        } else {
+            // default style
+            return {
+                muiTheme: getMuiTheme(CustomDark)
+            };
+        }
+    }
 
     componentDidMount() {
         var fn = this;
@@ -56,7 +71,7 @@ class Main extends React.Component {
             // create default keysets
             fn.refreshEncryptionKeys();
             fn.refreshSigningKeys();
-        }, 100);
+        }, 150);
 
         socket.on('user_disconnect', fn._SocketUserDisconnect);
         socket.on('server_info', fn._SocketServerInfo);
@@ -99,6 +114,15 @@ class Main extends React.Component {
         return false;
     };
 
+    // change the theme
+    setTheme = () => {
+        if(this.state.muiTheme === "CustomDark"){
+            this.setState({muiTheme: "CustomLight"});
+        }else{
+            this.setState({muiTheme: "CustomDark"});
+        }
+    };
+
     // set a new key set for the encryption/decryption keys
     refreshEncryptionKeys = () => {
         var fn = this;
@@ -129,6 +153,22 @@ class Main extends React.Component {
     setUserKeys = () => {
         this.setState({userKeys: SessionHelper.getKeyList()});
     }
+
+    // set loading state
+    loginLoadingCallback = () => {
+        this.setState({loginLoading: true});
+    };
+
+    // handle user clicks on userlist or messagelist items
+    userClickCallback = (userName) => {
+        if (SessionHelper.isVerified()) {
+            if (SessionHelper.setTarget(userName)) {
+                this.setState({targetName: userName});
+            }
+        } else {
+            warn('Not verified, can\'t select target');
+        }
+    };
 
     // Disconnected from server
     _SocketDisconnect = () => {
@@ -245,22 +285,6 @@ class Main extends React.Component {
         SessionHelper.setServerPublicKey(response);
     };
 
-    // set loading state
-    loginLoadingCallback = () => {
-        this.setState({loginLoading: true});
-    };
-
-    // handle user clicks on userlist or messagelist items
-    userClickCallback = (userName) => {
-        if (SessionHelper.isVerified()) {
-            if (SessionHelper.setTarget(userName)) {
-                this.setState({targetName: userName});
-            }
-        } else {
-            warn('Not verified, can\'t select target');
-        }
-    };
-
     render() {
         var MainComponent = "";
         if (this.state.connected) {
@@ -316,6 +340,7 @@ class Main extends React.Component {
                 onTouchTap={this.closeModal}
             />,
         ];
+
         return (
             <div className="wrap container-fluid">
                 <Dialog
@@ -328,12 +353,17 @@ class Main extends React.Component {
                     {this.state.modalMessage}
                 </Dialog>
 
-                <MainAppbar loggedIn={this.state.loggedin}/>
+                <MainAppbar loggedin={this.state.loggedin} setTheme={this.setTheme}/>
 
                 {MainComponent}
             </div>
         )
     };
 }
+
+// give theme context
+Main.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
 
 export default Main;

@@ -39,6 +39,7 @@ class MainAppbar extends React.Component {
                         targetOrigin={{horizontal: 'right', vertical: 'top'}}
                         anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
                             <MenuItem primaryText="Sign out"/>
+                            <MenuItem onClick={this.props.setTheme} primaryText="Change Theme"/>
                         </IconMenu>}/>;
         }
 

@@ -63,19 +63,27 @@ class Settings extends React.Component {
 
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
-                                                        <Subheader>Private decryption key</Subheader>
+                                                        <Subheader
+                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            Private decryption key
+                                                        </Subheader>
                                                         <RsaKey nameTag="privateDecryptionKey"
                                                                 rsaKey={this.props.decryptionKey}/>
-                                                        <Md5Label nameTag="privateDecryptionKeyMd5Label" MD5Val={this.props.decryptionKey}/>
+                                                        <Md5Label nameTag="privateDecryptionKeyMd5Label"
+                                                                  MD5Val={this.props.decryptionKey}/>
                                                     </div>
                                                 </div>
 
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
-                                                        <Subheader>Public encryption key</Subheader>
+                                                        <Subheader
+                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            Public encryption key
+                                                        </Subheader>
                                                         <RsaKey nameTag="publicEncryptionKey"
                                                                 rsaKey={this.props.encryptionKey}/>
-                                                        <Md5Label nameTag="publicEncryptionKeyMd5Label" MD5Val={this.props.encryptionKey}/>
+                                                        <Md5Label nameTag="publicEncryptionKeyMd5Label"
+                                                                  MD5Val={this.props.encryptionKey}/>
                                                     </div>
                                                 </div>
 
@@ -103,19 +111,27 @@ class Settings extends React.Component {
 
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
-                                                        <Subheader>Private signing key</Subheader>
+                                                        <Subheader
+                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            Private signing key
+                                                        </Subheader>
                                                         <RsaKey nameTag="privateSigningKey"
                                                                 rsaKey={this.props.signingKey}/>
-                                                        <Md5Label nameTag="privateSigningKeyMd5Label" MD5Val={this.props.signingKey}/>
+                                                        <Md5Label nameTag="privateSigningKeyMd5Label"
+                                                                  MD5Val={this.props.signingKey}/>
                                                     </div>
                                                 </div>
 
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
-                                                        <Subheader>Public verification key</Subheader>
+                                                        <Subheader
+                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            Public verification key
+                                                        </Subheader>
                                                         <RsaKey nameTag="publicVerificationKey"
                                                                 rsaKey={this.props.verificationKey}/>
-                                                        <Md5Label nameTag="publicVerificationKeyMd5Label" MD5Val={this.props.verificationKey}/>
+                                                        <Md5Label nameTag="publicVerificationKeyMd5Label"
+                                                                  MD5Val={this.props.verificationKey}/>
                                                     </div>
                                                 </div>
 
@@ -145,5 +161,8 @@ class Settings extends React.Component {
     };
 }
 
+Settings.contextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
 
 export default Settings;
