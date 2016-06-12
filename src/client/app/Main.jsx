@@ -1,4 +1,5 @@
 import React from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import Chat from './chat/Chat.jsx';
 import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
@@ -12,8 +13,8 @@ import CustomDark from './themes/CustomDark';
 import CustomLight from './themes/CustomLight';
 // theme list so we can access them more easily
 const ThemesList = {
-    "CustomDark": CustomDark,
-    "CustomLight": CustomLight
+    "CustomDark": getMuiTheme(CustomDark),
+    "CustomLight": getMuiTheme(CustomLight)
 };
 
 // material-ui components
@@ -53,12 +54,12 @@ class Main extends React.Component {
         if (typeof ThemesList[this.state.muiTheme] !== "undefined") {
             // check if style exists and than use it
             return {
-                muiTheme: getMuiTheme(ThemesList[this.state.muiTheme])
+                muiTheme: ThemesList[this.state.muiTheme]
             };
         } else {
             // default style
             return {
-                muiTheme: getMuiTheme(CustomDark)
+                muiTheme: CustomDark
             };
         }
     }
@@ -86,6 +87,8 @@ class Main extends React.Component {
         socket.on('public_key', fn._SocketPublicKey);
         socket.on('login_salt_callback', fn._SocketLoginSaltCallback);
 
+        // set stored theme if it is stored already
+        this.setTheme(storageGet("main_theme"));
     };
 
     componentWillUnmount() {
@@ -115,11 +118,21 @@ class Main extends React.Component {
     };
 
     // change the theme
-    setTheme = () => {
-        if(this.state.muiTheme === "CustomDark"){
+    setTheme = (setValue) => {
+        if (setValue) {
+            if (typeof ThemesList[setValue] !== "undefined") {
+                this.setState({muiTheme: setValue});
+                storageSet('main_theme', setValue);
+                return true;
+            }
+        }
+        // no custom value given or value does not exist, just toggle between dark and light
+        if (this.state.muiTheme === "CustomDark") {
             this.setState({muiTheme: "CustomLight"});
-        }else{
+            storageSet('main_theme', "CustomLight");
+        } else {
             this.setState({muiTheme: "CustomDark"});
+            storageSet('main_theme', "CustomDark");
         }
     };
 
@@ -205,7 +218,6 @@ class Main extends React.Component {
             // current target is gone so reset the target input box
             this.setState({targetName: ""});
         }
-        loadKeyListDiv();
     };
 
     // Server requests verification
@@ -342,7 +354,8 @@ class Main extends React.Component {
         ];
 
         return (
-            <div className="wrap container-fluid">
+            <div className={"wrap container-fluid " + this.state.muiTheme}
+                 style={{background: ThemesList[this.state.muiTheme].bodyBackground}}>
                 <Dialog
                     title={this.state.modalTitle}
                     actions={modalActions}
@@ -365,5 +378,4 @@ class Main extends React.Component {
 Main.childContextTypes = {
     muiTheme: React.PropTypes.object.isRequired,
 };
-
 export default Main;

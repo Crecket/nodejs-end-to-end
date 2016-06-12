@@ -1,9 +1,8 @@
 import {
-    cyan500, cyan700,
-    grey300, grey600,
+    cyan700,
+    grey600, blueGrey500, grey900,
     pinkA100, pinkA200, pinkA400,
-    white, fullWhite,
-    darkBlack, fullBlack,
+    fullWhite, fullBlack,
 } from 'material-ui/styles/colors';
 import {fade} from 'material-ui/utils/colorManipulator';
 
@@ -36,8 +35,9 @@ const CustomTheme = {
         disabledColor: (0, fade)(fullWhite, 0.3),
         pickerHeaderColor: (0, fade)(fullWhite, 0.12),
         clockCircleColor: (0, fade)(fullWhite, 0.12),
-        // shadowColor: fullBlack,
+        shadowColor: fullBlack,
     },
+    bodyBackground: grey900,
 };
 
 export default CustomTheme;

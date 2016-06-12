@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import RsaKey from '../components/RsaKey.jsx';
 import AesKey from '../components/AesKey.jsx';
 import Md5Label from '../components/Md5Label.jsx';
@@ -38,13 +39,12 @@ class AesKeyCollection extends React.Component {
                     <Card className="box-row">
                         <CardHeader
                             title={Username}
-                            style={{background: cyanA400}}
+                            style={{background: this.props.muiTheme.palette.primary1Color}}
                             actAsExpander={true}
                             showExpandableButton={true}
                         />
                         <CardText
                             expandable={true}
-                            style={{background: ''}}
                         >
                             <div className="row">
 
@@ -83,5 +83,8 @@ class AesKeyCollection extends React.Component {
     };
 }
 
-
-export default AesKeyCollection;
+// give theme context
+AesKeyCollection.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(AesKeyCollection);

@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import Message from './Message.jsx';
 
 import {List} from 'material-ui/List';
@@ -32,4 +33,8 @@ class MessageList extends React.Component {
     };
 }
 
+// give theme context
+MessageList.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
 export default MessageList;

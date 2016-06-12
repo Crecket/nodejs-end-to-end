@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import TextField from 'material-ui/TextField';
 import Checkbox from 'material-ui/Checkbox';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -148,10 +149,11 @@ class NewMessageForm extends React.Component {
                 </div>
             </form>
         );
-    }
-    ;
+    }    ;
 }
 
-export
-default
-NewMessageForm;
+// give theme context
+NewMessageForm.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default NewMessageForm;

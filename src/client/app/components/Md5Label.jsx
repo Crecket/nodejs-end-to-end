@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import Subheader from 'material-ui/Subheader';
 
@@ -17,4 +18,8 @@ class Md5Label extends React.Component {
 }
 
 
-export default Md5Label;
+// give theme context
+Md5Label.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(Md5Label);

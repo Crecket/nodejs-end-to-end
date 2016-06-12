@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -117,4 +118,8 @@ class Login extends React.Component {
     };
 }
 
-export default Login;
+// give theme context
+Login.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(Login);

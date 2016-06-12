@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
@@ -56,4 +57,8 @@ class MainAppbar extends React.Component {
 }
 
 
-export default MainAppbar;
+// give theme context
+MainAppbar.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(MainAppbar);

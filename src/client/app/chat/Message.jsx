@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import {ListItem} from 'material-ui/List';
 
@@ -31,4 +32,8 @@ class Message extends React.Component {
     };
 }
 
-export default Message;
+// give theme context
+Message.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(Message);

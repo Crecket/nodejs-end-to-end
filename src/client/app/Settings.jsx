@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import RsaKey from './components/RsaKey.jsx';
 import Md5Label from './components/Md5Label.jsx';
 
@@ -6,13 +7,13 @@ import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-import {cyanA400, lightBlue500} from 'material-ui/styles/colors';
 
 const styles = {
     paper: {
         display: 'inline-block',
         width: '100%',
         padding: 20,
+        // background: this.props.muiTheme.palette.primary3Color,
     },
 };
 
@@ -46,13 +47,12 @@ class Settings extends React.Component {
                     <Card className="box-row">
                         <CardHeader
                             title="Settings"
-                            style={{background: cyanA400}}
+                            style={{background: this.props.muiTheme.palette.primary1Color}}
                             actAsExpander={true}
                             showExpandableButton={true}
                         />
                         <CardText
                             expandable={true}
-                            style={{background: lightBlue500}}
                         >
                             <div className="row">
 
@@ -161,8 +161,8 @@ class Settings extends React.Component {
     };
 }
 
+// give theme context
 Settings.contextTypes = {
     muiTheme: React.PropTypes.object.isRequired,
 };
-
-export default Settings;
+export default muiThemeable()(Settings);

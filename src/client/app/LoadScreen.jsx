@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import CircularProgress from 'material-ui/CircularProgress';
 
@@ -19,4 +20,8 @@ class LoadScreen extends React.Component {
     };
 }
 
-export default LoadScreen;
+// give theme context
+LoadScreen.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(LoadScreen);

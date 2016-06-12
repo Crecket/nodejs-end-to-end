@@ -30304,6 +30304,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
+	
 	var _Chat = __webpack_require__(/*! ./chat/Chat.jsx */ 270);
 	
 	var _Chat2 = _interopRequireDefault(_Chat);
@@ -30363,8 +30367,8 @@
 	
 	// theme list so we can access them more easily
 	var ThemesList = {
-	    "CustomDark": _CustomDark2.default,
-	    "CustomLight": _CustomLight2.default
+	    "CustomDark": (0, _getMuiTheme2.default)(_CustomDark2.default),
+	    "CustomLight": (0, _getMuiTheme2.default)(_CustomLight2.default)
 	};
 	
 	// material-ui components
@@ -30377,11 +30381,21 @@
 	
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Main).call(this, props, context));
 	
-	        _this.setTheme = function () {
+	        _this.setTheme = function (setValue) {
+	            if (setValue) {
+	                if (typeof ThemesList[setValue] !== "undefined") {
+	                    _this.setState({ muiTheme: setValue });
+	                    storageSet('main_theme', setValue);
+	                    return true;
+	                }
+	            }
+	            // no custom value given or value does not exist, just toggle between dark and light
 	            if (_this.state.muiTheme === "CustomDark") {
 	                _this.setState({ muiTheme: "CustomLight" });
+	                storageSet('main_theme', "CustomLight");
 	            } else {
 	                _this.setState({ muiTheme: "CustomDark" });
+	                storageSet('main_theme', "CustomDark");
 	            }
 	        };
 	
@@ -30456,7 +30470,6 @@
 	                // current target is gone so reset the target input box
 	                _this.setState({ targetName: "" });
 	            }
-	            loadKeyListDiv();
 	        };
 	
 	        _this._SocketRequestVerify = function () {
@@ -30559,12 +30572,12 @@
 	            if (typeof ThemesList[this.state.muiTheme] !== "undefined") {
 	                // check if style exists and than use it
 	                return {
-	                    muiTheme: (0, _getMuiTheme2.default)(ThemesList[this.state.muiTheme])
+	                    muiTheme: ThemesList[this.state.muiTheme]
 	                };
 	            } else {
 	                // default style
 	                return {
-	                    muiTheme: (0, _getMuiTheme2.default)(_CustomDark2.default)
+	                    muiTheme: _CustomDark2.default
 	                };
 	            }
 	        }
@@ -30592,6 +30605,9 @@
 	            socket.on('confirm_aes_response', fn._SocketConfirmAesResponse);
 	            socket.on('public_key', fn._SocketPublicKey);
 	            socket.on('login_salt_callback', fn._SocketLoginSaltCallback);
+	
+	            // set stored theme if it is stored already
+	            this.setTheme(storageGet("main_theme"));
 	        }
 	    }, {
 	        key: 'componentWillUnmount',
@@ -30739,7 +30755,8 @@
 	
 	            return _react2.default.createElement(
 	                'div',
-	                { className: 'wrap container-fluid' },
+	                { className: "wrap container-fluid " + this.state.muiTheme,
+	                    style: { background: ThemesList[this.state.muiTheme].bodyBackground } },
 	                _react2.default.createElement(
 	                    _Dialog2.default,
 	                    {
@@ -30766,7 +30783,6 @@
 	Main.childContextTypes = {
 	    muiTheme: _react2.default.PropTypes.object.isRequired
 	};
-	
 	exports.default = Main;
 
 /***/ },
@@ -30787,6 +30803,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _UserList = __webpack_require__(/*! ./UserList.jsx */ 271);
 	
@@ -30941,6 +30961,12 @@
 	    return Chat;
 	}(_react2.default.Component);
 	
+	// give theme context
+	
+	
+	Chat.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
 	exports.default = Chat;
 
 /***/ },
@@ -30961,6 +30987,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _User = __webpack_require__(/*! ./User.jsx */ 272);
 	
@@ -31053,7 +31083,13 @@
 	    return UserList;
 	}(_react2.default.Component);
 	
-	exports.default = UserList;
+	// give theme context
+	
+	
+	UserList.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(UserList);
 
 /***/ },
 /* 272 */
@@ -31073,6 +31109,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _List = __webpack_require__(/*! material-ui/List */ 273);
 	
@@ -31119,7 +31159,13 @@
 	    return User;
 	}(_react2.default.Component);
 	
-	exports.default = User;
+	// give theme context
+	
+	
+	User.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(User);
 
 /***/ },
 /* 273 */
@@ -36263,6 +36309,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
+	
 	var _TextField = __webpack_require__(/*! material-ui/TextField */ 326);
 	
 	var _TextField2 = _interopRequireDefault(_TextField);
@@ -36452,6 +36502,12 @@
 	    return NewMessageForm;
 	}(_react2.default.Component);
 	
+	// give theme context
+	
+	
+	NewMessageForm.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
 	exports.default = NewMessageForm;
 
 /***/ },
@@ -39234,6 +39290,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
+	
 	var _Message = __webpack_require__(/*! ./Message.jsx */ 343);
 	
 	var _Message2 = _interopRequireDefault(_Message);
@@ -39295,6 +39355,12 @@
 	    return MessageList;
 	}(_react2.default.Component);
 	
+	// give theme context
+	
+	
+	MessageList.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
 	exports.default = MessageList;
 
 /***/ },
@@ -39315,6 +39381,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _List = __webpack_require__(/*! material-ui/List */ 273);
 	
@@ -39377,7 +39447,13 @@
 	    return Message;
 	}(_react2.default.Component);
 	
-	exports.default = Message;
+	// give theme context
+	
+	
+	Message.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(Message);
 
 /***/ },
 /* 344 */
@@ -39397,6 +39473,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _TextField = __webpack_require__(/*! material-ui/TextField */ 326);
 	
@@ -39562,7 +39642,13 @@
 	    return Login;
 	}(_react2.default.Component);
 	
-	exports.default = Login;
+	// give theme context
+	
+	
+	Login.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(Login);
 
 /***/ },
 /* 345 */
@@ -39582,6 +39668,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _CircularProgress = __webpack_require__(/*! material-ui/CircularProgress */ 346);
 	
@@ -39628,7 +39718,13 @@
 	    return LoadScreen;
 	}(_react2.default.Component);
 	
-	exports.default = LoadScreen;
+	// give theme context
+	
+	
+	LoadScreen.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(LoadScreen);
 
 /***/ },
 /* 346 */
@@ -39931,6 +40027,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
+	
 	var _AppBar = __webpack_require__(/*! material-ui/AppBar */ 349);
 	
 	var _AppBar2 = _interopRequireDefault(_AppBar);
@@ -40041,7 +40141,13 @@
 	    return MainAppbar;
 	}(_react2.default.Component);
 	
-	exports.default = MainAppbar;
+	// give theme context
+	
+	
+	MainAppbar.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(MainAppbar);
 
 /***/ },
 /* 349 */
@@ -43516,6 +43622,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
+	
 	var _AesKeyCollection = __webpack_require__(/*! ./aes/AesKeyCollection.jsx */ 367);
 	
 	var _AesKeyCollection2 = _interopRequireDefault(_AesKeyCollection);
@@ -43533,12 +43643,6 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var styles = {
-	    paper: {
-	        display: 'inline-block',
-	        width: '100%',
-	        overflow: 'auto',
-	        maxHeight: 1400
-	    },
 	    keycollection: {
 	        margin: 20
 	    }
@@ -43577,7 +43681,7 @@
 	                            { className: 'box-row' },
 	                            _react2.default.createElement(_Card.CardHeader, {
 	                                title: 'AES Keys',
-	                                style: { background: _colors.cyanA400 },
+	                                style: { background: this.props.muiTheme.palette.primary1Color },
 	                                actAsExpander: true,
 	                                showExpandableButton: true
 	                            }),
@@ -43605,7 +43709,13 @@
 	    return AesKeys;
 	}(_react2.default.Component);
 	
-	exports.default = AesKeys;
+	// give theme context
+	
+	
+	AesKeys.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(AesKeys);
 
 /***/ },
 /* 367 */
@@ -43625,6 +43735,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _RsaKey = __webpack_require__(/*! ../components/RsaKey.jsx */ 368);
 	
@@ -43704,15 +43818,14 @@
 	                        { className: 'box-row' },
 	                        _react2.default.createElement(_Card.CardHeader, {
 	                            title: Username,
-	                            style: { background: _colors.cyanA400 },
+	                            style: { background: this.props.muiTheme.palette.primary1Color },
 	                            actAsExpander: true,
 	                            showExpandableButton: true
 	                        }),
 	                        _react2.default.createElement(
 	                            _Card.CardText,
 	                            {
-	                                expandable: true,
-	                                style: { background: '' }
+	                                expandable: true
 	                            },
 	                            _react2.default.createElement(
 	                                'div',
@@ -43775,7 +43888,13 @@
 	    return AesKeyCollection;
 	}(_react2.default.Component);
 	
-	exports.default = AesKeyCollection;
+	// give theme context
+	
+	
+	AesKeyCollection.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(AesKeyCollection);
 
 /***/ },
 /* 368 */
@@ -43795,6 +43914,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _TextField = __webpack_require__(/*! material-ui/TextField */ 326);
 	
@@ -43845,7 +43968,13 @@
 	    return RsaKey;
 	}(_react2.default.Component);
 	
-	exports.default = RsaKey;
+	// give theme context
+	
+	
+	RsaKey.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(RsaKey);
 
 /***/ },
 /* 369 */
@@ -43865,6 +43994,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _TextField = __webpack_require__(/*! material-ui/TextField */ 326);
 	
@@ -43912,7 +44045,13 @@
 	    return AesKey;
 	}(_react2.default.Component);
 	
-	exports.default = AesKey;
+	// give theme context
+	
+	
+	AesKey.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(AesKey);
 
 /***/ },
 /* 370 */
@@ -43932,6 +44071,10 @@
 	var _react = __webpack_require__(/*! react */ 2);
 	
 	var _react2 = _interopRequireDefault(_react);
+	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
 	
 	var _Subheader = __webpack_require__(/*! material-ui/Subheader */ 277);
 	
@@ -43973,7 +44116,13 @@
 	    return Md5Label;
 	}(_react2.default.Component);
 	
-	exports.default = Md5Label;
+	// give theme context
+	
+	
+	Md5Label.childContextTypes = {
+	    muiTheme: _react2.default.PropTypes.object.isRequired
+	};
+	exports.default = (0, _muiThemeable2.default)()(Md5Label);
 
 /***/ },
 /* 371 */
@@ -45356,6 +45505,10 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _muiThemeable = __webpack_require__(/*! material-ui/styles/muiThemeable */ 490);
+	
+	var _muiThemeable2 = _interopRequireDefault(_muiThemeable);
+	
 	var _RsaKey = __webpack_require__(/*! ./components/RsaKey.jsx */ 368);
 	
 	var _RsaKey2 = _interopRequireDefault(_RsaKey);
@@ -45378,8 +45531,6 @@
 	
 	var _Card = __webpack_require__(/*! material-ui/Card */ 371);
 	
-	var _colors = __webpack_require__(/*! material-ui/styles/colors */ 183);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -45395,6 +45546,8 @@
 	        padding: 20
 	    }
 	};
+	
+	// background: this.props.muiTheme.palette.primary3Color,
 	
 	var Settings = function (_React$Component) {
 	    _inherits(Settings, _React$Component);
@@ -45444,15 +45597,14 @@
 	                        { className: 'box-row' },
 	                        _react2.default.createElement(_Card.CardHeader, {
 	                            title: 'Settings',
-	                            style: { background: _colors.cyanA400 },
+	                            style: { background: this.props.muiTheme.palette.primary1Color },
 	                            actAsExpander: true,
 	                            showExpandableButton: true
 	                        }),
 	                        _react2.default.createElement(
 	                            _Card.CardText,
 	                            {
-	                                expandable: true,
-	                                style: { background: _colors.lightBlue500 }
+	                                expandable: true
 	                            },
 	                            _react2.default.createElement(
 	                                'div',
@@ -45602,11 +45754,13 @@
 	    return Settings;
 	}(_react2.default.Component);
 	
+	// give theme context
+	
+	
 	Settings.contextTypes = {
 	    muiTheme: _react2.default.PropTypes.object.isRequired
 	};
-	
-	exports.default = Settings;
+	exports.default = (0, _muiThemeable2.default)()(Settings);
 
 /***/ },
 /* 384 */
@@ -62464,11 +62618,12 @@
 	        borderColor: (0, _colorManipulator.fade)(_colors.fullWhite, 0.3),
 	        disabledColor: (0, _colorManipulator.fade)(_colors.fullWhite, 0.3),
 	        pickerHeaderColor: (0, _colorManipulator.fade)(_colors.fullWhite, 0.12),
-	        clockCircleColor: (0, _colorManipulator.fade)(_colors.fullWhite, 0.12)
-	    }
+	        clockCircleColor: (0, _colorManipulator.fade)(_colors.fullWhite, 0.12),
+	        shadowColor: _colors.fullBlack
+	    },
+	    bodyBackground: _colors.grey900
 	};
 	
-	// shadowColor: fullBlack,
 	exports.default = CustomTheme;
 
 /***/ },
@@ -62518,10 +62673,65 @@
 	        pickerHeaderColor: _colors.cyan500,
 	        clockCircleColor: (0, _colorManipulator.fade)(_colors.darkBlack, 0.07),
 	        shadowColor: _colors.fullBlack
-	    }
+	    },
+	    bodyBackground: _colors.fullWhite
 	};
 	
 	exports.default = CustomTheme;
+
+/***/ },
+/* 490 */
+/*!**********************************************!*\
+  !*** ./~/material-ui/styles/muiThemeable.js ***!
+  \**********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	exports.default = muiThemeable;
+	
+	var _react = __webpack_require__(/*! react */ 2);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _getMuiTheme = __webpack_require__(/*! ./getMuiTheme */ 173);
+	
+	var _getMuiTheme2 = _interopRequireDefault(_getMuiTheme);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var DEFAULT_THEME = void 0;
+	
+	function getDefaultTheme() {
+	  if (!DEFAULT_THEME) {
+	    DEFAULT_THEME = (0, _getMuiTheme2.default)();
+	  }
+	  return DEFAULT_THEME;
+	}
+	
+	function muiThemeable() {
+	  return function (Component) {
+	    var MuiComponent = function MuiComponent(props, context) {
+	      var _context$muiTheme = context.muiTheme;
+	      var muiTheme = _context$muiTheme === undefined ? getDefaultTheme() : _context$muiTheme;
+	
+	
+	      return _react2.default.createElement(Component, _extends({ muiTheme: muiTheme }, props));
+	    };
+	
+	    MuiComponent.contextTypes = {
+	      muiTheme: _react.PropTypes.object.isRequired
+	    };
+	
+	    return MuiComponent;
+	  };
+	}
 
 /***/ }
 /******/ ]);

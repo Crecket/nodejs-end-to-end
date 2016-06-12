@@ -1,4 +1,5 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import TextField from 'material-ui/TextField';
 
@@ -27,5 +28,8 @@ class AesKey extends React.Component {
     };
 }
 
-
-export default AesKey;
+// give theme context
+AesKey.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(AesKey);

@@ -1,8 +1,9 @@
 import {
     cyan500, cyan700,
-    grey100, grey300, grey400, grey500,
+    grey100, grey300, grey400, grey500, 
     pinkA200,
-    white, darkBlack, fullBlack,
+    white, fullWhite,
+    darkBlack, fullBlack,
 } from 'material-ui/styles/colors';
 import {fade} from 'material-ui/utils/colorManipulator';
 
@@ -37,6 +38,7 @@ const CustomTheme = {
         clockCircleColor: fade(darkBlack, 0.07),
         shadowColor: fullBlack,
     },
+    bodyBackground: fullWhite,
 };
 
 export default CustomTheme;

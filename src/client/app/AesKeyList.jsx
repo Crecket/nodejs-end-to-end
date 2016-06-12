@@ -1,16 +1,11 @@
 import React  from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import AesKeyCollection from './aes/AesKeyCollection.jsx';
 
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
 
 const styles = {
-    paper: {
-        display: 'inline-block',
-        width: '100%',
-        overflow: 'auto',
-        maxHeight: 1400,
-    },
     keycollection: {
         margin: 20,
     }
@@ -34,7 +29,7 @@ class AesKeys extends React.Component {
                         <Card className="box-row">
                             <CardHeader
                                 title="AES Keys"
-                                style={{background: cyanA400}}
+                                style={{background: this.props.muiTheme.palette.primary1Color}}
                                 actAsExpander={true}
                                 showExpandableButton={true}
                             />
@@ -56,4 +51,8 @@ class AesKeys extends React.Component {
     };
 }
 
-export default AesKeys;
+// give theme context
+AesKeys.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+};
+export default muiThemeable()(AesKeys);
