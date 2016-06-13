@@ -77,6 +77,7 @@ class Main extends React.Component {
         socket.on('user_disconnect', fn._SocketUserDisconnect);
         socket.on('server_info', fn._SocketServerInfo);
         socket.on('connect', fn._SocketConnect);
+        socket.on('jwt_verify_callback', fn._SocketJWTCallback);
         socket.on('disconnect', fn._SocketDisconnect);
         socket.on('request verify', fn._SocketRequestVerify);
         socket.on('login_attempt_callback', fn._SocketLoginAttemptCallback);
@@ -96,6 +97,7 @@ class Main extends React.Component {
         // Remove socket listeners if component is about to umount
         socket.removeListener('server_info', fn._SocketServerInfo);
         socket.removeListener('connect', fn._SocketConnect);
+        socket.removeListener('jwt_verify_callback', fn._SocketJWTCallback);
         socket.removeListener('user_disconnect', fn._SocketUserDisconnect);
         socket.removeListener('disconnect', fn._SocketDisconnect);
         socket.removeListener('request verify', fn._SocketRequestVerify);
@@ -192,11 +194,30 @@ class Main extends React.Component {
         SessionHelper.resetUserList();
     };
 
+    // server's callback to the client sending its token
+    _SocketJWTCallback = (callback) => {
+        if (callback === true) {
+            // jwt token has been verified and is valid
+            this.setState({loggedin: true});
+        } else {
+            // delete the existing token since it is not valid
+            storageDelete('token');
+            debug('Deleting invalid jwt token');
+        }
+    };
+
     // Socket event listeners
     _SocketConnect = () => {
         info('Connected to server');
         if (this.state.connected === false) {
             this.setState({connected: true});
+        }
+        // check if we have a jwt token in storage
+        var jwtToken = storageGet('token');
+        if (jwtToken) {
+            // send jwt token to server
+            info('Sending stored JWT token');
+            socket.emit('jwt_verify', jwtToken);
         }
     };
 
@@ -238,6 +259,8 @@ class Main extends React.Component {
         } else {
             info('Succesful login attempt');
             this.setState({loggedin: true});
+            // store new jwt token
+            storageSet('token', response.jwtToken);
         }
         debug(response);
     };
@@ -354,21 +377,23 @@ class Main extends React.Component {
         ];
 
         return (
-            <div className={"wrap container-fluid " + this.state.muiTheme}
+            <div className={"wrap " + this.state.muiTheme}
                  style={{background: ThemesList[this.state.muiTheme].bodyBackground}}>
-                <Dialog
-                    title={this.state.modalTitle}
-                    actions={modalActions}
-                    modal={false}
-                    open={this.state.modalOpen}
-                    onRequestClose={this.closeModal}
-                >
-                    {this.state.modalMessage}
-                </Dialog>
+                <div className="container-fluid">
+                    <Dialog
+                        title={this.state.modalTitle}
+                        actions={modalActions}
+                        modal={false}
+                        open={this.state.modalOpen}
+                        onRequestClose={this.closeModal}
+                    >
+                        {this.state.modalMessage}
+                    </Dialog>
 
-                <MainAppbar loggedin={this.state.loggedin} setTheme={this.setTheme}/>
+                    <MainAppbar loggedin={this.state.loggedin} setTheme={this.setTheme}/>
 
-                {MainComponent}
+                    {MainComponent}
+                </div>
             </div>
         )
     };

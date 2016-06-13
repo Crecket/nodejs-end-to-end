@@ -54,7 +54,7 @@
     "dev": "webpack -d --watch --progress --colors ",
     "build": "webpack --progress --colors ",
     "browser": "browserify -r node-rsa > ./src/js/node-bundle.js",
-    "cert": "node generate.js domain rsa src/certs/"
+    "cert": "node generate.js localhost rsa src/server/certs/"
   },
   "repository": {
     "type": "git",

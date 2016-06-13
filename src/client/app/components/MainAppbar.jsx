@@ -6,6 +6,7 @@ import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import MessageIcon from 'material-ui/svg-icons/communication/message';
+import ColorLensIcon from 'material-ui/svg-icons/image/color-lens';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import {cyan800} from 'material-ui/styles/colors';
 
@@ -25,24 +26,17 @@ class MainAppbar extends React.Component {
         // main app bar at the top of the screen
         var mainAppBar = <AppBar
             style={styles.appbar}
-            title="End-To-End"
-            iconElementLeft={<IconButton><MessageIcon /></IconButton>}/>;
-
-        if (this.props.loggedin) {
-
-            // if we're logged in, show a extra menu
-            mainAppBar = <AppBar
-                style={styles.appbar}
-                title="NodeJS End-To-End"
-                iconElementLeft={<IconButton><MessageIcon /></IconButton>}
-                iconElementRight={<IconMenu
-                        iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-                        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                        anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
-                            <MenuItem primaryText="Sign out"/>
-                            <MenuItem onClick={this.props.setTheme} primaryText="Change Theme"/>
-                        </IconMenu>}/>;
-        }
+            title="NodeJS End-To-End"
+            iconElementLeft={<IconButton><MessageIcon /></IconButton>}
+            iconElementRight={<IconButton onClick={this.props.setTheme}><ColorLensIcon /></IconButton>}
+        />;
+        // menu item
+            // iconElementRight={<IconMenu
+            //             iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
+            //             targetOrigin={{horizontal: 'right', vertical: 'top'}}
+            //             anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
+            //                 <MenuItem onClick={this.props.setTheme} primaryText="Change Theme"/>
+            //             </IconMenu>}/>;
 
         return (
             <div className="row">

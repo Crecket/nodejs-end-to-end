@@ -50,7 +50,9 @@ class AesKeyCollection extends React.Component {
 
                                 <div className="col-xs-12">
                                     <div className="box-row">
-                                        <Subheader>AES key</Subheader>
+                                        <Subheader style={{color: this.props.muiTheme.palette.textColor}}>
+                                            AES key
+                                        </Subheader>
                                         <AesKey nameTag={Username + "aesKey"}
                                                 aesKey={AesKeyVar}/>
                                     </div>
@@ -58,7 +60,9 @@ class AesKeyCollection extends React.Component {
 
                                 <div className="col-xs-12 col-sm-6">
                                     <div className="box-row">
-                                        <Subheader>Public Encryption Key</Subheader>
+                                        <Subheader style={{color: this.props.muiTheme.palette.textColor}}>
+                                            Public Encryption Key
+                                        </Subheader>
                                         <RsaKey nameTag={Username + "publicEncryptionKey"}
                                                 rsaKey={PublicKey}/>
                                         <Md5Label nameTag="publicEncryptionMd5Label" MD5Val={PublicKey}/>
@@ -67,7 +71,9 @@ class AesKeyCollection extends React.Component {
 
                                 <div className="col-xs-12 col-sm-6">
                                     <div className="box-row">
-                                        <Subheader>Public Verification Key</Subheader>
+                                        <Subheader style={{color: this.props.muiTheme.palette.textColor}}>
+                                            Public Verification Key
+                                        </Subheader>
                                         <RsaKey nameTag={Username + "publicVerificationKey"}
                                                 rsaKey={PublicKeySign}/>
                                         <Md5Label nameTag="publicVerificationMd5Label" MD5Val={PublicKeySign}/>

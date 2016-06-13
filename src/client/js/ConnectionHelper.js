@@ -48,7 +48,7 @@ function ConnectionHelper(socket, CryptoHelper) {
     // shitty fix to store passwords while waiting for the salt
     var tempPassword = "",
         tempUsername = "";
-
+    
     // Attempt to verify username with server
     this.loginAttempt = function (username, password) {
         // Temporarily store password in var
@@ -82,6 +82,9 @@ function ConnectionHelper(socket, CryptoHelper) {
             verified = true;
             username = res.username;
             this.updateKey();
+            if (res.jwtToken) {
+                storageSet('token', res.jwtToken);
+            }
         }
     };
 

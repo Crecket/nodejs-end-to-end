@@ -863,8 +863,8 @@ body {
 
 .wrap {
     box-sizing: border-box;
-    max-width: 1200px;
-    min-height: 100%;
+    max-width: 100%;
+    min-height: 100vh;
     margin: 0 auto;
 }
 
@@ -876,6 +876,9 @@ body {
 .container-fluid {
     padding-right: 1rem;
     padding-left: 1rem;
+}
+.container-fluid {
+    max-width: 1200px;
 }
 
 .content {

@@ -1,6 +1,6 @@
 import {
     cyan700,
-    grey600, blueGrey500, grey900,
+    grey500, cyan600, grey900,
     pinkA100, pinkA200, pinkA400,
     fullWhite, fullBlack,
 } from 'material-ui/styles/colors';
@@ -23,8 +23,8 @@ const CustomTheme = {
     fontFamily: 'Roboto, sans-serif',
     palette: {
         primary1Color: cyan700,
-        primary2Color: cyan700,
-        primary3Color: grey600,
+        primary2Color: cyan600,
+        primary3Color: grey500,
         accent1Color: pinkA200,
         accent2Color: pinkA400,
         accent3Color: pinkA100,

@@ -64,7 +64,7 @@ class Settings extends React.Component {
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
                                                         <Subheader
-                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            style={{color: this.props.muiTheme.palette.textColor}}>
                                                             Private decryption key
                                                         </Subheader>
                                                         <RsaKey nameTag="privateDecryptionKey"
@@ -77,7 +77,7 @@ class Settings extends React.Component {
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
                                                         <Subheader
-                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            style={{color: this.props.muiTheme.palette.textColor}}>
                                                             Public encryption key
                                                         </Subheader>
                                                         <RsaKey nameTag="publicEncryptionKey"
@@ -112,7 +112,7 @@ class Settings extends React.Component {
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
                                                         <Subheader
-                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            style={{color: this.props.muiTheme.palette.textColor}}>
                                                             Private signing key
                                                         </Subheader>
                                                         <RsaKey nameTag="privateSigningKey"
@@ -125,7 +125,7 @@ class Settings extends React.Component {
                                                 <div className="col-xs-12 col-sm-6">
                                                     <div className="box-row">
                                                         <Subheader
-                                                            style={{color: this.context.muiTheme.palette.textColor}}>
+                                                            style={{color: this.props.muiTheme.palette.textColor}}>
                                                             Public verification key
                                                         </Subheader>
                                                         <RsaKey nameTag="publicVerificationKey"

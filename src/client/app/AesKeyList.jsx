@@ -3,7 +3,6 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 import AesKeyCollection from './aes/AesKeyCollection.jsx';
 
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
 
 const styles = {
     keycollection: {

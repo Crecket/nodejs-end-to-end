@@ -28,6 +28,43 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('user_disconnect', username, userManagement.session.getUserList());
     });
 
+    // client sends jwt token
+    socket.on('jwt_verify', function (token) {
+        var resultCallback = false;
+        try {
+            // attempt to verify the token
+            var decoded = jwt.verify(
+                token,
+                RSAPublicKey,
+                {
+                    algorithm: "RS256",
+                    issuer: 'Gregory Goijaerts'
+                }
+            );
+
+            // check if ip matches
+            if (ip = decoded.ip) {
+                // no errors if we reach this, token is valid
+                verified = true;
+
+                // Add user to userlist
+                userManagement.session.addUser(decoded.username, socketid, ip);
+
+                //set username
+                username = decoded.username;
+
+                // callback result to send to the client
+                resultCallback = true;
+            }else{
+                console.log('JWT token ip missmatch');
+            }
+        } catch (ex) {
+            // any error means the token is not valid
+        }
+        // send result to client
+        socket.emit('jwt_verify_callback', resultCallback);
+    });
+
     // incoming message request
     socket.on('message', function (messageData) {
 
@@ -164,7 +201,12 @@ io.on('connection', function (socket) {
     // TODO track failed attempts and other login essentials
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (usernameInput, password_cipher) {
-        var callbackResult = {'success': false, 'message': "Invalid login attempt", "username": false};
+        var callbackResult = {
+            'success': false,
+            'message': "Invalid login attempt",
+            "username": false,
+            'jwtToken': false
+        };
 
         var storedUsers = userManagement.users.getUserList();
 
@@ -205,6 +247,26 @@ io.on('connection', function (socket) {
                             // Add user to userlist
                             userManagement.session.addUser(lookupuser.username, socketid, ip);
                             username = lookupuser.username;
+
+                            // Create jwt token
+                            try {
+                                var token = jwt.sign(
+                                    {
+                                        username: username,
+                                        ip: ip
+                                    },
+                                    RSAPrivateKey,
+                                    {
+                                        algorithm: 'RS256',
+                                        issuer: "Gregory Goijaerts",
+                                        expiresIn: "30m"
+                                    }
+                                );
+                                // add token to callback
+                                callbackResult.jwtToken = token;
+                            } catch (ex) {
+                                console.log(ex);
+                            }
                         } else {
                             // user already has a active session
                             callbackResult.success = false;

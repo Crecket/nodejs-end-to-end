@@ -74,7 +74,7 @@ var userManagement = {
             // get file data
             fs.readFile('./src/server/configs/users.json', (err, data) => {
                 // TODO better error handling
-                let TempList;
+                var TempList;
                 if (err) {
                     // file does not exist, set default list
                     TempList = {};
@@ -144,6 +144,15 @@ var userManagement = {
         removeUser: function (username) {
             delete this.userList[tempUsername];
             this.saveUsers();
+        },
+        // create test accounts
+        createTestAccounts: function(amount){
+            if(!amount){
+                amount = 100;
+            }
+            for (var i = 0; i < amount; i++) {
+                userManagement.users.newUser('test' + i, '');
+            }
         }
     }
 };
