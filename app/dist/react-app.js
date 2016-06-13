@@ -21373,6 +21373,13 @@
 	            });
 	        };
 	
+	        _this.logout = function () {
+	            // log out
+	            _this.setState({ loggedin: false });
+	            // delete jwt tokens
+	            storageDelete('token');
+	        };
+	
 	        _this.openModal = function (message, title) {
 	            _this.setState({ modalOpen: true, modalMessage: message, modalTitle: title });
 	        };
@@ -21466,8 +21473,15 @@
 	            } else {
 	                info('Succesful login attempt');
 	                _this.setState({ loggedin: true });
-	                // store new jwt token
-	                storageSet('token', response.jwtToken);
+	
+	                // if rememberme has been checked
+	                if (_this.state.rememberMe) {
+	                    // store new jwt token
+	                    storageSet('token', response.jwtToken);
+	                } else {
+	                    // new sessino so delete existing token
+	                    storageDelete('token');
+	                }
 	            }
 	            debug(response);
 	        };
@@ -21529,6 +21543,7 @@
 	            publicKeySign: "",
 	            privateKeySign: "",
 	
+	            rememberMe: false,
 	            loggedin: false,
 	            loginLoading: false,
 	
@@ -21629,6 +21644,9 @@
 	
 	
 	        // set a new key set for the sign/verification keys
+	
+	
+	        // logout user and destroy any jwt tokens
 	
 	
 	        // open the general modal

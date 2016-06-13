@@ -34,6 +34,7 @@ class Main extends React.Component {
             publicKeySign: "",
             privateKeySign: "",
 
+            rememberMe: false,
             loggedin: false,
             loginLoading: false,
 
@@ -154,6 +155,14 @@ class Main extends React.Component {
         });
     }
 
+    // logout user and destroy any jwt tokens
+    logout = () => {
+        // log out
+        this.setState({loggedin: false});
+        // delete jwt tokens
+        storageDelete('token');
+    };
+
     // open the general modal
     openModal = (message, title) => {
         this.setState({modalOpen: true, modalMessage: message, modalTitle: title});
@@ -259,8 +268,15 @@ class Main extends React.Component {
         } else {
             info('Succesful login attempt');
             this.setState({loggedin: true});
-            // store new jwt token
-            storageSet('token', response.jwtToken);
+
+            // if rememberme has been checked
+            if (this.state.rememberMe) {
+                // store new jwt token
+                storageSet('token', response.jwtToken);
+            } else {
+                // new sessino so delete existing token
+                storageDelete('token');
+            }
         }
         debug(response);
     };

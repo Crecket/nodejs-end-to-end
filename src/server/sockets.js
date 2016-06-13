@@ -44,25 +44,29 @@ io.on('connection', function (socket) {
 
             // check if ip matches
             if (ip = decoded.ip) {
-                // no errors if we reach this, token is valid
-                verified = true;
 
-                // Add user to userlist
-                userManagement.session.addUser(decoded.username, socketid, ip);
+                var storedSessionUsers = userManagement.session.getUserList();
+                // check if this user aleady had a active session
+                if (!storedSessionUsers[decoded.username.toLowerCase()]) {
+                    // no errors if we reach this, token is valid
+                    verified = true;
 
-                //set username
-                username = decoded.username;
+                    // Add user to userlist
+                    userManagement.session.addUser(decoded.username, socketid, ip);
 
-                // callback result to send to the client
-                resultCallback = true;
-            }else{
-                console.log('JWT token ip missmatch');
+                    //set username
+                    username = decoded.username;
+
+                    // send result to client
+                    socket.emit('jwt_verify_callback', true);
+                }
+                return;
             }
         } catch (ex) {
             // any error means the token is not valid
         }
         // send result to client
-        socket.emit('jwt_verify_callback', resultCallback);
+        socket.emit('jwt_verify_callback', false);
     });
 
     // incoming message request
