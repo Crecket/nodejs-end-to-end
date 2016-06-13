@@ -3,8 +3,8 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import {blue100, cyanA400, lightBlue500} from 'material-ui/styles/colors';
 import Paper from 'material-ui/Paper';
+import Checkbox from 'material-ui/Checkbox';
 
 
 const styles = {
@@ -16,6 +16,9 @@ const styles = {
         padding: 20,
         textAlign: 'center',
         display: 'inline-block',
+    },
+    checkbox: {
+        marginTop: 6,
     },
 };
 
@@ -87,6 +90,13 @@ class Login extends React.Component {
                                     required autofocus
                                 />
                                 <br />
+                                <Checkbox
+                                    label="Remember Me"
+                                    defaultChecked={true}
+                                    onClick={this.props.remembermeCheckboxCallback}
+                                    style={styles.checkbox}
+                                />
+                                <br />
                                 <RaisedButton
                                     style={styles.inputs}
                                     type="submit"
@@ -94,7 +104,6 @@ class Login extends React.Component {
                                     onClick={this.handleSubmit}
                                     primary={true}
                                 />
-
                             </form>
                         </Paper>
                     </div>

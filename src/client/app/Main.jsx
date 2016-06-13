@@ -27,30 +27,37 @@ class Main extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
+            // server connection status
             connected: false,
 
+            // client public and private keys
             publicKey: "",
             privateKey: "",
             publicKeySign: "",
             privateKeySign: "",
 
-            rememberMe: false,
+            // login status
+            rememberMe: true,
             loggedin: false,
             loginLoading: false,
 
+            // stored session data
             targetName: '',
             users: {},
             userKeys: {},
 
+            // default modal state
             modalOpen: false,
             modalMessage: "",
             modalTitle: "",
 
+            // theme options
             muiTheme: 'CustomDark',
         };
 
     };
 
+    // set context for child components
     getChildContext() {
         if (typeof ThemesList[this.state.muiTheme] !== "undefined") {
             // check if style exists and than use it
@@ -68,13 +75,14 @@ class Main extends React.Component {
     componentDidMount() {
         var fn = this;
 
-        // delay because creating the keysets blocks browser rendering
+        // delay because creating the keyset generation blocks browser rendering
         setTimeout(function () {
             // create default keysets
             fn.refreshEncryptionKeys();
             fn.refreshSigningKeys();
         }, 150);
 
+        // set socket listeners
         socket.on('user_disconnect', fn._SocketUserDisconnect);
         socket.on('server_info', fn._SocketServerInfo);
         socket.on('connect', fn._SocketConnect);
@@ -163,6 +171,15 @@ class Main extends React.Component {
         storageDelete('token');
     };
 
+    // handle rememberme checkbox click
+    remembermeCheckbox = () => {
+        if (this.state.rememberMe) {
+            this.setState({rememberMe: false});
+        } else {
+            this.setState({rememberMe: true});
+        }
+    };
+
     // open the general modal
     openModal = (message, title) => {
         this.setState({modalOpen: true, modalMessage: message, modalTitle: title});
@@ -205,13 +222,9 @@ class Main extends React.Component {
 
     // server's callback to the client sending its token
     _SocketJWTCallback = (callback) => {
-        if (callback === true) {
+        if (ConnectionHelper.jwtLoginCallback(callback)) {
             // jwt token has been verified and is valid
             this.setState({loggedin: true});
-        } else {
-            // delete the existing token since it is not valid
-            storageDelete('token');
-            debug('Deleting invalid jwt token');
         }
     };
 
@@ -261,11 +274,7 @@ class Main extends React.Component {
     _SocketLoginAttemptCallback = (response) => {
         this.setState({loginLoading: false});
         SessionHelper.loginAttemptCallback(response);
-        if (response.success === false) {
-            warn('Unsuccesful login attempt');
-            this.setState({loggedin: false});
-            this.openModal(response.message, 'Login attempt failed');
-        } else {
+        if (response.success == true) {
             info('Succesful login attempt');
             this.setState({loggedin: true});
 
@@ -277,6 +286,11 @@ class Main extends React.Component {
                 // new sessino so delete existing token
                 storageDelete('token');
             }
+
+        } else {
+            warn('Unsuccesful login attempt');
+            this.setState({loggedin: false});
+            this.openModal(response.message, 'Login attempt failed');
         }
         debug(response);
     };
@@ -370,6 +384,7 @@ class Main extends React.Component {
                             className="center-xs"
                             loginLoadingState={this.state.loginLoading}
                             loginLoadingCallback={this.loginLoadingCallback}
+                            remembermeCheckboxCallback={this.remembermeCheckbox}
                         />
                     </div>
                 );
@@ -406,7 +421,11 @@ class Main extends React.Component {
                         {this.state.modalMessage}
                     </Dialog>
 
-                    <MainAppbar loggedin={this.state.loggedin} setTheme={this.setTheme}/>
+                    <MainAppbar
+                        loggedin={this.state.loggedin}
+                        setTheme={this.setTheme}
+                        logoutCallback={this.logout}
+                    />
 
                     {MainComponent}
                 </div>

@@ -30,7 +30,11 @@ io.on('connection', function (socket) {
 
     // client sends jwt token
     socket.on('jwt_verify', function (token) {
-        var resultCallback = false;
+        var resultCallback = {
+            success: true,
+            username: false
+        };
+        
         try {
             // attempt to verify the token
             var decoded = jwt.verify(
@@ -57,16 +61,16 @@ io.on('connection', function (socket) {
                     //set username
                     username = decoded.username;
 
-                    // send result to client
-                    socket.emit('jwt_verify_callback', true);
+                    // results
+                    resultCallback.success = true;
+                    resultCallback.username = username;
                 }
-                return;
             }
         } catch (ex) {
             // any error means the token is not valid
         }
         // send result to client
-        socket.emit('jwt_verify_callback', false);
+        socket.emit('jwt_verify_callback', resultCallback);
     });
 
     // incoming message request

@@ -32,14 +32,6 @@ class Settings extends React.Component {
         return false;
     };
 
-    componentDidMount() {
-        var fn = this;
-    };
-
-    componentWillUnmount() {
-        var fn = this;
-    };
-
     render() {
         return (
             <div className="row">

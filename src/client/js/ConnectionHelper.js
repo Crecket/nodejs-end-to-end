@@ -48,7 +48,7 @@ function ConnectionHelper(socket, CryptoHelper) {
     // shitty fix to store passwords while waiting for the salt
     var tempPassword = "",
         tempUsername = "";
-    
+
     // Attempt to verify username with server
     this.loginAttempt = function (username, password) {
         // Temporarily store password in var
@@ -86,6 +86,21 @@ function ConnectionHelper(socket, CryptoHelper) {
                 storageSet('token', res.jwtToken);
             }
         }
+    };
+
+    // set login based on server jwt response
+    this.jwtLoginCallback = function (res) {
+        if (res.success !== false) {
+            verified = true;
+            username = res.username;
+            this.updateKey();
+            return true;
+        } else {
+            // delete the existing token since it is not valid
+            storageDelete('token');
+            debug('Deleting invalid jwt token');
+        }
+        return false;
     };
 
     // Decrypt a cypher by using the created aes key

@@ -24,25 +24,29 @@ class MainAppbar extends React.Component {
 
     render() {
         // main app bar at the top of the screen
-        var mainAppBar = <AppBar
-            style={styles.appbar}
-            title="NodeJS End-To-End"
-            iconElementLeft={<IconButton><MessageIcon /></IconButton>}
-            iconElementRight={<IconButton onClick={this.props.setTheme}><ColorLensIcon /></IconButton>}
-        />;
-        // menu item
-            // iconElementRight={<IconMenu
-            //             iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-            //             targetOrigin={{horizontal: 'right', vertical: 'top'}}
-            //             anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
-            //                 <MenuItem onClick={this.props.setTheme} primaryText="Change Theme"/>
-            //             </IconMenu>}/>;
+        var rightButton = <IconButton onClick={this.props.setTheme}><ColorLensIcon /></IconButton>;
+
+        // if user is logged in, show a menu instead of single button
+        if (this.props.loggedin) {
+            rightButton = <IconMenu
+                iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
+                targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
+                <MenuItem onClick={this.props.logoutCallback} primaryText="Logout"/>
+                <MenuItem onClick={this.props.setTheme} primaryText="Change Theme"/>
+            </IconMenu>;
+        }
 
         return (
             <div className="row">
                 <div className="col-xs-12">
                     <div className="box">
-                        {mainAppBar}
+                        {<AppBar
+                            style={styles.appbar}
+                            title="NodeJS End-To-End"
+                            iconElementLeft={<IconButton><MessageIcon /></IconButton>}
+                            iconElementRight={rightButton}
+                        />}
                     </div>
                 </div>
             </div>
