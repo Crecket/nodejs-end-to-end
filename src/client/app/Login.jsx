@@ -26,11 +26,12 @@ const styles = {
 class Login extends React.Component {
     constructor(props, context) {
         super(props, context);
-        this.state = {};
-
-        // this.handleSubmit = this.handleSubmit.bind(this);
+        this.state = {
+            rememberme: false
+        };
     };
 
+    // submit login screen
     handleSubmit = (e) => {
         e.preventDefault();
         // get input field values
@@ -54,6 +55,18 @@ class Login extends React.Component {
         }
     };
 
+    // handle checkbox rememberme click
+    remembermeClick = () => {
+        if (this.state.rememberme === true) {
+            this.setState({rememberme: false});
+            this.props.remembermeCheckboxCallback(false);
+        } else {
+            this.setState({rememberme: true});
+            this.props.remembermeCheckboxCallback(true);
+        }
+    };
+
+    // login with random test account
     testLogin = (e) => {
         e.preventDefault();
         if (!this.props.loginLoadingState) {
@@ -92,8 +105,8 @@ class Login extends React.Component {
                                 <br />
                                 <Checkbox
                                     label="Remember Me"
-                                    defaultChecked={true}
-                                    onClick={this.props.remembermeCheckboxCallback}
+                                    checked={this.state.rememberme}
+                                    onClick={this.remembermeClick}
                                     style={styles.checkbox}
                                 />
                                 <br />

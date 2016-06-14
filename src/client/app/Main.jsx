@@ -37,7 +37,7 @@ class Main extends React.Component {
             privateKeySign: "",
 
             // login status
-            rememberMe: true,
+            rememberMe: false,
             loggedin: false,
             loginLoading: false,
 
@@ -172,12 +172,8 @@ class Main extends React.Component {
     };
 
     // handle rememberme checkbox click
-    remembermeCheckbox = () => {
-        if (this.state.rememberMe) {
-            this.setState({rememberMe: false});
-        } else {
-            this.setState({rememberMe: true});
-        }
+    remembermeCheckbox = (val) => {
+        this.setState({rememberMe: val});
     };
 
     // open the general modal
@@ -222,7 +218,7 @@ class Main extends React.Component {
 
     // server's callback to the client sending its token
     _SocketJWTCallback = (callback) => {
-        if (ConnectionHelper.jwtLoginCallback(callback)) {
+        if (SessionHelper.jwtLoginCallback(callback)) {
             // jwt token has been verified and is valid
             this.setState({loggedin: true});
         }
