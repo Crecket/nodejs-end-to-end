@@ -130,7 +130,7 @@ class NewMessageForm extends React.Component {
                                 onChange={this.handleChange}
                                 value={this.state.inputText}
                                 type="text"
-                                required autocomplete="off"
+                                required autoComplete="off"
                             />
                         </div>
                     </div>

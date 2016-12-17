@@ -13,7 +13,7 @@ class LoadScreen extends React.Component {
 
         return (
             <div style={inlineStyle}>
-                <CircularProgress size={1.5}/>
+                <CircularProgress size={15}/>
                 <p>{this.props.message}</p>
             </div>
         );

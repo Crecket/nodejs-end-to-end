@@ -91,7 +91,7 @@ class Login extends React.Component {
                                     ref="inputUsername"
                                     style={styles.inputs}
                                     type="text"
-                                    required autofocus
+                                    required autoFocus
                                 />
                                 <br/>
                                 <TextField
@@ -100,7 +100,7 @@ class Login extends React.Component {
                                     ref="inputPassword"
                                     style={styles.inputs}
                                     type="password"
-                                    required autofocus
+                                    required autoFocus
                                 />
                                 <br />
                                 <Checkbox

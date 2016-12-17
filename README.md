@@ -14,7 +14,7 @@ Demo can be found here: https://crecket.me:8888/
 - python (Used for node-bcrypt)
 
 ## Installation 
-First create a file 'app-vars.js' in the root and enter your mysql password. Next, run the following commands
+First create a file 'config.js' in the src/server/configs and enter your options. Next, run the following commands
 
 - npm run setup 
 - node app
