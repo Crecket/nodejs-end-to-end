@@ -1,6 +1,8 @@
 import React  from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 
+import CryptoHelper from '../js/CryptoHelper';
+
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
@@ -50,7 +52,7 @@ class Login extends React.Component {
                 // update login loading state
                 this.props.loginLoadingCallback();
                 // start a new login attempt
-                SessionHelper.loginAttempt(username, password);
+                this.props.ChatClient.loginAttempt(username, password);
             }
         }
     };
@@ -73,7 +75,7 @@ class Login extends React.Component {
             // update login loading state
             this.props.loginLoadingCallback();
             // start a new login attempt with a random test1 t/m test99 account
-            SessionHelper.loginAttempt('test' + (1 + Math.floor(Math.random() * 99)), '');
+            this.props.ChatClient.loginAttempt('test' + (1 + Math.floor(Math.random() * 99)), '');
         }
     };
 

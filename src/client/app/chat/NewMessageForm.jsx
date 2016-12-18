@@ -33,13 +33,13 @@ class NewMessageForm extends React.Component {
     componentDidMount() {
         var fn = this;
         // Received a message from server
-        socket.on('message_callback', fn._SocketMessageCallback);
+        this.props.socket.on('message_callback', fn._SocketMessageCallback);
     };
 
     componentWillUnmount() {
         var fn = this;
         // Remove socket listeners if component is about to umount
-        socket.removeListener('message_callback', fn._SocketMessageCallback);
+        this.props.socket.removeListener('message_callback', fn._SocketMessageCallback);
     };
 
     handleChange = () => {
@@ -48,14 +48,14 @@ class NewMessageForm extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        if (!this.state.messageLoading && SessionHelper.hasTarget()) {
+        if (!this.state.messageLoading && this.props.ChatClient.hasTarget()) {
             var message = this.refs.inputMessage.input.value;
             this.setState({inputText: ''});
 
             if (message && message.length > 0 && message.length < 255) {
                 this.setState({messageLoading: true});
-                if (SessionHelper.sendMessage(message)) {
-                    this.props.newMessageCallback(SessionHelper.getUsername(), message);
+                if (this.props.ChatClient.sendMessage(message)) {
+                    this.props.newMessageCallback(this.props.ChatClient.getUsername(), message);
                 }
             } else {
                 this.setState({messageLoading: false});
@@ -68,39 +68,7 @@ class NewMessageForm extends React.Component {
         this.setState({messageLoading: false});
     }
 
-    // checkboxClick = () => {
-    //     this.setState({checkboxToggle: !this.state.checkboxToggle}, function () {
-    //         SessionHelper.setFileSetting(this.state.checkboxToggle);
-    //     });
-    // };
-
     render() {
-
-        /*
-         until we fix everything else this will be disabled
-
-         var fileSendDiv;
-         if (this.state.checkboxToggle) {
-         fileSendDiv = (
-         <RaisedButton
-         label="Choose an Image"
-         labelPosition="before"
-         style={styles.button}
-         primary={true}
-         >
-         <input type="file" style={styles.imageInput}/>
-         </RaisedButton>
-         );
-         <Checkbox
-         label="Allow people to send me files"
-         checked={this.state.checkboxToggle}
-         onClick={this.checkboxClick}
-         />
-         <br />
-
-         {fileSendDiv}
-
-         }*/
 
         return (
             <form onSubmit={this.handleSubmit} method="post">

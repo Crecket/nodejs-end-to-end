@@ -8,7 +8,6 @@ import MenuItem from 'material-ui/MenuItem';
 import MessageIcon from 'material-ui/svg-icons/communication/message';
 import ColorLensIcon from 'material-ui/svg-icons/image/color-lens';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-import {cyan800} from 'material-ui/styles/colors';
 
 const styles = {
     appbar: {

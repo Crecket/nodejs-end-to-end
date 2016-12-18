@@ -1,6 +1,8 @@
 import React  from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 
+import CryptoHelper from '../../js/CryptoHelper';
+
 import Subheader from 'material-ui/Subheader';
 
 class Md5Label extends React.Component {

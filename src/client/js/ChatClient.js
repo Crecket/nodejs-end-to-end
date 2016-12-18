@@ -1,79 +1,77 @@
-import CryptoHelper from './CryptoHelperV2';
-
-// Create new helper object
-var CryptoHelperLib = new CryptoHelper();
+import CryptoHelper from './CryptoHelper';
 
 export default class ChatClient {
 
+    // set the this.socket
+    socket = null;
+
+    // current username
+    username = false;
+    // boolean wheter this client is verified or not
+    verified = false;
+
+    // ===========================================
+
+    // Full key set, used for decryption/encryption
+    keySet = false;
+    // This client's private key, only used for exporting
+    privateKey = false;
+    // This client's public key, only used for exporting
+    publicKey = false;
+
+    // ===========================================
+
+    // Full key set, used for signing/verification
+    keySetSign = false;
+    // This client's private key, only used for exporting Sign key
+    privateKeySign = false;
+    // This client's public key, only used for exporting Sign key
+    publicKeySign = false;
+
+    // ===========================================
+
+    // NodeJS public key
+    serverPublicKey = false;
+
+    // List off all user's and their rsa public keys
+    userList = {};
+    // stored aes keys for different users
+    storedKeys = {};
+
+    // username of current target for chat messages
+    targetName = false;
+    // Public key of current target for chat messages
+    targetKey = false;
+
+    // default setting whether this client wishes to receive files or not
+    allowFiles = false;
+
+    // shitty fix to store passwords while waiting for the salt
+    tempPassword = "";
+    tempUsername = "";
+
     constructor(socket) {
-        // set the this.socket
-        this.socket = this.socket;
-
-        // current username
-        this.username = false;
-        // boolean wheter this client is verified or not
-        this.verified = false;
-
-        // ===========================================
-
-        // Full key set, used for decryption/encryption
-        this.keySet = false;
-        // This client's private key, only used for exporting
-        this.privateKey = false;
-        // This client's public key, only used for exporting
-        this.publicKey = false;
-
-        // ===========================================
-
-        // Full key set, used for signing/verification
-        this.keySetSign = false;
-        // This client's private key, only used for exporting Sign key
-        this.privateKeySign = false;
-        // This client's public key, only used for exporting Sign key
-        this.publicKeySign = false;
-
-        // ===========================================
-
-        // NodeJS public key
-        this.serverPublicKey = false;
-
-        // List off all user's and their rsa public keys
-        this.userList = {};
-        // stored aes keys for different users
-        this.storedKeys = {};
-
-        // username of current target for chat messages
-        this.targetName = false;
-        // Public key of current target for chat messages
-        this.targetKey = false;
-
-        // default setting whether this client wishes to receive files or not
-        this.allowFiles = false;
-
-        // shitty fix to store passwords while waiting for the salt
-        this.tempPassword = "";
-        this.tempUsername = "";
-
+        this.socket = socket;
     }
 
     // Attempt to verify username with server
     loginAttempt = (username, password) => {
         // Temporarily store password in var
         this.tempPassword = password;
-        this.tempUsername = this.username;
+        this.tempUsername = username;
 
         // Send attempt to server
-        this.socket.emit('request_salt', this.username);
+        this.socket.emit('request_salt', username);
     };
 
     // Salt Callback for login attempt
     loginSaltCallback = (salt) => {
 
         // Hash password before submitting
-        var passwordHash = CryptoHelperLib.hash(this.tempPassword, salt);
+        var passwordHash = CryptoHelper.hash(this.tempPassword, salt);
 
         // Encrypt with server's public key
-        var passwordCipher = CryptoHelperLib.rsaEncryptPem(this.serverPublicKey, passwordHash);
+        var passwordCipher = CryptoHelper.rsaEncryptPem(this.serverPublicKey, passwordHash);
 
         // Send attempt to server
         this.socket.emit('login_attempt', this.tempUsername, passwordCipher);
@@ -118,7 +116,7 @@ export default class ChatClient {
         var message = false;
         if (this.storedKeys[receivedData.from]) {
             // Decrypt with the sender's aes key
-            message = CryptoHelperLib.aesDecrypt(receivedData.cypher, this.storedKeys[receivedData.from]['key'], receivedData.iv);
+            message = CryptoHelper.aesDecrypt(receivedData.cypher, this.storedKeys[receivedData.from]['key'], receivedData.iv);
         }
 
         callback(message);
@@ -129,10 +127,10 @@ export default class ChatClient {
         if (this.isVerified() && this.hasTarget()) {
 
             // random iv for every encryption
-            var iv = CryptoHelperLib.newAesIv();
+            var iv = CryptoHelper.newAesIv();
 
             // Encryp with a stored aes key
-            var messageCypher = CryptoHelperLib.aesEncrypt(message, this.targetKey, iv);
+            var messageCypher = CryptoHelper.aesEncrypt(message, this.targetKey, iv);
 
             // send the cypher and iv to target
             var messageData = {
@@ -182,7 +180,7 @@ export default class ChatClient {
         debug('Aes key request for ' + target);
 
         // for verification
-        var signature = CryptoHelperLib.rsaSign(this.keySetSign, 'Aes request from: ' + this.username);
+        var signature = CryptoHelper.rsaSign(this.keySetSign, 'Aes request from: ' + this.username);
 
         this.socket.emit('request_aes', {'target': target, 'from': this.username, 'signature': signature});
     };
@@ -199,11 +197,11 @@ export default class ChatClient {
                 var senderPublicKey = this.userList[response.from]['public_key_sign'];
 
                 // Next decrypt with our own private key
-                var serializedData = CryptoHelperLib.rsaDecrypt(this.keySet, response.cypher);
+                var serializedData = CryptoHelper.rsaDecrypt(this.keySet, response.cypher);
 
                 // verify rsa signed signature
                 // TODO timestamp
-                if (CryptoHelperLib.rsaVerify(senderPublicKey, serializedData, response.signature)) {
+                if (CryptoHelper.rsaVerify(senderPublicKey, serializedData, response.signature)) {
 
                     // parse data
                     var normalData = parseArray(serializedData);
@@ -221,14 +219,14 @@ export default class ChatClient {
                         info('AES request is valid, key has been stored');
 
                         // send a confirmation message to the other client
-                        var confirmIv = CryptoHelperLib.newAesIv();
+                        var confirmIv = CryptoHelper.newAesIv();
                         // message to encrypt and sign
-                        var confirmMessage = SessionHelper.getUsername() + ' confirms this key';
+                        var confirmMessage = this.getUsername() + ' confirms this key';
                         // sign and encrypt the message
                         var payload = {
-                            'cypher': CryptoHelperLib.aesEncrypt(confirmMessage, normalData.key, confirmIv),
+                            'cypher': CryptoHelper.aesEncrypt(confirmMessage, normalData.key, confirmIv),
                             'iv': confirmIv,
-                            'signature': CryptoHelperLib.rsaSign(this.keySetSign, confirmMessage),
+                            'signature': CryptoHelper.rsaSign(this.keySetSign, confirmMessage),
                             'success': true,
                             'from': this.username,
                             'target': response.from
@@ -260,10 +258,10 @@ export default class ChatClient {
 
             // first verify that the request was actually sent by the 'from' user
             // TODO timestamp
-            if (CryptoHelperLib.rsaVerify(senderPublickeySign, payLoad, request.signature)) {
+            if (CryptoHelper.rsaVerify(senderPublickeySign, payLoad, request.signature)) {
 
                 // generate new random iv and key
-                var key = CryptoHelperLib.newAesKey();
+                var key = CryptoHelper.newAesKey();
 
                 // store the key and iv
                 this.storedKeys[request.from] = {'key': key, 'rsa_keys': this.userList[request.from]};
@@ -272,10 +270,10 @@ export default class ChatClient {
                 var responseSerialized = serializeArray({'key': key});
 
                 // create a signature for our payload
-                var signature = CryptoHelperLib.rsaSign(this.keySetSign, responseSerialized);
+                var signature = CryptoHelper.rsaSign(this.keySetSign, responseSerialized);
 
                 // encryp with sender's public key
-                var cypherResult = CryptoHelperLib.rsaEncryptPem(senderPublickey, responseSerialized);
+                var cypherResult = CryptoHelper.rsaEncryptPem(senderPublickey, responseSerialized);
 
                 // send to the server
                 var payload = {
@@ -316,7 +314,7 @@ export default class ChatClient {
         if (this.storedKeys[response.from]) {
 
             // Decrypt with the sender's aes key
-            var confirmMessage = CryptoHelperLib.aesDecrypt(response.cypher, this.storedKeys[response.from]['key'], response.iv);
+            var confirmMessage = CryptoHelper.aesDecrypt(response.cypher, this.storedKeys[response.from]['key'], response.iv);
 
             // get the sender's public key from the stored user list
             var senderPublicKey = this.userList[response.from]['public_key_sign'];
@@ -324,7 +322,7 @@ export default class ChatClient {
             // if we have both a public key and we succesfully decrypted the test message
             if (senderPublicKey && confirmMessage) {
                 // TODO timestamp
-                if (CryptoHelperLib.rsaVerify(senderPublicKey, confirmMessage, response.signature)) {
+                if (CryptoHelper.rsaVerify(senderPublicKey, confirmMessage, response.signature)) {
                     resultMessage = 'valid';
                 }
             }
@@ -334,7 +332,7 @@ export default class ChatClient {
             'from': this.username,
             'target': response.from,
             'message': resultMessage,
-            'signature': CryptoHelperLib.rsaSign(this.keySetSign, resultMessage)
+            'signature': CryptoHelper.rsaSign(this.keySetSign, resultMessage)
         };
         this.socket.emit('confirm_aes_response', packageData);
 
@@ -361,7 +359,7 @@ export default class ChatClient {
             // if we have both a public key and we succesfully decrypted the test message
             if (senderPublicKey) {
                 // TODO timestamp
-                if (CryptoHelperLib.rsaVerify(senderPublicKey, response.message, response.signature)) {
+                if (CryptoHelper.rsaVerify(senderPublicKey, response.message, response.signature)) {
 
                     if (response.message === "valid") {
                         info('AES confirmation response was succesful and valid');
@@ -379,7 +377,7 @@ export default class ChatClient {
     // create a new key set for this client
     newKeySet = (callback) => {
         info('Creating new rsa key set for encryption');
-        var newKeyData = CryptoHelperLib.createKeySet(1024);
+        var newKeyData = CryptoHelper.createKeySet(1024);
         this.keySet = newKeyData.rsaObj;
         this.privateKey = newKeyData.privateKey;
         this.publicKey = newKeyData.publicKey;
@@ -393,7 +391,7 @@ export default class ChatClient {
     // create a new key set for this client
     newKeySetSign = (callback) => {
         info('Creating new rsa key set for signing');
-        var newKeyData = CryptoHelperLib.createKeySet(1024);
+        var newKeyData = CryptoHelper.createKeySet(1024);
         this.keySetSign = newKeyData.rsaObj;
         this.privateKeySign = newKeyData.privateKey;
         this.publicKeySign = newKeyData.publicKey;
@@ -452,7 +450,7 @@ export default class ChatClient {
                 return true;
             } else {
                 // we dont have a stored key, request a new one from target
-                fn.requestAesKey(newTarget);
+                this.requestAesKey(newTarget);
             }
         }
         return false;

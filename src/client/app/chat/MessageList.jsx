@@ -15,18 +15,18 @@ class MessageList extends React.Component {
     };
 
     render() {
-        var fn = this;
         return (
             <List className="userListReact">
                 <Subheader>Messages</Subheader>
-                {Object.keys(this.props.messageList).map(function (key) {
+                {Object.keys(this.props.messageList).map( (key)=> {
                     return <Message
                         key={key}
                         messageKey={key}
-                        userClickCallback={fn.props.userClickCallback}
-                        from={fn.props.messageList[key]['from']}
-                        when={fn.props.messageList[key]['when']}
-                        message={fn.props.messageList[key]['message']}/>;
+                        ChatClient={this.props.ChatClient}
+                        userClickCallback={this.props.userClickCallback}
+                        from={this.props.messageList[key]['from']}
+                        when={this.props.messageList[key]['when']}
+                        message={this.props.messageList[key]['message']}/>;
                 })}
             </List>
         );

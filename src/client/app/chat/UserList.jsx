@@ -29,12 +29,12 @@ class UserList extends React.Component {
             <List style={styles.userListStyle}>
                 <Subheader>Users</Subheader>
                 <Divider/>
-                {Object.keys(this.props.users).map(function (key) {
+                {Object.keys(this.props.users).map((key) => {
 
                     var userIcon = <LockOpen/>;
-                    if (SessionHelper.getUsername() === key) {
+                    if (this.props.ChatClient.getUsername() === key) {
                         userIcon = <Person/>;
-                    } else if (SessionHelper.hasAesKey(key)) {
+                    } else if (this.props.ChatClient.hasAesKey(key)) {
                         userIcon = <LockOutline/>;
                     }
 

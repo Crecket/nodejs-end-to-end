@@ -1,7 +1,8 @@
 // var NodeRSA = require('node-rsa');
 import NodeRSA from 'node-rsa';
+import CryptoJS from 'crypto-js';
 
-export default class CryptoHelperV2 {
+class CryptoHelper {
     // ======================== RSA ==========================
 
     // Create new RSA keyset, default keysize 1024 recommended
@@ -172,3 +173,4 @@ export default class CryptoHelperV2 {
         return CryptoJS.enc.Hex.stringify(bytes);
     };
 }
+export default new CryptoHelper();

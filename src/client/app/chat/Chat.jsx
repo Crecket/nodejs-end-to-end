@@ -42,13 +42,13 @@ class Chat extends React.Component {
     componentWillUnmount() {
         var fn = this;
         // Remove socket listeners if component is about to umount
-        this.state.socket.removeListener('message', fn._SocketMessage);
+        this.props.socket.removeListener('message', fn._SocketMessage);
     };
 
     _SocketMessage = (res) => {
         var fn = this;
         // send to session handler
-        SessionHelper.receiveMessage(res, function (callbackMessage) {
+        this.props.ChatClient.receiveMessage(res, function (callbackMessage) {
             if (callbackMessage !== false) {
                 fn.addMessage(res.from, callbackMessage);
             }
@@ -74,6 +74,8 @@ class Chat extends React.Component {
                     <div className="box-row">
                         <Paper style={style.paperAlt}>
                             <UserList
+                                socket={this.props.socket}
+                                ChatClient={this.props.ChatClient}
                                 users={this.props.users}
                                 userClickCallback={this.props.userClickCallback}
                             />
@@ -85,6 +87,8 @@ class Chat extends React.Component {
                     <div className="box-row">
                         <Paper style={style.paper}>
                             <NewMessageForm
+                                socket={this.props.socket}
+                                ChatClient={this.props.ChatClient}
                                 targetName={this.props.targetName}
                                 newMessageCallback={this.addMessage}
                             />
@@ -96,6 +100,8 @@ class Chat extends React.Component {
                     <div className="box-row">
                         <Paper style={style.paperAlt}>
                             <MessageList
+                                socket={this.props.socket}
+                                ChatClient={this.props.ChatClient}
                                 messageList={this.state.messageList}
                                 userClickCallback={this.props.userClickCallback}
                             />

@@ -8,10 +8,9 @@ class Message extends React.Component {
         super(props, context);
         this.state = {};
 
-        this.userClickCallback = this.userClickCallback.bind(this);
     };
 
-    userClickCallback() {
+    userClickCallback = () => {
         // send click event to react app
         this.props.userClickCallback(this.props.from);
     };
@@ -19,7 +18,7 @@ class Message extends React.Component {
     render() {
         var messageSender = <span>{this.props.when} - {this.props.from}</span>;
         // if its our own message, make bold
-        if (SessionHelper.getUsername() === this.props.from) {
+        if (this.props.ChatClient.getUsername() === this.props.from) {
             messageSender = <strong>{this.props.when} - {this.props.from}</strong>;
         }
         return (

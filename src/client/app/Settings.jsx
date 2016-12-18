@@ -23,15 +23,6 @@ class Settings extends React.Component {
         this.state = {};
     };
 
-    // react function to test if props and/or state have changed
-    shouldComponentUpdate(nextProps, nextState) {
-        // check if state has changed
-        if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
-            return true;
-        }
-        return false;
-    };
-
     render() {
         return (
             <div className="row">

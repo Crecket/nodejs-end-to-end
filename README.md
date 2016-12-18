@@ -8,8 +8,6 @@ Demo can be found here: https://crecket.me:8888/
 ## Requirements
 - node.js
 - npm 
-- browserify - npm install -g browserify 
-- gulp - npm install -g gulp 
 - python (Used for node-bcrypt)
 
 ## Installation 
@@ -21,12 +19,9 @@ First create a file 'config.js' in the src/server/configs and enter your options
 ## Commands list
 - `npm run setup` : Runs all required commands for the initial setup
 - `npm run refresh` : Similar to setup but this does not change your RSA/SSL certificates
-- `npm run browser` : Turns node-rsa into a package which we can use on the browser
 - `npm run build` : Runs the webpack script that compiles the files and creates the react application
 - `npm run dev` : Similar to `npm run build` except it also starts a watcher for development
 - `npm run cert` : Creates RSA and SSL certificates to be used in the application
-- `gulp` : Compiles any other non-react files
-- `gulp watch` : Similar to `gulp` except it also starts a watcher for development
 
 ## Rsa keys
 All clients have 2 2048 bit size key sets which are generated on page load. 

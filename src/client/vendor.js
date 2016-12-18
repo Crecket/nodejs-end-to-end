@@ -12,10 +12,6 @@ require('raw-loader!./js/CryptoJS/rollups/sha512.js');
 require('raw-loader!./js/CryptoJS/components/enc-base64.js');
 require('raw-loader!./js/CryptoJS/components/enc-base64.js');
 
-// require('file-loader?name=[name].[ext]!./js/node-bundle.js');
 require('file-loader?name=[name].[ext]!./js/Utils.js');
-// require('file-loader?name=[name].[ext]!./js/ConnectionHelper.js');
-// require('file-loader?name=[name].[ext]!./js/CryptoHelper.js');
-// require('file-loader?name=[name].[ext]!./js/Client.js');
 
 require('style!./css/style.css');
