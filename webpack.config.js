@@ -12,7 +12,7 @@ var config = {
     },
     output: {
         path: BUILD_DIR,
-        filename: 'react-app.js'
+        filename: '[name].js'
     },
     resolve: {
         extensions: ['', '.jsx', '.scss', '.js', '.json'],  // along the way, subsequent file(s) to be consumed by webpack
@@ -22,17 +22,11 @@ var config = {
         ]
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            name: "vendor",
-            filename: "vendor.js",
-            Infinity
-        }),
-        new webpack.ProvidePlugin({
-            $: "jquery",
-            jQuery: "jquery",
-            "window.jQuery": "jquery",
-            NodeRSA: "node-rsa"
-        }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: "vendor",
+        //     filename: "vendor.js",
+        //     Infinity
+        // }),
         new ExtractTextPlugin("[name].css", {
             allChunks: true
         }),

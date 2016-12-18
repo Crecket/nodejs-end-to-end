@@ -7,6 +7,9 @@ import MainAppbar from './components/MainAppbar.jsx';
 import AesKeyList from './AesKeyList.jsx';
 import Settings from './Settings.jsx';
 
+// Import the main chat client
+import ChatClient from '../js/ChatClient';
+
 // Themes
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import CustomDark from './themes/CustomDark';
@@ -52,11 +55,17 @@ class Main extends React.Component {
             modalTitle: "",
 
             // theme options
-            muiTheme: 'CustomDark'
+            muiTheme: 'CustomDark',
+
+            // Create socket connection
+            socket: io.connect('https://' + window.location.host, {secure: true})
         };
 
+        // Create the chat client
+        this.state.ChatClient = new ChatClient(this.state.socket);
+
         setInterval(() => {
-            socket.emit('heart_beat', 'oi');
+            this.state.socket.emit('heart_beat', 'oi');
         }, 5000);
     };
 
@@ -76,27 +85,28 @@ class Main extends React.Component {
     }
 
     componentDidMount() {
+
         // delay because creating the keyset generation blocks browser rendering
-        setTimeout( () =>{
+        setTimeout(() => {
             // create default keysets
             this.refreshEncryptionKeys();
             this.refreshSigningKeys();
         }, 150);
 
         // set socket listeners
-        socket.on('user_disconnect', this._SocketUserDisconnect);
-        socket.on('server_info', this._SocketServerInfo);
-        socket.on('connect', this._SocketConnect);
-        socket.on('jwt_verify_callback', this._SocketJWTCallback);
-        socket.on('disconnect', this._SocketDisconnect);
-        socket.on('request verify', this._SocketRequestVerify);
-        socket.on('login_attempt_callback', this._SocketLoginAttemptCallback);
-        socket.on('aesKeyRequest', this._SocketAesKeyRequest);
-        socket.on('aesKeyResponse', this._SocketAesKeyResponse);
-        socket.on('confirm_aes', this._SocketConfirmAes);
-        socket.on('confirm_aes_response', this._SocketConfirmAesResponse);
-        socket.on('public_key', this._SocketPublicKey);
-        socket.on('login_salt_callback', this._SocketLoginSaltCallback);
+        this.state.socket.on('user_disconnect', this._SocketUserDisconnect);
+        this.state.socket.on('server_info', this._SocketServerInfo);
+        this.state.socket.on('connect', this._SocketConnect);
+        this.state.socket.on('jwt_verify_callback', this._SocketJWTCallback);
+        this.state.socket.on('disconnect', this._SocketDisconnect);
+        this.state.socket.on('request verify', this._SocketRequestVerify);
+        this.state.socket.on('login_attempt_callback', this._SocketLoginAttemptCallback);
+        this.state.socket.on('aesKeyRequest', this._SocketAesKeyRequest);
+        this.state.socket.on('aesKeyResponse', this._SocketAesKeyResponse);
+        this.state.socket.on('confirm_aes', this._SocketConfirmAes);
+        this.state.socket.on('confirm_aes_response', this._SocketConfirmAesResponse);
+        this.state.socket.on('public_key', this._SocketPublicKey);
+        this.state.socket.on('login_salt_callback', this._SocketLoginSaltCallback);
 
         // set stored theme if it is stored already
         this.setTheme(storageGet("main_theme"));
@@ -105,19 +115,19 @@ class Main extends React.Component {
     componentWillUnmount() {
 
         // Remove socket listeners if component is about to umount
-        socket.removeListener('server_info', this._SocketServerInfo);
-        socket.removeListener('connect', this._SocketConnect);
-        socket.removeListener('jwt_verify_callback', this._SocketJWTCallback);
-        socket.removeListener('user_disconnect', this._SocketUserDisconnect);
-        socket.removeListener('disconnect', this._SocketDisconnect);
-        socket.removeListener('request verify', this._SocketRequestVerify);
-        socket.removeListener('login_attempt_callback', this._SocketLoginAttemptCallback);
-        socket.removeListener('aesKeyRequest', this._SocketAesKeyRequest);
-        socket.removeListener('aesKeyResponse', this._SocketAesKeyResponse);
-        socket.removeListener('confirm_aes', this._SocketConfirmAes);
-        socket.removeListener('confirm_aes_response', this._SocketConfirmAesResponse);
-        socket.removeListener('public_key', this._SocketPublicKey);
-        socket.removeListener('login_salt_callback', this._SocketLoginSaltCallback);
+        this.state.socket.removeListener('server_info', this._SocketServerInfo);
+        this.state.socket.removeListener('connect', this._SocketConnect);
+        this.state.socket.removeListener('jwt_verify_callback', this._SocketJWTCallback);
+        this.state.socket.removeListener('user_disconnect', this._SocketUserDisconnect);
+        this.state.socket.removeListener('disconnect', this._SocketDisconnect);
+        this.state.socket.removeListener('request verify', this._SocketRequestVerify);
+        this.state.socket.removeListener('login_attempt_callback', this._SocketLoginAttemptCallback);
+        this.state.socket.removeListener('aesKeyRequest', this._SocketAesKeyRequest);
+        this.state.socket.removeListener('aesKeyResponse', this._SocketAesKeyResponse);
+        this.state.socket.removeListener('confirm_aes', this._SocketConfirmAes);
+        this.state.socket.removeListener('confirm_aes_response', this._SocketConfirmAesResponse);
+        this.state.socket.removeListener('public_key', this._SocketPublicKey);
+        this.state.socket.removeListener('login_salt_callback', this._SocketLoginSaltCallback);
     };
 
     // change the theme
@@ -141,14 +151,14 @@ class Main extends React.Component {
 
     // set a new key set for the encryption/decryption keys
     refreshEncryptionKeys = () => {
-        SessionHelper.newKeySet( (keys)=> {
+        this.state.ChatClient.newKeySet((keys) => {
             this.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
         });
     }
 
     // set a new key set for the sign/verification keys
     refreshSigningKeys = () => {
-        SessionHelper.newKeySetSign( (keys)=> {
+        this.state.ChatClient.newKeySetSign((keys) => {
             this.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
         });
     }
@@ -178,7 +188,7 @@ class Main extends React.Component {
 
     // update the stored aes keys
     setUserKeys = () => {
-        this.setState({userKeys: SessionHelper.getKeyList()});
+        this.setState({userKeys: this.state.ChatClient.getKeyList()});
     }
 
     // set loading state
@@ -188,8 +198,8 @@ class Main extends React.Component {
 
     // handle user clicks on userlist or messagelist items
     userClickCallback = (userName) => {
-        if (SessionHelper.isVerified()) {
-            if (SessionHelper.setTarget(userName)) {
+        if (this.state.ChatClient.isVerified()) {
+            if (this.state.ChatClient.setTarget(userName)) {
                 this.setState({targetName: userName});
             }
         } else {
@@ -203,12 +213,12 @@ class Main extends React.Component {
         if (this.state.connected === true) {
             this.setState({connected: false, loginLoading: false, loggedin: false});
         }
-        SessionHelper.resetUserList();
+        this.state.ChatClient.resetUserList();
     };
 
     // server's callback to the client sending its token
     _SocketJWTCallback = (callback) => {
-        if (SessionHelper.jwtLoginCallback(callback)) {
+        if (this.state.ChatClient.jwtLoginCallback(callback)) {
             // jwt token has been verified and is valid
             this.setState({loggedin: true});
         }
@@ -225,15 +235,15 @@ class Main extends React.Component {
         if (jwtToken) {
             // send jwt token to server
             info('Sending stored JWT token');
-            socket.emit('jwt_verify', jwtToken);
+            this.state.socket.emit('jwt_verify', jwtToken);
         }
     };
 
     // listen for server info changes which affect the whole app
     _SocketServerInfo = (server_info) => {
-        SessionHelper.setServerPublicKey(server_info.publicKey);
+        this.state.ChatClient.setServerPublicKey(server_info.publicKey);
         this.setState({users: server_info.user_list, connected: true});
-        if (!SessionHelper.updateUserList(server_info.user_list)) {
+        if (!this.state.ChatClient.updateUserList(server_info.user_list)) {
             // current target is gone so reset the target input box
             this.setState({targetName: ''});
         }
@@ -243,7 +253,7 @@ class Main extends React.Component {
     _SocketUserDisconnect = (username, user_list) => {
         debug('User disconnected: ' + username);
         // first update the userlist
-        if (!SessionHelper.updateUserList(user_list)) {
+        if (!this.state.ChatClient.updateUserList(user_list)) {
             // current target is gone so reset the target input box
             this.setState({targetName: ""});
         }
@@ -259,7 +269,7 @@ class Main extends React.Component {
     // login attempt callback
     _SocketLoginAttemptCallback = (response) => {
         this.setState({loginLoading: false});
-        SessionHelper.loginAttemptCallback(response);
+        this.state.ChatClient.loginAttemptCallback(response);
         if (response.success == true) {
             info('Succesful login attempt');
             this.setState({loggedin: true});
@@ -284,7 +294,7 @@ class Main extends React.Component {
     // someone wants to chat and is requesting that we create a new aes key to use
     _SocketAesKeyRequest = (request) => {
         info('Received AES request');
-        SessionHelper.createNewAes(request);
+        this.state.ChatClient.createNewAes(request);
     };
 
     // other client wants a confirmation for this request
@@ -292,7 +302,7 @@ class Main extends React.Component {
         var fn = this;
         info('Received AES response');
         debug(response);
-        SessionHelper.setAesKey(response,  (success) =>{
+        this.state.ChatClient.setAesKey(response, (success) => {
             if (success) {
                 fn.setUserKeys();
             }
@@ -304,7 +314,7 @@ class Main extends React.Component {
         var fn = this;
         info('Received AES confirmation');
         debug(response);
-        SessionHelper.aesConfirmation(response,  (success) =>{
+        this.state.ChatClient.aesConfirmation(response, (success) => {
             if (success) {
                 fn.setUserKeys();
             }
@@ -315,7 +325,7 @@ class Main extends React.Component {
     _SocketConfirmAesResponse = (response) => {
         info('Received AES confirmation response');
         debug(response);
-        SessionHelper.aesConfirmationResponse(response,  (success) =>{
+        this.state.ChatClient.aesConfirmationResponse(response, (success) => {
             if (success) {
                 this.setUserKeys();
             }
@@ -326,13 +336,13 @@ class Main extends React.Component {
     _SocketLoginSaltCallback = (salt) => {
         debug('Salt callback');
         // send to session handler
-        SessionHelper.loginSaltCallback(salt);
+        this.state.ChatClient.loginSaltCallback(salt);
     };
 
     // Receive public key from server
     _SocketPublicKey = (response) => {
         log('Received server public key');
-        SessionHelper.setServerPublicKey(response);
+        this.state.ChatClient.setServerPublicKey(response);
     };
 
     render() {
@@ -342,12 +352,16 @@ class Main extends React.Component {
                 MainComponent = (
                     <div className="content">
                         <Chat
+                            socket={this.state.socket}
+                            ChatClient={this.state.ChatClient}
                             users={this.state.users}
                             targetName={this.state.targetName}
                             userClickCallback={this.userClickCallback}
                         />
 
                         <Settings
+                            socket={this.state.socket}
+                            ChatClient={this.state.ChatClient}
                             userKeys={this.state.userKeys}
                             encryptionKey={this.state.publicKey}
                             decryptionKey={this.state.privateKey}
@@ -358,6 +372,8 @@ class Main extends React.Component {
                         />
 
                         <AesKeyList
+                            socket={this.state.socket}
+                            ChatClient={this.state.ChatClient}
                             userKeys={this.state.userKeys}
                         />
                     </div>
@@ -366,6 +382,8 @@ class Main extends React.Component {
                 MainComponent = (
                     <div className="content">
                         <Login
+                            socket={this.state.socket}
+                            ChatClient={this.state.ChatClient}
                             className="center-xs"
                             loginLoadingState={this.state.loginLoading}
                             loginLoadingCallback={this.loginLoadingCallback}

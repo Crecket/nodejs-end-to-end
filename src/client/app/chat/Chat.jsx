@@ -36,13 +36,13 @@ class Chat extends React.Component {
         var fn = this;
 
         // Received a message from server
-        socket.on('message', fn._SocketMessage);
+        this.props.socket.on('message', fn._SocketMessage);
     };
 
     componentWillUnmount() {
         var fn = this;
         // Remove socket listeners if component is about to umount
-        socket.removeListener('message', fn._SocketMessage);
+        this.state.socket.removeListener('message', fn._SocketMessage);
     };
 
     _SocketMessage = (res) => {

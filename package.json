@@ -45,7 +45,7 @@
   "scripts": {
     "setup": "npm run refresh && npm run cert",
     "refresh": "npm update && npm run browser && npm run build",
-    "browser": "browserify -r node-rsa > ./src/client/js/node-bundle.js",
+    "browser": "browserify -r node-rsa > ./src/client/js/NodeRSA.js",
     "dev": "webpack -d --watch --progress --colors ",
     "build": "webpack -p --progress --colors ",
     "cert": "node generate.js localhost rsa src/server/certs/"
