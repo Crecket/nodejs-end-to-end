@@ -1,7 +1,7 @@
 import React  from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 
-import CryptoHelper from '../../js/CryptoHelper';
+import CryptoHelper from '../CryptoHelper';
 
 import Subheader from 'material-ui/Subheader';
 

@@ -1,7 +1,7 @@
 import React  from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 
-import CryptoHelper from '../js/CryptoHelper';
+import CryptoHelper from './CryptoHelper';
 
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';

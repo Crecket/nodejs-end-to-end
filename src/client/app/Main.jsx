@@ -8,7 +8,7 @@ import AesKeyList from './AesKeyList.jsx';
 import Settings from './Settings.jsx';
 
 // Import the main chat client
-import ChatClient from '../js/ChatClient';
+import ChatClient from './ChatClient';
 
 // Themes
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
