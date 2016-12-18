@@ -42,8 +42,8 @@
     "webpack": "^1.12.9"
   },
   "scripts": {
-    "setup": "npm run refresh && npm run cert",
-    "refresh": "npm update && npm run build",
+    "setup": "npm update && npm run build && npm run cert",
+    "start": "node app.js",
     "dev": "webpack -d --watch --progress --colors ",
     "build": "webpack -p --progress --colors ",
     "cert": "node generate.js localhost rsa src/server/certs/"

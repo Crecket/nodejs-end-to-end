@@ -17,11 +17,11 @@ First create a file 'config.js' in the src/server/configs and enter your options
 - node app
 
 ## Commands list
+- `npm run start` : Runs the node.js server
 - `npm run setup` : Runs all required commands for the initial setup
-- `npm run refresh` : Similar to setup but this does not change your RSA/SSL certificates
-- `npm run build` : Runs the webpack script that compiles the files and creates the react application
-- `npm run dev` : Similar to `npm run build` except it also starts a watcher for development
-- `npm run cert` : Creates RSA and SSL certificates to be used in the application
+- `npm run build` : Webpack script that compiles the files and creates a production ready app
+- `npm run dev` : Start webpack in development mode and enable a watcher
+- `npm run cert` : Creates RSA and SSL certificates to be used in the application, only use these certificates for debugging
 
 ## Rsa keys
 All clients have 2 2048 bit size key sets which are generated on page load. 
