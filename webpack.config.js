@@ -1,13 +1,15 @@
 var webpack = require('webpack');
 var path = require('path');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var BUILD_DIR = path.resolve(__dirname, 'app/dist');
 var SRC_DIR = path.resolve(__dirname, 'src');
 
 var config = {
-    entry: [
-        SRC_DIR + '/client/react-app.jsx'
-    ],
+    entry: {
+        app: SRC_DIR + '/client/react-app.jsx',
+        vendor: SRC_DIR + '/client/vendor.js'
+    },
     output: {
         path: BUILD_DIR,
         filename: 'react-app.js'
@@ -20,11 +22,18 @@ var config = {
         ]
     },
     plugins: [
+        new webpack.optimize.CommonsChunkPlugin({
+            name: "vendor",
+            filename: "vendor.js",
+        }),
         new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery",
             "window.jQuery": "jquery",
             NodeRSA: "node-rsa"
+        }),
+        new ExtractTextPlugin("[name].css", {
+            allChunks: true
         }),
         //Allows error warnings but does not stop compiling. Will remove when eslint is added
         new webpack.NoErrorsPlugin()
@@ -41,8 +50,15 @@ var config = {
                 loader: 'json-loader'
             }, {
                 test: /\.css$/,
-                loader: 'style!css?modules',
-                include: /flexboxgrid/,
+                loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+            },
+            {
+                test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                loader: "url-loader?limit=10000&mimetype=application/font-woff"
+            },
+            {
+                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                loader: "file-loader"
             }
         ]
     }

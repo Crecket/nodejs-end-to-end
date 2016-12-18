@@ -521,3 +521,5 @@ function ConnectionHelper(socket, CryptoHelper) {
         }
     };
 }
+
+window.ConnectionHelperLib = ConnectionHelper;

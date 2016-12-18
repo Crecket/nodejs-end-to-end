@@ -53,8 +53,13 @@ class Main extends React.Component {
 
             // theme options
             muiTheme: 'CustomDark',
+
+            socket: io.connect('https://' + window.location.host, {secure: true})
         };
 
+        setInterval(function () {
+            this.state.socket.emit('heart_beat', 'oi');
+        }, 5000);
     };
 
     // set context for child components
@@ -83,19 +88,19 @@ class Main extends React.Component {
         }, 150);
 
         // set socket listeners
-        socket.on('user_disconnect', fn._SocketUserDisconnect);
-        socket.on('server_info', fn._SocketServerInfo);
-        socket.on('connect', fn._SocketConnect);
-        socket.on('jwt_verify_callback', fn._SocketJWTCallback);
-        socket.on('disconnect', fn._SocketDisconnect);
-        socket.on('request verify', fn._SocketRequestVerify);
-        socket.on('login_attempt_callback', fn._SocketLoginAttemptCallback);
-        socket.on('aesKeyRequest', fn._SocketAesKeyRequest);
-        socket.on('aesKeyResponse', fn._SocketAesKeyResponse);
-        socket.on('confirm_aes', fn._SocketConfirmAes);
-        socket.on('confirm_aes_response', fn._SocketConfirmAesResponse);
-        socket.on('public_key', fn._SocketPublicKey);
-        socket.on('login_salt_callback', fn._SocketLoginSaltCallback);
+        this.state.socket.on('user_disconnect', fn._SocketUserDisconnect);
+        this.state.socket.on('server_info', fn._SocketServerInfo);
+        this.state.socket.on('connect', fn._SocketConnect);
+        this.state.socket.on('jwt_verify_callback', fn._SocketJWTCallback);
+        this.state.socket.on('disconnect', fn._SocketDisconnect);
+        this.state.socket.on('request verify', fn._SocketRequestVerify);
+        this.state.socket.on('login_attempt_callback', fn._SocketLoginAttemptCallback);
+        this.state.socket.on('aesKeyRequest', fn._SocketAesKeyRequest);
+        this.state.socket.on('aesKeyResponse', fn._SocketAesKeyResponse);
+        this.state.socket.on('confirm_aes', fn._SocketConfirmAes);
+        this.state.socket.on('confirm_aes_response', fn._SocketConfirmAesResponse);
+        this.state.socket.on('public_key', fn._SocketPublicKey);
+        this.state.socket.on('login_salt_callback', fn._SocketLoginSaltCallback);
 
         // set stored theme if it is stored already
         this.setTheme(storageGet("main_theme"));
@@ -104,19 +109,19 @@ class Main extends React.Component {
     componentWillUnmount() {
         var fn = this;
         // Remove socket listeners if component is about to umount
-        socket.removeListener('server_info', fn._SocketServerInfo);
-        socket.removeListener('connect', fn._SocketConnect);
-        socket.removeListener('jwt_verify_callback', fn._SocketJWTCallback);
-        socket.removeListener('user_disconnect', fn._SocketUserDisconnect);
-        socket.removeListener('disconnect', fn._SocketDisconnect);
-        socket.removeListener('request verify', fn._SocketRequestVerify);
-        socket.removeListener('login_attempt_callback', fn._SocketLoginAttemptCallback);
-        socket.removeListener('aesKeyRequest', fn._SocketAesKeyRequest);
-        socket.removeListener('aesKeyResponse', fn._SocketAesKeyResponse);
-        socket.removeListener('confirm_aes', fn._SocketConfirmAes);
-        socket.removeListener('confirm_aes_response', fn._SocketConfirmAesResponse);
-        socket.removeListener('public_key', fn._SocketPublicKey);
-        socket.removeListener('login_salt_callback', fn._SocketLoginSaltCallback);
+        this.state.socket.removeListener('server_info', fn._SocketServerInfo);
+        this.state.socket.removeListener('connect', fn._SocketConnect);
+        this.state.socket.removeListener('jwt_verify_callback', fn._SocketJWTCallback);
+        this.state.socket.removeListener('user_disconnect', fn._SocketUserDisconnect);
+        this.state.socket.removeListener('disconnect', fn._SocketDisconnect);
+        this.state.socket.removeListener('request verify', fn._SocketRequestVerify);
+        this.state.socket.removeListener('login_attempt_callback', fn._SocketLoginAttemptCallback);
+        this.state.socket.removeListener('aesKeyRequest', fn._SocketAesKeyRequest);
+        this.state.socket.removeListener('aesKeyResponse', fn._SocketAesKeyResponse);
+        this.state.socket.removeListener('confirm_aes', fn._SocketConfirmAes);
+        this.state.socket.removeListener('confirm_aes_response', fn._SocketConfirmAesResponse);
+        this.state.socket.removeListener('public_key', fn._SocketPublicKey);
+        this.state.socket.removeListener('login_salt_callback', fn._SocketLoginSaltCallback);
     };
 
     // react function to test if props and/or state have changed
@@ -235,7 +240,7 @@ class Main extends React.Component {
         if (jwtToken) {
             // send jwt token to server
             info('Sending stored JWT token');
-            socket.emit('jwt_verify', jwtToken);
+            this.state.socket.emit('jwt_verify', jwtToken);
         }
     };
 

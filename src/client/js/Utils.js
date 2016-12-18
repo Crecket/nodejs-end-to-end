@@ -109,3 +109,10 @@ function mapObject(object, callback) {
         return callback(key, object[key]);
     });
 }
+
+// console shortcuts
+var warn = console.warn.bind(window.console),
+    error = console.error.bind(window.console),
+    log = console.log.bind(window.console),
+    debug = console.debug.bind(window.console),
+    info = console.info.bind(window.console);

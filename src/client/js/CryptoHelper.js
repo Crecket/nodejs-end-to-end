@@ -1,4 +1,4 @@
-var NodeRSA = require('node-rsa');
+// var NodeRSA = require('node-rsa');
 
 function CryptoHelper() {
     var fn = this;
@@ -142,7 +142,7 @@ function CryptoHelper() {
     // SHA512 hashing + salt
     this.hash = function (text, salt) {
         // Return binary as hex
-        if(!salt){
+        if (!salt) {
             salt = '';
         }
         return CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(text + salt));
@@ -173,3 +173,5 @@ function CryptoHelper() {
         return CryptoJS.enc.Hex.stringify(bytes);
     };
 }
+
+window.CryptoHelperLib = CryptoHelper;
