@@ -8,7 +8,6 @@ Demo can be found here: https://crecket.me:8888/
 ## Requirements
 - node.js
 - npm 
-- bower - npm install -g bower
 - browserify - npm install -g browserify 
 - gulp - npm install -g gulp 
 - python (Used for node-bcrypt)

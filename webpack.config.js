@@ -25,6 +25,7 @@ var config = {
         new webpack.optimize.CommonsChunkPlugin({
             name: "vendor",
             filename: "vendor.js",
+            Infinity
         }),
         new webpack.ProvidePlugin({
             $: "jquery",

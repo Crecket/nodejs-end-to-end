@@ -173,5 +173,3 @@ function CryptoHelper() {
         return CryptoJS.enc.Hex.stringify(bytes);
     };
 }
-
-window.CryptoHelperLib = CryptoHelper;

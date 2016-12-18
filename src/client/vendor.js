@@ -1,20 +1,20 @@
-require('script-loader!../../node_modules/jquery/dist/jquery.min.js');
-// require('script-loader!../../node_modules/socket.io-client/dist/socket.io.js');
+require('raw-loader!../../node_modules/jquery/dist/jquery.min.js');
+require('raw-loader!../../node_modules/socket.io-client/dist/socket.io.js');
 
-require('script-loader!../../bower_components/cryptojslib/components/core.js');
-require('script-loader!../../bower_components/cryptojslib/components/hmac.js');
-require('script-loader!../../bower_components/cryptojslib/components/md5.js');
-require('script-loader!../../bower_components/cryptojslib/components/sha1.js');
-require('script-loader!../../bower_components/cryptojslib/components/sha256.js');
-require('script-loader!../../bower_components/cryptojslib/rollups/aes.js');
-require('script-loader!../../bower_components/cryptojslib/rollups/sha512.js');
-require('script-loader!../../bower_components/cryptojslib/components/enc-base64.js');
-require('script-loader!../../bower_components/cryptojslib/components/enc-base64.js');
+require('raw-loader!./js/CryptoJS/components/core.js');
+require('raw-loader!./js/CryptoJS/components/hmac.js');
+require('raw-loader!./js/CryptoJS/components/md5.js');
+require('raw-loader!./js/CryptoJS/components/sha1.js');
+require('raw-loader!./js/CryptoJS/components/sha256.js');
+require('raw-loader!./js/CryptoJS/rollups/aes.js');
+require('raw-loader!./js/CryptoJS/rollups/sha512.js');
+require('raw-loader!./js/CryptoJS/components/enc-base64.js');
+require('raw-loader!./js/CryptoJS/components/enc-base64.js');
 
-require('script-loader!./js/node-bundle.js');
-require('script-loader!./js/Utils.js');
-require('script-loader!./js/ConnectionHelper.js');
-require('script-loader!./js/CryptoHelper.js');
-require('script-loader!./js/Client.js');
+require('file-loader?name=[name].[ext]!./js/node-bundle.js');
+require('file-loader?name=[name].[ext]!./js/Utils.js');
+require('file-loader?name=[name].[ext]!./js/ConnectionHelper.js');
+require('file-loader?name=[name].[ext]!./js/CryptoHelper.js');
+require('file-loader?name=[name].[ext]!./js/Client.js');
 
 require('style!./css/style.css');

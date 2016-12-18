@@ -30,6 +30,7 @@
     "material-ui": "^0.16.4",
     "node-forge": "^0.6.39",
     "node-rsa": "^0.3.2",
+    "raw-loader": "^0.5.1",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-flexbox-grid": "^0.9.6",
@@ -43,10 +44,10 @@
   },
   "scripts": {
     "setup": "npm run refresh && npm run cert",
-    "refresh": "npm install && bower install && npm run browser && npm run build && gulp",
+    "refresh": "npm update && npm run browser && npm run build",
+    "browser": "browserify -r node-rsa > ./src/client/js/node-bundle.js",
     "dev": "webpack -d --watch --progress --colors ",
     "build": "webpack -p --progress --colors ",
-    "browser": "browserify -r node-rsa > ./src/client/js/node-bundle.js",
     "cert": "node generate.js localhost rsa src/server/certs/"
   },
   "repository": {

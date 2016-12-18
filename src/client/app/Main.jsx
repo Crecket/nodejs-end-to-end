@@ -52,13 +52,11 @@ class Main extends React.Component {
             modalTitle: "",
 
             // theme options
-            muiTheme: 'CustomDark',
-
-            socket: io.connect('https://' + window.location.host, {secure: true})
+            muiTheme: 'CustomDark'
         };
 
-        setInterval(function () {
-            this.state.socket.emit('heart_beat', 'oi');
+        setInterval(() => {
+            socket.emit('heart_beat', 'oi');
         }, 5000);
     };
 
@@ -78,59 +76,48 @@ class Main extends React.Component {
     }
 
     componentDidMount() {
-        var fn = this;
-
         // delay because creating the keyset generation blocks browser rendering
-        setTimeout(function () {
+        setTimeout( () =>{
             // create default keysets
-            fn.refreshEncryptionKeys();
-            fn.refreshSigningKeys();
+            this.refreshEncryptionKeys();
+            this.refreshSigningKeys();
         }, 150);
 
         // set socket listeners
-        this.state.socket.on('user_disconnect', fn._SocketUserDisconnect);
-        this.state.socket.on('server_info', fn._SocketServerInfo);
-        this.state.socket.on('connect', fn._SocketConnect);
-        this.state.socket.on('jwt_verify_callback', fn._SocketJWTCallback);
-        this.state.socket.on('disconnect', fn._SocketDisconnect);
-        this.state.socket.on('request verify', fn._SocketRequestVerify);
-        this.state.socket.on('login_attempt_callback', fn._SocketLoginAttemptCallback);
-        this.state.socket.on('aesKeyRequest', fn._SocketAesKeyRequest);
-        this.state.socket.on('aesKeyResponse', fn._SocketAesKeyResponse);
-        this.state.socket.on('confirm_aes', fn._SocketConfirmAes);
-        this.state.socket.on('confirm_aes_response', fn._SocketConfirmAesResponse);
-        this.state.socket.on('public_key', fn._SocketPublicKey);
-        this.state.socket.on('login_salt_callback', fn._SocketLoginSaltCallback);
+        socket.on('user_disconnect', this._SocketUserDisconnect);
+        socket.on('server_info', this._SocketServerInfo);
+        socket.on('connect', this._SocketConnect);
+        socket.on('jwt_verify_callback', this._SocketJWTCallback);
+        socket.on('disconnect', this._SocketDisconnect);
+        socket.on('request verify', this._SocketRequestVerify);
+        socket.on('login_attempt_callback', this._SocketLoginAttemptCallback);
+        socket.on('aesKeyRequest', this._SocketAesKeyRequest);
+        socket.on('aesKeyResponse', this._SocketAesKeyResponse);
+        socket.on('confirm_aes', this._SocketConfirmAes);
+        socket.on('confirm_aes_response', this._SocketConfirmAesResponse);
+        socket.on('public_key', this._SocketPublicKey);
+        socket.on('login_salt_callback', this._SocketLoginSaltCallback);
 
         // set stored theme if it is stored already
         this.setTheme(storageGet("main_theme"));
     };
 
     componentWillUnmount() {
-        var fn = this;
-        // Remove socket listeners if component is about to umount
-        this.state.socket.removeListener('server_info', fn._SocketServerInfo);
-        this.state.socket.removeListener('connect', fn._SocketConnect);
-        this.state.socket.removeListener('jwt_verify_callback', fn._SocketJWTCallback);
-        this.state.socket.removeListener('user_disconnect', fn._SocketUserDisconnect);
-        this.state.socket.removeListener('disconnect', fn._SocketDisconnect);
-        this.state.socket.removeListener('request verify', fn._SocketRequestVerify);
-        this.state.socket.removeListener('login_attempt_callback', fn._SocketLoginAttemptCallback);
-        this.state.socket.removeListener('aesKeyRequest', fn._SocketAesKeyRequest);
-        this.state.socket.removeListener('aesKeyResponse', fn._SocketAesKeyResponse);
-        this.state.socket.removeListener('confirm_aes', fn._SocketConfirmAes);
-        this.state.socket.removeListener('confirm_aes_response', fn._SocketConfirmAesResponse);
-        this.state.socket.removeListener('public_key', fn._SocketPublicKey);
-        this.state.socket.removeListener('login_salt_callback', fn._SocketLoginSaltCallback);
-    };
 
-    // react function to test if props and/or state have changed
-    shouldComponentUpdate(nextProps, nextState) {
-        // check if state has changed
-        if (JSON.stringify(this.state) !== JSON.stringify(nextState) || JSON.stringify(nextProps) !== JSON.stringify(this.props)) {
-            return true;
-        }
-        return false;
+        // Remove socket listeners if component is about to umount
+        socket.removeListener('server_info', this._SocketServerInfo);
+        socket.removeListener('connect', this._SocketConnect);
+        socket.removeListener('jwt_verify_callback', this._SocketJWTCallback);
+        socket.removeListener('user_disconnect', this._SocketUserDisconnect);
+        socket.removeListener('disconnect', this._SocketDisconnect);
+        socket.removeListener('request verify', this._SocketRequestVerify);
+        socket.removeListener('login_attempt_callback', this._SocketLoginAttemptCallback);
+        socket.removeListener('aesKeyRequest', this._SocketAesKeyRequest);
+        socket.removeListener('aesKeyResponse', this._SocketAesKeyResponse);
+        socket.removeListener('confirm_aes', this._SocketConfirmAes);
+        socket.removeListener('confirm_aes_response', this._SocketConfirmAesResponse);
+        socket.removeListener('public_key', this._SocketPublicKey);
+        socket.removeListener('login_salt_callback', this._SocketLoginSaltCallback);
     };
 
     // change the theme
@@ -154,17 +141,15 @@ class Main extends React.Component {
 
     // set a new key set for the encryption/decryption keys
     refreshEncryptionKeys = () => {
-        var fn = this;
-        SessionHelper.newKeySet(function (keys) {
-            fn.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
+        SessionHelper.newKeySet( (keys)=> {
+            this.setState({publicKey: keys.publicKey, privateKey: keys.privateKey})
         });
     }
 
     // set a new key set for the sign/verification keys
     refreshSigningKeys = () => {
-        var fn = this;
-        SessionHelper.newKeySetSign(function (keys) {
-            fn.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
+        SessionHelper.newKeySetSign( (keys)=> {
+            this.setState({publicKeySign: keys.publicKeySign, privateKeySign: keys.privateKeySign})
         });
     }
 
@@ -240,7 +225,7 @@ class Main extends React.Component {
         if (jwtToken) {
             // send jwt token to server
             info('Sending stored JWT token');
-            this.state.socket.emit('jwt_verify', jwtToken);
+            socket.emit('jwt_verify', jwtToken);
         }
     };
 
@@ -307,7 +292,7 @@ class Main extends React.Component {
         var fn = this;
         info('Received AES response');
         debug(response);
-        SessionHelper.setAesKey(response, function (success) {
+        SessionHelper.setAesKey(response,  (success) =>{
             if (success) {
                 fn.setUserKeys();
             }
@@ -319,7 +304,7 @@ class Main extends React.Component {
         var fn = this;
         info('Received AES confirmation');
         debug(response);
-        SessionHelper.aesConfirmation(response, function (success) {
+        SessionHelper.aesConfirmation(response,  (success) =>{
             if (success) {
                 fn.setUserKeys();
             }
@@ -328,12 +313,11 @@ class Main extends React.Component {
 
     // the client has sent a response to our confirmation request
     _SocketConfirmAesResponse = (response) => {
-        var fn = this;
         info('Received AES confirmation response');
         debug(response);
-        SessionHelper.aesConfirmationResponse(response, function (success) {
+        SessionHelper.aesConfirmationResponse(response,  (success) =>{
             if (success) {
-                fn.setUserKeys();
+                this.setUserKeys();
             }
         });
     };
