@@ -34,7 +34,8 @@ fs.stat(__dirname + '/../src/server/configs/config.js', function(err, stat) {
         // file does not exist
         copyFile(
             __dirname + '/../src/server/configs/config-template.js',
-            __dirname + '/../src/server/configs/config.js'
+            __dirname + '/../src/server/configs/config.js',
+            function(){}
         )
     } else {
         console.log('Config creation error: ', err.code);
