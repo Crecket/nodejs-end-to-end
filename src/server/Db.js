@@ -10,7 +10,15 @@ module.exports = function (config) {
     // create blank db file if it doesn't exist
     if (!exists) {
         console.log("Creating DB file.");
-        fs.openSync(config.database_location, "w");
+        // fs.openSync(config.database_location, "w");
+        fs.writeFile(config.database_location, "", function(err) {
+            if(err) {
+                console.log("Failed to create DB file.");
+                return;
+            }
+
+            console.log("Created DB file.");
+        });
     }
 
     // new db object
