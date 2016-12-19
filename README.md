@@ -18,6 +18,7 @@ First create a file 'config.js' in the src/server/configs and enter your options
 
 ## Commands list
 - `npm run start` : Runs the node.js server
+- `npm test` : Run the mocha unit test
 - `npm run setup` : Runs all required commands for the initial setup
 - `npm run build` : Webpack script that compiles the files and creates a production ready app
 - `npm run dev` : Start webpack in development mode and enable a watcher
