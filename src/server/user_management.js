@@ -122,7 +122,7 @@ module.exports = (Db) => {
                                             salt: clientSalt
                                         };
 
-                                        console.log("Inserted user " + username);
+                                        // console.log("Inserted user " + username);
                                         if (callback) {
                                             callback(!err);
                                         }
@@ -137,7 +137,7 @@ module.exports = (Db) => {
             removeUser: (username, callback) => {
                 // attempt to delete user
                 Db.run('DELETE FROM users WHERE username = ?', [username], (result, err) => {
-                    console.log("Removed user " + username);
+                    // console.log("Removed user " + username);
 
                     // remove user from list
                     delete userManagement.users.userList[username];

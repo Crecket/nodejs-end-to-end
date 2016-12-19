@@ -2,6 +2,17 @@ var assert = require('assert');
 
 var Db;
 var config;
+var userManagement;
+
+// userManagement.users.newUser('crecket', '1234', (success) => {
+//     console.log(success);
+//     if(success){
+//         userManagement.users.removeUser('crecket', (success) => {
+//             console.log(success);
+//         })
+//     }
+// })
+
 
 describe('Config', function () {
     it('Load config file', function () {
@@ -50,3 +61,43 @@ describe('Db', function () {
         });
     });
 });
+
+describe('Usermanager', function () {
+    it('Create the usermanagement object', function () {
+        userManagement = require('../src/server/user_management')(Db);
+    })
+
+    describe('loadUsers', function () {
+        it('Load the users from the database', function () {
+            userManagement.users.loadUsers();
+        })
+    })
+
+    describe('newUser', function () {
+        it('Insert a new user with the hashed password', function () {
+            return new Promise(function (resolve) {
+                userManagement.users.newUser('testusername123', '1234', function (success) {
+                    // assert we got no error
+                    assert.ok(success);
+
+                    // resolve the promise
+                    resolve();
+                })
+            })
+        })
+    })
+
+    describe('removeUser', function () {
+        it('Remove user', function () {
+            return new Promise(function (resolve) {
+                userManagement.users.removeUser('testusername123', function (success) {
+                    // assert we got no error
+                    assert.ok(success);
+
+                    // resolve the promise
+                    resolve();
+                })
+            })
+        })
+    })
+})
