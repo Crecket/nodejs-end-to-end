@@ -1,4 +1,7 @@
 # nodejs-end-to-end
+
+![Travis build status for Crecket/nodejs-end-to-end](https://img.shields.io/travis/Crecket/nodejs-end-to-end/master.svg)
+
 A simple (And probably insecure) attempt at end-to-end encryption using Javscript and NodeJS
 
 This project is just a test project to try out libraries and different setups and shouldn't be used in production.
