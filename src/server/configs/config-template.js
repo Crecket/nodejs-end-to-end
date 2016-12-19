@@ -11,7 +11,7 @@ config.onlineHostName = "example.com";
 config.sslOptions = {};
 
 // location of the database
-config.database_location = './src/server/data/database.db';
+config.database_location = __dirname + '/../data/database.db';
 
 // check if online host name is found
 if (os.hostname().trim() === config.onlineHostName) {
