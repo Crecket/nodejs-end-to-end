@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - "7.2.1"
+sudo: required
 addons:
   apt:
     sources:
