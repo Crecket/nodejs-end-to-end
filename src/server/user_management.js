@@ -80,9 +80,17 @@ module.exports = (Db) => {
             // load the userlist from the config
             loadUsers: () => {
                 // Select all users from the database
-                Db.all('SELECT * FROM users', (data, err) => {
+                Db.all('SELECT * FROM users', (err, data) => {
+                    var tempUserList = !data || err ? {} : data;
+                    var newUserList = {};
+
+                    // re-format list
+                    Object.keys(tempUserList).map((key)=>{
+                        newUserList[tempUserList[key]['username']] = tempUserList[key];
+                    })
+
                     // set to the users
-                    userManagement.users.userList = data && !err ? data : [];
+                    userManagement.users.userList = newUserList;
                 })
             },
 

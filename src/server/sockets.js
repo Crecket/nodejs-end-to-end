@@ -200,12 +200,6 @@ io.on('connection', function (socket) {
         }
     });
 
-    // change upload file setting
-    socket.on('upload_setting', function (bool) {
-        var userList = userManagement.session.getUserList();
-        userList[username]['allow_files'] = bool;
-    });
-
     // TODO track failed attempts and other login essentials
     // Receive a hash password and re-hash it to verify with the server
     socket.on('login_attempt', function (usernameInput, password_cipher) {
@@ -216,6 +210,7 @@ io.on('connection', function (socket) {
             'jwtToken': false
         };
 
+        // get the stored user list
         var storedUsers = userManagement.users.getUserList();
 
         if (!verified) {
@@ -223,15 +218,19 @@ io.on('connection', function (socket) {
             console.log('');
             console.log('Login attempt ' + usernameInput);
 
+            // check if we got the password cipher
             if (password_cipher) {
+                // decrypt the password cipher
                 var password_hash = rsaDecrypt(password_cipher);
             } else {
+                // invalid attempt
                 callbackResult.message = "Invalid login attempt";
                 callbackResult.success = false;
                 socket.emit('login_attempt_callback', callbackResult);
                 return;
             }
 
+            // the user we're going to lookup
             var lookupuser = storedUsers[usernameInput.toLowerCase()];
 
             // Only want 1 user/result
@@ -283,7 +282,7 @@ io.on('connection', function (socket) {
 
                     } else {
                         callbackResult.message = "Invalid login attempt";
-                        console.log('Return result', callbackResult);
+                        console.log('Return result 3', callbackResult);
                     }
 
                     socket.emit('login_attempt_callback', callbackResult);
@@ -291,7 +290,7 @@ io.on('connection', function (socket) {
 
             } else {
                 callbackResult.message = "Invalid login attempt";
-                console.log('Return result', callbackResult);
+                console.log('Return result 2', callbackResult);
                 socket.emit('login_attempt_callback', callbackResult);
             }
         } else {
