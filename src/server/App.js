@@ -17,6 +17,12 @@ module.exports = class Server {
         // load the usermanagement moduel
         this.userManagement = require(__dirname + '/UserManagement.js')(this.db);
 
+        // Create the test accounts
+        // this.userManagement.users.createTestAccounts(100);
+
+        // Load all users from database
+        this.userManagement.users.loadUsers();
+
         // Current time
         this.serverTime = Math.floor(Date.now() / 1000);
 

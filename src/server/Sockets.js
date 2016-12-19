@@ -5,7 +5,7 @@ var fs = require('fs');
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 
-module.exports = function(io, Server){
+module.exports = function (io, Server) {
 
     io.on('connection', function (socket) {
 
@@ -309,6 +309,12 @@ module.exports = function(io, Server){
                 socket.emit('login_attempt_callback', callbackResult);
             }
         });
+
+        // client wants to log out
+        socket.on('logout', () => {
+            // remove user from session
+            Server.usermanagement.session.removeUser(username);
+        })
 
         // refresh user timestamps
         socket.on('heart_beat', function () {

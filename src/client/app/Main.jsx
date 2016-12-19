@@ -165,8 +165,12 @@ class Main extends React.Component {
 
     // logout user and destroy any jwt tokens
     logout = () => {
-        // log out
+        // send logout request
+        this.state.socket.emit('logout');
+
+        // log out locally
         this.setState({loggedin: false});
+
         // delete jwt tokens
         storageDelete('token');
     };
