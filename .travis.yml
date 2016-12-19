@@ -2,6 +2,10 @@ language: node_js
 node_js:
   - "7.2.1"
 sudo: required
+before_script:
+  - npm install
+  - npm run build
+  - npm run cert
 addons:
   apt:
     sources:

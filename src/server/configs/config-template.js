@@ -28,8 +28,8 @@ if (os.hostname().trim() === config.onlineHostName) {
 } else {
     // local settings, no CA is required since we use self signed certificates
     config.sslOptions = {
-        key: fs.readFileSync('src/server/certs/example.com.key'),
-        cert: fs.readFileSync('src/server/certs/domain.crt'),
+        key: fs.readFileSync('src/server/certs/localhost.key'),
+        cert: fs.readFileSync('src/server/certs/localhost.crt'),
         ciphers: ["ECDHE-RSA-AES256-SHA384", "DHE-RSA-AES256-SHA384", "ECDHE-RSA-AES256-SHA256", "DHE-RSA-AES256-SHA256", "ECDHE-RSA-AES128-SHA256", "DHE-RSA-AES128-SHA256", "HIGH", "!aNULL", "!eNULL", "!EXPORT", "!DES", "!RC4", "!MD5", "!PSK", "!SRP", "!CAMELLIA"].join(':'),
         honorCipherOrder: true,
         requestCert: false
