@@ -102,7 +102,7 @@ class Login extends React.Component {
                                     ref="inputPassword"
                                     style={styles.inputs}
                                     type="password"
-                                    required autoFocus
+                                    required
                                 />
                                 <br />
                                 <Checkbox

@@ -42,12 +42,16 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.12.9"
   },
+  "devDependencies": {
+    "mocha": "^3.2.0"
+  },
   "scripts": {
     "setup": "npm update && npm run build && npm run cert",
     "start": "node app.js",
     "dev": "webpack -d --watch --progress --colors ",
     "build": "webpack -p --progress --colors ",
-    "cert": "node generate.js localhost rsa src/server/certs/"
+    "cert": "node generate.js localhost rsa src/server/certs/",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
