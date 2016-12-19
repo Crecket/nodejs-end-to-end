@@ -3,19 +3,18 @@ var fs = require('fs');
 var sqlite3 = require("sqlite3");
 
 module.exports = function (config) {
-    const sqliteDbLocation = './src/server/data/database.db';
 
     // check if db exists
-    var exists = fs.existsSync(sqliteDbLocation);
+    var exists = fs.existsSync(config.database_location);
 
     // create blank db file if it doesn't exist
     if (!exists) {
         console.log("Creating DB file.");
-        fs.openSync(sqliteDbLocation, "w");
+        fs.openSync(config.database_location, "w");
     }
 
     // new db object
-    var db = new sqlite3.Database(sqliteDbLocation);
+    var db = new sqlite3.Database(config.database_location);
 
     // if no database exists, create initial tables
     db.run('CREATE TABLE IF NOT EXISTS "users"(\
