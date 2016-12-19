@@ -6,11 +6,12 @@
 /src/server/certs/*
 !/src/server/certs/empty
 
-# user list
-/src/server/configs/users.json
-
 # config file
 /src/server/configs/config.js
 
 # build files
 /app/dist/
+
+# database file
+/src/server/data/database.db
+/src/server/data/users.json

@@ -1,14 +1,17 @@
 {
   "restartable": "rs",
+  "verbose": true,
   "ignore": [
     ".git",
     ".idea",
     "node_modules/**/node_modules",
-    "app/dist/*"
+    "app/dist/*",
+    "src/server/data/database.db",
+    "src/server/data/users.json"
   ],
-  "verbose": true,
   "watch": [
-    "src/server/**/*"
+    "src/server/**/*",
+    "app.js"
   ],
   "env": {
     "NODE_ENV": "development"

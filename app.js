@@ -38,11 +38,17 @@ var jwt = require('jsonwebtoken');
 // Load app-vars
 var config = require('./src/server/configs/config');
 
+var Db = require('./src/server/Db')(config);
+
 // Load user management
-var userManagement = require('./src/server/user_management');
+var userManagement = require('./src/server/user_management')(Db);
 
 // load initial users
 userManagement.users.loadUsers();
+
+userManagement.users.newUser('crecket', '1234',(res1, res2)=>{
+    console.log(res1, res2);
+})
 
 // start servertime
 var serverTime = Math.floor(Date.now() / 1000);
@@ -72,3 +78,5 @@ eval(fs.readFileSync('./src/server/express.js') + '');
 // Io connection listener
 eval(fs.readFileSync('./src/server/sockets.js') + '');
 
+
+//*/
