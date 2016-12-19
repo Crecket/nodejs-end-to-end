@@ -14,7 +14,7 @@ var fs = require('fs');
 var crypto = require('crypto');
 
 // Random 128 byte token
-randomToken = () => {
+var randomToken = () => {
     return crypto.randomBytes(128).toString('hex');
 }
 
