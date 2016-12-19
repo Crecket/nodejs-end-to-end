@@ -46,9 +46,15 @@ var userManagement = require('./src/server/user_management')(Db);
 // load initial users
 userManagement.users.loadUsers();
 
-userManagement.users.newUser('crecket', '1234',(res1, res2)=>{
-    console.log(res1, res2);
-})
+// userManagement.users.newUser('crecket', '1234', (success) => {
+//     console.log(success);
+//     if(success){
+//         userManagement.users.removeUser('crecket', (success) => {
+//             console.log(success);
+//         })
+//     }
+// })
+
 
 // start servertime
 var serverTime = Math.floor(Date.now() / 1000);

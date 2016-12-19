@@ -85,20 +85,9 @@ module.exports = (Db) => {
                     userManagement.users.userList = data && !err ? data : [];
                 })
             },
-            // store the user list into the config
-            saveUsers: () => {
-                var stringified = JSON.stringify(userManagement.users.userList);
-                fs.writeFile('./src/server/data/users.json', stringified, (err) => {
-                    if (err) {
-                        console.log('Server failed to save the user list to the config file.');
-                        console.log(err.message);
-                        return;
-                    }
-                });
-            },
+
             // add a new user to the config files
             newUser: (username, password, callback) => {
-                console.log(userManagement.users);
                 // check if user already exists
                 if (!userManagement.users.userList[username.toLowerCase()]) {
 
@@ -112,39 +101,54 @@ module.exports = (Db) => {
                     bcrypt.genSalt(11, (err, salt) => {
                         bcrypt.hash(clientHash, salt, (err, hash) => {
                             if (!err && hash) {
-                                // store in the userlist array
-                                // userManagement.users.userList[username.toLowerCase()] = {
-                                //     username: username,
-                                //     password: hash,
-                                //     salt: clientSalt
-                                // };
-                                //
-                                // // store the new list in json
-                                // userManagement.users.saveUsers();
-
-                                Db.run('INSERT IGNORE INTO users (username, password, salt) VALUES(?,?,?)',
-                                    [username, hash, clientSalt],
+                                // attempt to insert into the database
+                                Db.run('INSERT OR REPLACE INTO users (username, password, salt) VALUES(?,?,?)',
+                                    // insert values
+                                    [username.toLowerCase(), hash, clientSalt],
+                                    // callback
                                     (result, err) => {
-                                        callback(result && !err);
-                                    })
+                                        // update the value
+                                        userManagement.users.userList[username.toLowerCase()] = {
+                                            username: username,
+                                            password: hash,
+                                            salt: clientSalt
+                                        };
+
+                                        console.log("Inserted user " + username);
+                                        if (callback) {
+                                            callback(!err);
+                                        }
+                                    }
+                                )
                             }
                         });
                     });
                 }
             },
             // delete a user
-            removeUser: (username) => {
-                delete userManagement.users.userList[tempUsername];
-                userManagement.users.saveUsers();
+            removeUser: (username, callback) => {
+                // attempt to delete user
+                Db.run('DELETE FROM users WHERE username = ?', [username], (result, err) => {
+                    console.log("Removed user " + username);
+
+                    // remove user from list
+                    delete userManagement.users.userList[username];
+
+                    if (callback) {
+                        callback(!err);
+                    }
+                })
             },
             // create test accounts
             createTestAccounts: (amount) => {
                 if (!amount) {
                     amount = 100;
                 }
-                for (var i = 0; i < amount; i++) {
-                    userManagement.users.newUser('test' + i, '');
-                }
+                // create 1 new user with amount
+                userManagement.users.newUser('test' + amount, '', (result) => {
+                    // rerun function but with 1 less user
+                    userManagement.users.createTestAccounts(amount - 1);
+                });
             }
         }
     };
