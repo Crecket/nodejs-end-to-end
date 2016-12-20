@@ -93,6 +93,19 @@ export default class ChatClient {
         }
     };
 
+    // logout this user/client
+    logout = () => {
+        // delete username/verfied status
+        this.verified = false;
+        this.username = false;
+
+        // send logout request
+        this.socket.emit('logout');
+
+        // delete the token if we have one
+        storageDelete('token');
+    }
+
     // set login based on server jwt response
     jwtLoginCallback = (res) => {
         if (res.success !== false) {

@@ -165,14 +165,11 @@ class Main extends React.Component {
 
     // logout user and destroy any jwt tokens
     logout = () => {
-        // send logout request
-        this.state.socket.emit('logout');
-
-        // log out locally
+        // log out react app
         this.setState({loggedin: false});
 
-        // delete jwt tokens
-        storageDelete('token');
+        // logout the client
+        this.state.ChatClient.logout();
     };
 
     // handle rememberme checkbox click

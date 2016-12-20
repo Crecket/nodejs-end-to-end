@@ -313,7 +313,14 @@ module.exports = function (io, Server) {
         // client wants to log out
         socket.on('logout', () => {
             // remove user from session
-            Server.usermanagement.session.removeUser(username);
+            Server.userManagement.session.removeUser(username);
+
+            // unset variables
+            username = false;
+            verified = false;
+
+            // send to all clients
+            socket.broadcast.emit('user_disconnect', username, Server.userManagement.session.getUserList());
         })
 
         // refresh user timestamps
