@@ -226,93 +226,95 @@ module.exports = function (io, Server) {
             };
 
             // get the stored user list
-            var storedUsers = Server.userManagement.users.getUserList();
+            // var storedUsers = Server.userManagement.users.getUserList();
+            Server.userManagement.users.getUserList(false)
+                .then((storedUsers) => {
+                    if (!verified) {
 
-            if (!verified) {
+                        console.log('');
+                        console.log('Login attempt ' + usernameInput);
 
-                console.log('');
-                console.log('Login attempt ' + usernameInput);
+                        // check if we got the password cipher
+                        if (password_cipher) {
+                            // decrypt the password cipher
+                            var password_hash = rsaDecrypt(password_cipher);
+                        } else {
+                            // invalid attempt
+                            callbackResult.message = "Invalid login attempt";
+                            callbackResult.success = false;
+                            socket.emit('login_attempt_callback', callbackResult);
+                            return;
+                        }
 
-                // check if we got the password cipher
-                if (password_cipher) {
-                    // decrypt the password cipher
-                    var password_hash = rsaDecrypt(password_cipher);
-                } else {
-                    // invalid attempt
-                    callbackResult.message = "Invalid login attempt";
-                    callbackResult.success = false;
-                    socket.emit('login_attempt_callback', callbackResult);
-                    return;
-                }
+                        // the user we're going to lookup
+                        var lookupuser = storedUsers[usernameInput.toLowerCase()];
 
-                // the user we're going to lookup
-                var lookupuser = storedUsers[usernameInput.toLowerCase()];
+                        // Only want 1 user/result
+                        if (lookupuser) {
+                            // hash from the database
+                            var db_hash = lookupuser.password;
 
-                // Only want 1 user/result
-                if (lookupuser) {
-                    // hash from the database
-                    var db_hash = lookupuser.password;
+                            // compare password hash with db_hash
+                            bcrypt.compare(password_hash, db_hash, function (err, res) {
+                                if (!err && res) {
 
-                    // compare password hash with db_hash
-                    bcrypt.compare(password_hash, db_hash, function (err, res) {
-                        if (!err && res) {
+                                    var storedSessionUsers = Server.userManagement.session.getUserList();
 
-                            var storedSessionUsers = Server.userManagement.session.getUserList();
+                                    // check if the user is already active
+                                    if (!storedSessionUsers[usernameInput.toLowerCase()]) {
+                                        callbackResult.success = true;
+                                        callbackResult.message = 'Succesfully logged in';
+                                        callbackResult.username = lookupuser.username;
+                                        verified = true;
 
-                            // check if the user is already active
-                            if (!storedSessionUsers[usernameInput.toLowerCase()]) {
-                                callbackResult.success = true;
-                                callbackResult.message = 'Succesfully logged in';
-                                callbackResult.username = lookupuser.username;
-                                verified = true;
+                                        // Add user to userlist
+                                        Server.userManagement.session.addUser(lookupuser.username, socketid, ip);
+                                        username = lookupuser.username;
 
-                                // Add user to userlist
-                                Server.userManagement.session.addUser(lookupuser.username, socketid, ip);
-                                username = lookupuser.username;
-
-                                // Create jwt token
-                                try {
-                                    var token = jwt.sign(
-                                        {
-                                            username: username,
-                                            ip: ip
-                                        },
-                                        Server.RSAPrivateKey,
-                                        {
-                                            algorithm: 'RS256',
-                                            issuer: "Gregory Goijaerts",
-                                            expiresIn: "30m"
+                                        // Create jwt token
+                                        try {
+                                            var token = jwt.sign(
+                                                {
+                                                    username: username,
+                                                    ip: ip
+                                                },
+                                                Server.RSAPrivateKey,
+                                                {
+                                                    algorithm: 'RS256',
+                                                    issuer: "Gregory Goijaerts",
+                                                    expiresIn: "30m"
+                                                }
+                                            );
+                                            // add token to callback
+                                            callbackResult.jwtToken = token;
+                                        } catch (ex) {
+                                            console.log(ex);
                                         }
-                                    );
-                                    // add token to callback
-                                    callbackResult.jwtToken = token;
-                                } catch (ex) {
-                                    console.log(ex);
+                                    } else {
+                                        // user already has a active session
+                                        callbackResult.success = false;
+                                        callbackResult.message = 'This user is already active in a different client.';
+                                    }
+
+                                } else {
+                                    callbackResult.message = "Invalid login attempt";
+                                    console.log('Return result 3', callbackResult);
                                 }
-                            } else {
-                                // user already has a active session
-                                callbackResult.success = false;
-                                callbackResult.message = 'This user is already active in a different client.';
-                            }
+
+                                socket.emit('login_attempt_callback', callbackResult);
+                            });
 
                         } else {
                             callbackResult.message = "Invalid login attempt";
-                            console.log('Return result 3', callbackResult);
+                            console.log('Return result 2', callbackResult);
+                            socket.emit('login_attempt_callback', callbackResult);
                         }
-
+                    } else {
+                        callbackResult.message = "You're already logged in";
+                        callbackResult.success = true;
                         socket.emit('login_attempt_callback', callbackResult);
-                    });
-
-                } else {
-                    callbackResult.message = "Invalid login attempt";
-                    console.log('Return result 2', callbackResult);
-                    socket.emit('login_attempt_callback', callbackResult);
-                }
-            } else {
-                callbackResult.message = "You're already logged in";
-                callbackResult.success = true;
-                socket.emit('login_attempt_callback', callbackResult);
-            }
+                    }
+                });
         });
 
         // TODO track failed attempts and other login essentials
@@ -326,57 +328,61 @@ module.exports = function (io, Server) {
             };
 
             // get the stored user list
-            var storedUsers = Server.userManagement.users.getUserList();
+            Server.userManagement.users.getUserList(false)
+                .then((storedUsers) => {
+                    if (!verified) {
 
-            if (!verified) {
+                        console.log('');
+                        console.log('Registration attempt ' + usernameInput);
 
-                console.log('');
-                console.log('Registration attempt ' + usernameInput);
-
-                // check if we got the password cipher
-                if (password_cipher) {
-                    // decrypt the password cipher
-                    var password_hash = rsaDecrypt(password_cipher);
-                } else {
-                    // invalid attempt
-                    callbackResult.message = "Invalid registration attempt";
-                    callbackResult.success = false;
-                    socket.emit('register_attempt_callback', callbackResult);
-                    return;
-                }
-
-                // the user we're going to lookup
-                var lookupuser = storedUsers[usernameInput.toLowerCase()];
-
-                // Only want 1 user/result
-                if (!lookupuser) {
-
-                    // Add user to userlist
-                    Server.userManagement.users.newUser(usernameInput, password_hash, (success) => {
-                        if (success) {
-                            callbackResult.success = true;
-                            callbackResult.message = 'Succesfully created account';
-                            callbackResult.username = usernameInput;
+                        // check if we got the password cipher
+                        if (password_cipher) {
+                            // decrypt the password cipher
+                            var password_hash = rsaDecrypt(password_cipher);
                         } else {
+                            // invalid attempt
+                            callbackResult.message = "Invalid registration attempt";
                             callbackResult.success = false;
-                            callbackResult.message = 'Failed to create account';
-                            callbackResult.username = usernameInput;
+                            socket.emit('register_attempt_callback', callbackResult);
+                            return;
                         }
 
-                        // return the results
-                        socket.emit('register_attempt_callback', callbackResult);
-                    }, salt);
+                        // the user we're going to lookup
+                        var lookupuser = storedUsers[usernameInput.toLowerCase()];
 
-                } else {
-                    callbackResult.message = "Invalid registration attempt, username already taken";
-                    console.log('Return result 2', callbackResult);
-                    socket.emit('register_attempt_callback', callbackResult);
-                }
-            } else {
-                callbackResult.message = "You're already logged in";
-                callbackResult.success = true;
-                socket.emit('register_attempt_callback', callbackResult);
-            }
+                        // Only want 1 user/result
+                        if (!lookupuser) {
+
+                            // Add user to userlist
+                            Server.userManagement.users.newUser(usernameInput, password_hash, (success) => {
+                                    if (success) {
+                                        callbackResult.success = true;
+                                        callbackResult.message = 'Succesfully created account';
+                                        callbackResult.username = usernameInput;
+                                    } else {
+                                        callbackResult.success = false;
+                                        callbackResult.message = 'Failed to create account';
+                                        callbackResult.username = usernameInput;
+                                    }
+
+                                    // return the results
+                                    socket.emit('register_attempt_callback', callbackResult);
+                                },
+                                salt, // get the salt given by the client
+                                false // no need to rehash, password came from client so is already prehashed
+                            );
+
+                        } else {
+                            callbackResult.message = "Invalid registration attempt, username already taken";
+                            console.log('Return result 2', callbackResult);
+                            socket.emit('register_attempt_callback', callbackResult);
+                        }
+                    } else {
+                        callbackResult.message = "You're already logged in";
+                        callbackResult.success = true;
+                        socket.emit('register_attempt_callback', callbackResult);
+                    }
+                })
         });
 
         // client wants to log out

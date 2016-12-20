@@ -74,28 +74,37 @@ module.exports = (Db) => {
         users: {
             userList: {},
             //get userlist
-            getUserList: () => {
-                return userManagement.users.userList;
+            getUserList: (softLookup = true) => {
+                if (softLookup) {
+                    return userManagement.users.userList;
+                }
+                // return the load users as a promise
+                return userManagement.users.loadUsers();
             },
             // load the userlist from the config
             loadUsers: () => {
-                // Select all users from the database
-                Db.all('SELECT * FROM users', (err, data) => {
-                    var tempUserList = !data || err ? {} : data;
-                    var newUserList = {};
+                return new Promise((resolve, reject) => {
+                    // Select all users from the database
+                    Db.all('SELECT * FROM users', (err, data) => {
+                        var tempUserList = !data || err ? {} : data;
+                        var newUserList = {};
 
-                    // re-format list
-                    Object.keys(tempUserList).map((key) => {
-                        newUserList[tempUserList[key]['username']] = tempUserList[key];
+                        // re-format list
+                        Object.keys(tempUserList).map((key) => {
+                            newUserList[tempUserList[key]['username']] = tempUserList[key];
+                        })
+
+                        // set to the users
+                        userManagement.users.userList = newUserList;
+
+                        // resolve the promise
+                        resolve(newUserList);
                     })
-
-                    // set to the users
-                    userManagement.users.userList = newUserList;
-                })
+                });
             },
 
             // add a new user to the config files
-            newUser: (username, password, callback, salt) => {
+            newUser: (username, password, callback, salt, needsRehash = true) => {
                 // check if user already exists
                 if (!userManagement.users.userList[username.toLowerCase()]) {
 
@@ -103,7 +112,12 @@ module.exports = (Db) => {
                     var clientSalt = !salt ? randomToken() : salt;
 
                     // hash that the client would generate
-                    var clientHash = CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(password + clientSalt));
+                    var clientHash = password;
+
+                    // check if password needs rehash
+                    if (needsRehash) {
+                        clientHash = CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(password + clientSalt));
+                    }
 
                     // hash the password with bcrypt
                     bcrypt.genSalt(11, (err, salt) => {
