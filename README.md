@@ -62,3 +62,8 @@ From now on client1 and client2 will use this aes key to communicate
 
 ## SSL
 For testing you can use self signed certificates. Run `npm run cert` to create a ssl certificate and private key.
+
+## Screenshots
+
+![Home](./docs/homescreen.png)
+![Login screen](./docs/loginscreen.png)
