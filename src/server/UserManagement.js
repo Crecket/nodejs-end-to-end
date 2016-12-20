@@ -85,7 +85,7 @@ module.exports = (Db) => {
                     var newUserList = {};
 
                     // re-format list
-                    Object.keys(tempUserList).map((key)=>{
+                    Object.keys(tempUserList).map((key) => {
                         newUserList[tempUserList[key]['username']] = tempUserList[key];
                     })
 
@@ -95,12 +95,12 @@ module.exports = (Db) => {
             },
 
             // add a new user to the config files
-            newUser: (username, password, callback) => {
+            newUser: (username, password, callback, salt) => {
                 // check if user already exists
                 if (!userManagement.users.userList[username.toLowerCase()]) {
 
                     // salt to use in the client
-                    var clientSalt = randomToken();
+                    var clientSalt = !salt ? randomToken() : salt;
 
                     // hash that the client would generate
                     var clientHash = CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(password + clientSalt));

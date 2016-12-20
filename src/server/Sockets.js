@@ -179,16 +179,21 @@ module.exports = function (io, Server) {
         socket.on('request_salt', function (username) {
             var salt = false;
 
-            // get the stored users
-            var storedUsers = Server.userManagement.users.getUserList();
+            // check if a username is set
+            if (username) {
+                // get the stored users
+                var storedUsers = Server.userManagement.users.getUserList();
 
-            // check if exists
-            var lookupuser = storedUsers[username.toLowerCase()];
-            if (lookupuser) {
-                // get the salt
-                salt = lookupuser.salt;
+                // check if exists
+                var lookupuser = storedUsers[username.toLowerCase()];
+                if (lookupuser) {
+                    // get the salt
+                    salt = lookupuser.salt;
+                } else {
+                    // TODO if no user is found salt varies each time so if salt !== salt in > 2 attempts than user doesn't exist
+                    salt = randomToken();
+                }
             } else {
-                // TODO if no user is found salt varies each time so if salt !== salt in > 2 attempts than user doesn't exist
                 salt = randomToken();
             }
             socket.emit('login_salt_callback', salt);
@@ -307,6 +312,70 @@ module.exports = function (io, Server) {
                 callbackResult.message = "You're already logged in";
                 callbackResult.success = true;
                 socket.emit('login_attempt_callback', callbackResult);
+            }
+        });
+
+        // TODO track failed attempts and other login essentials
+        // Receive a hash password and re-hash it to verify with the server
+        socket.on('registration_attempt', function (usernameInput, password_cipher, salt) {
+            var callbackResult = {
+                'success': false,
+                'message': "Invalid registration attempt",
+                "username": false,
+                'jwtToken': false
+            };
+
+            // get the stored user list
+            var storedUsers = Server.userManagement.users.getUserList();
+
+            if (!verified) {
+
+                console.log('');
+                console.log('Registration attempt ' + usernameInput);
+
+                // check if we got the password cipher
+                if (password_cipher) {
+                    // decrypt the password cipher
+                    var password_hash = rsaDecrypt(password_cipher);
+                } else {
+                    // invalid attempt
+                    callbackResult.message = "Invalid registration attempt";
+                    callbackResult.success = false;
+                    socket.emit('register_attempt_callback', callbackResult);
+                    return;
+                }
+
+                // the user we're going to lookup
+                var lookupuser = storedUsers[usernameInput.toLowerCase()];
+
+                // Only want 1 user/result
+                if (!lookupuser) {
+
+                    // Add user to userlist
+                    Server.userManagement.users.newUser(usernameInput, password_hash, (success) => {
+                        if (success) {
+                            callbackResult.success = true;
+                            callbackResult.message = 'Succesfully created account';
+                            callbackResult.username = usernameInput;
+                        } else {
+                            callbackResult.success = false;
+                            callbackResult.message = 'Failed to create account';
+                            callbackResult.username = usernameInput;
+                        }
+
+                        // return the results
+                        socket.emit('register_attempt_callback', callbackResult);
+                    }, salt);
+
+                } else {
+                    callbackResult.message = "Invalid registration attempt, username already taken";
+                    console.log('Return result 2', callbackResult);
+                    socket.emit('register_attempt_callback', callbackResult);
+                }
+            } else {
+                callbackResult.message = "You're already logged in";
+                callbackResult.success = true;
+                socket.emit('register_attempt_callback', callbackResult);
             }
         });
 

@@ -49,6 +49,7 @@ export default class ChatClient {
     // shitty fix to store passwords while waiting for the salt
     tempPassword = "";
     tempUsername = "";
+    tempAttemptType = "login";
 
     constructor(socket) {
         this.socket = socket;
@@ -59,13 +60,25 @@ export default class ChatClient {
         // Temporarily store password in var
         this.tempPassword = password;
         this.tempUsername = username;
+        this.tempAttemptType = "login";
+
+        // Send attempt to server
+        this.socket.emit('request_salt', username);
+    };
+
+    // Attempt to verify username with server
+    registrationAttempt = (username, password) => {
+        // Temporarily store password in var
+        this.tempPassword = password;
+        this.tempUsername = username;
+        this.tempAttemptType = "register";
 
         // Send attempt to server
         this.socket.emit('request_salt', username);
     };
 
     // Salt Callback for login attempt
-    loginSaltCallback = (salt) => {
+    serverSaltCallback = (salt) => {
 
         // Hash password before submitting
         var passwordHash = CryptoHelper.hash(this.tempPassword, salt);
@@ -73,8 +86,14 @@ export default class ChatClient {
         // Encrypt with server's public key
         var passwordCipher = CryptoHelper.rsaEncryptPem(this.serverPublicKey, passwordHash);
 
-        // Send attempt to server
-        this.socket.emit('login_attempt', this.tempUsername, passwordCipher);
+        // check if client was trying to login or register
+        if (this.tempAttemptType === "login") {
+            // Send attempt to server
+            this.socket.emit('login_attempt', this.tempUsername, passwordCipher);
+        } else {
+            // Send attempt to server
+            this.socket.emit('registration_attempt', this.tempUsername, passwordCipher, salt);
+        }
 
         // unset temp values
         this.tempPassword = "";
@@ -83,6 +102,19 @@ export default class ChatClient {
 
     // call back from login attempt
     loginAttemptCallback = (res) => {
+        if (res.success !== false) {
+            this.verified = true;
+            this.username = res.username;
+            this.updateKey();
+            if (res.jwtToken) {
+                storageSet('token', res.jwtToken);
+            }
+        }
+    };
+
+
+    // call back from login attempt
+    registerAttemptCallback = (res) => {
         if (res.success !== false) {
             this.verified = true;
             this.username = res.username;

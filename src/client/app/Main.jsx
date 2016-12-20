@@ -101,6 +101,7 @@ class Main extends React.Component {
         this.state.socket.on('disconnect', this._SocketDisconnect);
         this.state.socket.on('request verify', this._SocketRequestVerify);
         this.state.socket.on('login_attempt_callback', this._SocketLoginAttemptCallback);
+        this.state.socket.on('register_attempt_callback', this._SocketRegisterAttemptCallback);
         this.state.socket.on('aesKeyRequest', this._SocketAesKeyRequest);
         this.state.socket.on('aesKeyResponse', this._SocketAesKeyResponse);
         this.state.socket.on('confirm_aes', this._SocketConfirmAes);
@@ -292,6 +293,27 @@ class Main extends React.Component {
         debug(response);
     };
 
+
+    // login attempt callback
+    _SocketRegisterAttemptCallback = (response) => {
+        // update loginloading state
+        this.setState({loginLoading: false});
+
+        // call the chatclient register attempt callback
+        this.state.ChatClient.registerAttemptCallback(response);
+
+        // check the response
+        if (response.success == true) {
+            info('Succesful register attempt');
+            this.openModal(response.message, 'Successfully created account');
+
+        } else {
+            warn('Unsuccesful register attempt');
+            this.openModal(response.message, 'Registration attempt failed');
+        }
+        debug(response);
+    };
+
     // someone wants to chat and is requesting that we create a new aes key to use
     _SocketAesKeyRequest = (request) => {
         info('Received AES request');
@@ -337,7 +359,7 @@ class Main extends React.Component {
     _SocketLoginSaltCallback = (salt) => {
         debug('Salt callback');
         // send to session handler
-        this.state.ChatClient.loginSaltCallback(salt);
+        this.state.ChatClient.serverSaltCallback(salt);
     };
 
     // Receive public key from server
@@ -387,6 +409,7 @@ class Main extends React.Component {
                             ChatClient={this.state.ChatClient}
                             className="center-xs"
                             loginLoadingState={this.state.loginLoading}
+                            openModal={this.openModal}
                             loginLoadingCallback={this.loginLoadingCallback}
                             remembermeCheckboxCallback={this.remembermeCheckbox}
                         />

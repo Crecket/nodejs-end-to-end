@@ -160,6 +160,9 @@ class CryptoHelper {
         if (password.length > 512) {
             return false;
         }
+        // else if(password.length < 8){
+        //     return false;
+        // }
         return true;
     };
 

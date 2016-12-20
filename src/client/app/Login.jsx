@@ -45,14 +45,17 @@ class Login extends React.Component {
         var password = this.refs.inputPassword.input.value;
 
         // if empty it counts as undefined
-        if (!password) {
-            password = "";
-        }
+        password = !password ? "" : password;
 
         // check if we're already handeling a login request
         if (!this.props.loginLoadingState) {
-            // validate input
-            if (username.length > 2 && username.length < 25 && CryptoHelper.validPasswordType(password)) {
+
+            // verify the input
+            if (!CryptoHelper.validPasswordType(password)) {
+                this.props.openModal('The maximum password length is 512', 'Invalid password given');
+            } else if (username.length < 3 || username.length > 25) {
+                this.props.openModal('Username has to be between 3 and 25 characters long', 'Invalid username');
+            } else {
                 // update login loading state
                 this.props.loginLoadingCallback();
                 // start a new login attempt
@@ -66,22 +69,29 @@ class Login extends React.Component {
     handleRegisterSubmit = (e) => {
         e.preventDefault();
         // get input field values
-        var username = this.refs.inputUsername.input.value;
-        var password = this.refs.inputPassword.input.value;
+        var username = this.refs.inputUsernameRegister.input.value;
+        var password = this.refs.inputPasswordRegister.input.value;
+        var passwordRepeat = this.refs.inputPasswordRepeatRegister.input.value;
 
         // if empty it counts as undefined
-        if (!password) {
-            password = "";
-        }
+        password = !password ? "" : password;
+        passwordRepeat = !passwordRepeat ? "" : passwordRepeat;
 
         // check if we're already handeling a login request
         if (!this.props.loginLoadingState) {
-            // validate input
-            if (username.length > 2 && username.length < 25 && CryptoHelper.validPasswordType(password)) {
+
+            // verify the input
+            if (passwordRepeat !== password) {
+                this.props.openModal('The two passwords you entered do not match. Make sure you enter the same password twice.', 'Passwords don\'t match');
+            } else if (!CryptoHelper.validPasswordType(password)) {
+                this.props.openModal('The maximum password length is 512', 'Invalid password given');
+            } else if (username.length < 3 || username.length > 25) {
+                this.props.openModal('Username has to be between 3 and 25 characters long', 'Invalid username');
+            } else {
                 // update login loading state
                 this.props.loginLoadingCallback();
                 // start a new login attempt
-                this.props.ChatClient.loginAttempt(username, password);
+                this.props.ChatClient.registrationAttempt(username, password);
             }
         }
     };
@@ -183,7 +193,7 @@ class Login extends React.Component {
                                             style={styles.inputs}
                                             type="submit"
                                             label="Register"
-                                            onClick={this.handleSubmit}
+                                            onClick={this.handleRegisterSubmit}
                                             primary={true}
                                         />
                                     </form>
