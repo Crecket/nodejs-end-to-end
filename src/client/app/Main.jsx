@@ -1,5 +1,4 @@
 import React from 'react';
-import muiThemeable from 'material-ui/styles/muiThemeable';
 import Chat from './chat/Chat.jsx';
 import Login from './Login.jsx';
 import LoadScreen from './LoadScreen.jsx';
@@ -24,6 +23,19 @@ const ThemesList = {
 import {Container} from 'material-ui';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
+
+// import NodeRSA from 'node-rsa';
+// var forge = require('node-forge');
+// var rsa = forge.pki.rsa;
+//
+// var keysize = 1024;
+//
+// var NodeRSAKey = new NodeRSA({b: keysize});
+//
+// rsa.generateKeyPair({bits: keysize, workers: -1}, function(err, keypair) {
+//     // keypair.privateKey, keypair.publicKey
+//     console.log(keypair);
+// });
 
 class Main extends React.Component {
 

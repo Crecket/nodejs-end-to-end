@@ -1,4 +1,3 @@
-// var NodeRSA = require('node-rsa');
 import NodeRSA from 'node-rsa';
 import CryptoJS from 'crypto-js';
 
@@ -33,7 +32,7 @@ class CryptoHelper {
     // Encrypt with a public key in pem format
     rsaEncryptPem = (inputPublickey, data) => {
         var NodeRSAObj = new NodeRSA(inputPublickey, 'pkcs8-public');
-        return NodeRSAObj.encrypt(data, 'base64');
+        return NodeRSAObj.encrypt(data, 'base64', 'utf8');
     };
     // Encrypt with a private key in pem format
     rsaEncryptPemPriv = (inputPrivatekey, data) => {

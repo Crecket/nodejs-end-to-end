@@ -1,11 +1,8 @@
 language: node_js
 node_js:
   - "7.2.1"
+
 sudo: required
-before_script:
-  - npm install
-  - npm run build
-  - npm run cert
 addons:
   apt:
     sources:
@@ -15,3 +12,12 @@ addons:
     - g++-4.8
 env:
   - CXX=g++-4.8
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+before_script:
+  - npm run build
+  - npm run cert
