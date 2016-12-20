@@ -1,7 +1,6 @@
 import {
-    cyan700,
+    cyan100, cyan200, cyan400, cyan700,
     grey500, cyan600, grey900,
-    pinkA100, pinkA200, pinkA400,
     fullWhite, fullBlack,
 } from 'material-ui/styles/colors';
 import {fade} from 'material-ui/utils/colorManipulator';
@@ -25,9 +24,9 @@ const CustomTheme = {
         primary1Color: cyan700,
         primary2Color: cyan600,
         primary3Color: grey500,
-        accent1Color: pinkA200,
-        accent2Color: pinkA400,
-        accent3Color: pinkA100,
+        accent1Color: cyan200,
+        accent2Color: cyan400,
+        accent3Color: cyan100,
         textColor: fullWhite,
         alternateTextColor: '#303030',
         canvasColor: '#303030',

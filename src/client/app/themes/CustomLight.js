@@ -1,7 +1,6 @@
 import {
-    cyan500, cyan700,
-    grey100, grey300, grey400, grey500, 
-    pinkA200,
+    cyan200, cyan500, cyan700,
+    grey100, grey300, grey400, grey500,
     white, fullWhite,
     darkBlack, fullBlack,
 } from 'material-ui/styles/colors';
@@ -26,7 +25,7 @@ const CustomTheme = {
         primary1Color: cyan500,
         primary2Color: cyan700,
         primary3Color: grey400,
-        accent1Color: pinkA200,
+        accent1Color: cyan200,
         accent2Color: grey100,
         accent3Color: grey500,
         textColor: darkBlack,

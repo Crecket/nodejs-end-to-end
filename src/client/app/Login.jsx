@@ -3,18 +3,22 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import CryptoHelper from './CryptoHelper';
 
+// import PersonAdd from 'material-ui/svg-icons/social/person-add';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
 import Checkbox from 'material-ui/Checkbox';
-
+import {Tabs, Tab} from 'material-ui/Tabs';
 
 const styles = {
     inputs: {
         width: '100%',
     },
+    tabs: {
+        padding: 20,
+    },
     paperLoginStyle: {
-        margin: 20,
+        width: '100%',
         padding: 20,
         textAlign: 'center',
         display: 'inline-block',
@@ -35,6 +39,31 @@ class Login extends React.Component {
 
     // submit login screen
     handleSubmit = (e) => {
+        e.preventDefault();
+        // get input field values
+        var username = this.refs.inputUsername.input.value;
+        var password = this.refs.inputPassword.input.value;
+
+        // if empty it counts as undefined
+        if (!password) {
+            password = "";
+        }
+
+        // check if we're already handeling a login request
+        if (!this.props.loginLoadingState) {
+            // validate input
+            if (username.length > 2 && username.length < 25 && CryptoHelper.validPasswordType(password)) {
+                // update login loading state
+                this.props.loginLoadingCallback();
+                // start a new login attempt
+                this.props.ChatClient.loginAttempt(username, password);
+            }
+        }
+    };
+
+
+    // submit login screen
+    handleRegisterSubmit = (e) => {
         e.preventDefault();
         // get input field values
         var username = this.refs.inputUsername.input.value;
@@ -82,49 +111,89 @@ class Login extends React.Component {
     render() {
         return (
             <div className="row center-xs">
-                <div className="col-xs-12 col-sm-4">
+                <div className="col-xs-12 col-sm-6">
                     <div className="box">
-                        <Paper style={styles.paperLoginStyle} zDepth={1}>
-                            <form onSubmit={this.handleSubmit}>
-                                <p> Enter your username and password </p>
-                                <TextField
-                                    floatingLabelText="Enter your username"
-                                    hintText="Username"
-                                    ref="inputUsername"
-                                    style={styles.inputs}
-                                    type="text"
-                                    required autoFocus
-                                />
-                                <br/>
-                                <TextField
-                                    floatingLabelText="Enter your password"
-                                    hintText="Password"
-                                    ref="inputPassword"
-                                    style={styles.inputs}
-                                    type="password"
-                                    required
-                                />
-                                <br />
-                                <Checkbox
-                                    label="Remember Me"
-                                    checked={this.state.rememberme}
-                                    onClick={this.remembermeClick}
-                                    style={styles.checkbox}
-                                />
-                                <br />
-                                <RaisedButton
-                                    style={styles.inputs}
-                                    type="submit"
-                                    label="Login"
-                                    onClick={this.handleSubmit}
-                                    primary={true}
-                                />
-                            </form>
-                        </Paper>
+                        <Tabs style={styles.tabs}>
+                            <Tab label="Login">
+                                <Paper style={styles.paperLoginStyle} zDepth={1}>
+                                    <form onSubmit={this.handleSubmit}>
+                                        <p> Sign in to your account </p>
+                                        <TextField
+                                            floatingLabelText="Enter your username"
+                                            hintText="Username"
+                                            ref="inputUsername"
+                                            style={styles.inputs}
+                                            type="text" required autoFocus
+                                        />
+                                        <br/>
+                                        <TextField
+                                            floatingLabelText="Enter your password"
+                                            hintText="Password"
+                                            ref="inputPassword"
+                                            style={styles.inputs}
+                                            type="password" required
+                                        />
+                                        <br />
+                                        <Checkbox
+                                            label="Remember Me"
+                                            checked={this.state.rememberme}
+                                            onClick={this.remembermeClick}
+                                            style={styles.checkbox}
+                                        />
+                                        <br />
+                                        <RaisedButton
+                                            style={styles.inputs}
+                                            type="submit"
+                                            label="Login"
+                                            onClick={this.handleSubmit}
+                                            primary={true}
+                                        />
+                                    </form>
+                                </Paper>
+                            </Tab>
+                            <Tab label="Register">
+                                <Paper style={styles.paperLoginStyle} zDepth={1}>
+                                    <form onSubmit={this.handleRegisterSubmit}>
+                                        <p> Register a new account </p>
+                                        <TextField
+                                            floatingLabelText="Enter your username"
+                                            hintText="Username"
+                                            ref="inputUsernameRegister"
+                                            style={styles.inputs}
+                                            type="text" required autoFocus
+                                        />
+                                        <br/>
+                                        <TextField
+                                            floatingLabelText="Enter your password"
+                                            hintText="Password"
+                                            ref="inputPasswordRegister"
+                                            style={styles.inputs}
+                                            type="password"
+                                            required/>
+                                        <br/>
+                                        <TextField
+                                            floatingLabelText="Enter your password again"
+                                            hintText="Password"
+                                            ref="inputPasswordRepeatRegister"
+                                            style={styles.inputs}
+                                            type="password" required
+                                        />
+                                        <br />
+                                        <RaisedButton
+                                            style={styles.inputs}
+                                            type="submit"
+                                            label="Register"
+                                            onClick={this.handleSubmit}
+                                            primary={true}
+                                        />
+                                    </form>
+                                </Paper>
+                            </Tab>
+                        </Tabs>
                     </div>
                 </div>
                 <div className="col-xs-12 col-sm-4">
-                    <div className="box">
+                    <div className="box" style={styles.tabs}>
                         <Paper style={styles.paperLoginStyle} zDepth={1}>
                             <p>Test accounts with no password</p>
                             <RaisedButton
