@@ -2,8 +2,13 @@ var webpack = require('webpack');
 var path = require('path');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
+// env variable check
+var DEV = process.env.NODE_ENV !== "production";
+
 var BUILD_DIR = path.resolve(__dirname, 'app/dist');
 var SRC_DIR = path.resolve(__dirname, 'src');
+
+console.log('Running webpack in: ' + process.env.NODE_ENV);
 
 var config = {
     entry: {
@@ -22,6 +27,11 @@ var config = {
         ]
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+            }
+        }),
         new ExtractTextPlugin("[name].css", {
             allChunks: true
         }),
@@ -51,5 +61,14 @@ var config = {
         ]
     }
 };
+
+if (!DEV) {
+    // In production mode add the uglify plugin
+    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+        compress: {
+            warnings: false
+        }
+    }))
+}
 
 module.exports = config;
