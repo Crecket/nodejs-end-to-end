@@ -6,8 +6,6 @@ A simple (And probably insecure) attempt at end-to-end encryption using Javscrip
 
 This project is just a test project to try out libraries and different setups and shouldn't be used in production.
 
-Demo can be found here: https://crecket.me:8888/ 
-
 ## Requirements
 - node.js
 - npm 
